@@ -1,0 +1,52 @@
+# connector-v1 with the routes extension (P2.1), trigger-negative: a request no connected route serves. The
+# agent should answer on its own: no connector call, no phone call and no connect (routes.trigger_negative;
+# connector_search alone is discovery, not a route). Nothing may be booked (nothing-booked).
+version: 1
+kind: connector
+id: routes-trigger-negative
+goal: "Write me a two-sentence thank-you note for my neighbor Sam, who watered my plants while I was away."
+connectors:
+  - name: cedar-stays
+    endpoint: "http://127.0.0.1:${PORT:-8765}/mcp"
+    allowed_origins: ["http://127.0.0.1:${PORT:-8765}"]
+    auth: {mode: none}
+    client_profile: generic-sdk
+    doc: connectors/cedar-stays.md
+    tools:
+      allow: [search_rooms, get_quote, create_booking, get_booking]
+      classes: {create_booking: sensitive-write}
+      host_arguments:
+        create_booking:
+          guest_email: {$ref: /private/email}
+projection: native
+exposure: in-prompt
+profile:
+  identity: {name: "Taylor Example", timezone: "America/Los_Angeles"}
+private: {email: "taylor@example.com"}
+user:
+  fallback: "I don't know; use your best judgement."
+permissions:
+  # Reads are allowed for the task, so an over-eager read reaches the service and shows in the evidence;
+  # every write is denied.
+  mode: platform-default
+  default: deny
+  rules:
+    - id: reads-for-this-task
+      decision: allow_task
+      when: {field: tool_class, op: eq, value: read}
+checks:
+  - id: nothing-booked
+    source: oracle
+    oracle: {url: "http://127.0.0.1:${PORT:-8765}/__oracle/state", pointer: /confirmed_count}
+    expect: {op: eq, value: 0}
+reset: "http://127.0.0.1:${PORT:-8765}/__oracle/reset"
+limits: {model_turns: 10, tool_calls: 10, wall_seconds: 300}
+extensions:
+  clock: {now: "2026-11-30T09:00:00-08:00"}
+  routes:
+    expected_route: none
+    phone:
+      - id: cedar-front-desk
+        business: Cedar Stays front desk
+        match: ["\\bcedar\\b"]
+        transcript: "Front desk: Thanks for calling Cedar Stays. How can I help you today?"

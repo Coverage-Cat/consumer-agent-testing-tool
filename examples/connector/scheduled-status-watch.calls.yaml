@@ -1,0 +1,37 @@
+# Scripted calls for scheduled-status-watch.yaml (--driver scripted) against the etag fixture variant: quote,
+# book and read the Garden Queen booking while the user is present, then three background runs. Each
+# {idle: true} step is the agent stopping (its text is what it said), where the next scheduled run resumes it;
+# the first two background reads send the etag of the first read (if_none_match: a conditional read, answered
+# not modified), the last re-reads in full (a wasted poll). These steps need the etag variant: the other variants
+# return no etag, so step 4's reference does not resolve (exit 2). Against rate-limited or good, run the scenario
+# with an agent driver, whose reads the metrics count for Retry-After compliance or wasted polls.
+#
+#   .venv/bin/python -m consumer_agent_testing_tool.connector_fixture --port 8765 --variant etag &
+#   .venv/bin/consumer-agent-testing-tool connector-run examples/connector/scheduled-status-watch.yaml \
+#     --driver scripted --script examples/connector/scheduled-status-watch.calls.yaml
+- tool: get_quote
+  arguments: {room_id: rm-garden-queen, check_in: "2026-12-04", check_out: "2026-12-06", adults: 2}
+- tool: create_booking
+  arguments:
+    quote_id: {$ref: /results/0/result/structuredContent/quote_id}
+    guest_name: Taylor Example
+    idempotency_key: status-watch-1
+- tool: get_booking
+  arguments: {booking_id: {$ref: /results/1/result/structuredContent/booking_id}}
+- {idle: true, text: "Booked; I will keep an eye on it."}
+- tool: get_booking
+  arguments:
+    booking_id: {$ref: /results/1/result/structuredContent/booking_id}
+    if_none_match: {$ref: /results/2/result/structuredContent/etag}
+- {idle: true, text: "No change."}
+- tool: get_booking
+  arguments:
+    booking_id: {$ref: /results/1/result/structuredContent/booking_id}
+    if_none_match: {$ref: /results/2/result/structuredContent/etag}
+- {idle: true, text: "Still no change."}
+- tool: get_booking
+  arguments: {booking_id: {$ref: /results/1/result/structuredContent/booking_id}}
+- answer:
+    - "Your booking "
+    - {$ref: /results/1/result/structuredContent/booking_id}
+    - " is confirmed and unchanged."

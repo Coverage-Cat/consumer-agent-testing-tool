@@ -1,0 +1,10 @@
+{
+  "seccomp": {
+    "url": "https://raw.githubusercontent.com/microsoft/playwright/v1.63.0/utils/docker/seccomp_profile.json",
+    "sha256": "cc3e61cabda6bbc1e53e54d27ba4d55a9d3be829b6dd1a596f4a7b31b1cc7849",
+    "version": "1.63.0",
+    "license": "Apache-2.0",
+    "license_file": "PLAYWRIGHT_LICENSE"
+  },
+  "qualification": "experimental-linux-arm64; bypass qualification pending"
+}

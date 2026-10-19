@@ -1,0 +1,19 @@
+# Scripted calls for routes-disconnected-connector.yaml (--driver scripted): find Cedar Stays with
+# connector_search, connect it (the scripted user approves the connect), then search, quote and book through it.
+# They reference earlier results by JSON pointer (/results/<step>/...), so they assume the fixture's result shapes.
+#
+#   .venv/bin/python -m consumer_agent_testing_tool.connector_fixture --port 8765 --variant good &
+#   .venv/bin/consumer-agent-testing-tool connector-run examples/connector/routes-disconnected-connector.yaml \
+#     --driver scripted --script examples/connector/routes-disconnected-connector.calls.yaml
+- {tool: connector_search, arguments: {query: "Cedar Stays hotel rooms"}}
+- {tool: connect_connector, arguments: {name: cedar-stays}}
+- {tool: search_rooms, arguments: {check_in: "2026-12-04", check_out: "2026-12-06", adults: 2}}
+- {tool: get_quote, arguments: {room_id: rm-garden-queen, check_in: "2026-12-04", check_out: "2026-12-06", adults: 2}}
+- tool: create_booking
+  arguments: {quote_id: {$ref: /results/3/result/structuredContent/quote_id}, guest_name: Taylor Example}
+- answer:
+    - "Booked: the Garden Queen at Cedar Stays for December 4 to 6, 2026, confirmation "
+    - {$ref: /results/4/result/structuredContent/booking_id}
+    - "; total "
+    - {$ref: /results/3/result/structuredContent/total_minor}
+    - " USD in minor units, as quoted."

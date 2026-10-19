@@ -1,0 +1,6 @@
+{
+  "gateway_returncode": -9,
+  "past_execution_expiry": true,
+  "task_still_progresses": true,
+  "stale_running_marker": true
+}

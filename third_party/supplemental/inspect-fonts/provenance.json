@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "kind": "original-font-notice-recovery",
+  "checked_at": "2026-10-14",
+  "inspect_font_introduction_commit": "9f70b1c2965a33307eafc0ae331c1caa45151209",
+  "frontend_submodule_commit": "f2057d95fb5d3e3eb5e831341c3c3a011aed9b50",
+  "frontend_lock_url": "https://raw.githubusercontent.com/meridianlabs-ai/ts-mono/f2057d95fb5d3e3eb5e831341c3c3a011aed9b50/pnpm-lock.yaml",
+  "frontend_lock_sha256": "b892b7a735c71fe2dbafceadb1af56778d993e2fe19b7bc5ab480773bc63e89c",
+  "package": "@tanstack/devtools-ui",
+  "version": "0.7.0",
+  "archive_url": "https://registry.npmjs.org/@tanstack/devtools-ui/-/devtools-ui-0.7.0.tgz",
+  "archive_integrity": "sha512-px/a+JgRSVHDj/hID1cwfsIi+ly5l7t3Yw7fLw4G556HXCNgDri36fupt9h7oBeEKntpsx3ep/XtZn51rrCv2g==",
+  "archive_sha256": "8fd4d361a10e2627fce16080903fb3ad21e5f2b2724328310e64c12035a8251e",
+  "fonts": [
+    {
+      "font_archive_member": "package/dist/assets/BricolageGrotesque-Bold-BIJrwikb.ttf",
+      "font_sha256": "913ee3631949ee1b4fb2601269412fca5775eb994d4f87be2c366c94ac123dc5",
+      "font_bytes": 82204,
+      "notice_archive_member": "package/src/assets/fonts/OFL-Bricolage-Grotesque.txt",
+      "notice_sha256": "46ba5f18ee20ea529f21d96c0ef8637a8314c1a5cfb2aa84018bc8157cbeff41",
+      "installed_relative_path": "inspect_ai/_view/dist/assets/BricolageGrotesque-Bold-BIJrwikb.ttf",
+      "verified_installations": [
+        "core-python",
+        "optional-api-python"
+      ]
+    },
+    {
+      "font_archive_member": "package/dist/assets/Inter-latin-BwkfbSeq.woff2",
+      "font_sha256": "2c295d99e26dcf357d4d01bcf270fd6924b600c9a13dd8c363ef114f4c6976fa",
+      "font_bytes": 72920,
+      "notice_archive_member": "package/src/assets/fonts/OFL-Inter.txt",
+      "notice_sha256": "262481e844521b326f5ecd053e59b98c8b2da78c8ee1bdbb6e8174305e54935a",
+      "installed_relative_path": "inspect_ai/_view/dist/assets/Inter-latin-BwkfbSeq.woff2",
+      "verified_installations": [
+        "core-python",
+        "optional-api-python"
+      ]
+    }
+  ],
+  "limits": "Exact font-byte and original-notice provenance, not a complete dependency review of Inspect, TanStack, or the native runtime. The restored notices do not change any live qualification gate."
+}

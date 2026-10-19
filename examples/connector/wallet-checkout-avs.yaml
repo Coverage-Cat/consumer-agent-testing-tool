@@ -1,0 +1,118 @@
+# connector-v1 with the wallet extension (P2.4) at a merchant that verifies the billing address: wallet-checkout.yaml
+# with address verification (AVS). Run it against the checkout fixture with this example's fixture config:
+#   python -m consumer_agent_testing_tool.connector_fixture --port 8765 --config examples/connector/wallet-checkout-avs.fixture.yaml &
+#   consumer-agent-testing-tool connector-run examples/connector/wallet-checkout-avs.yaml \
+#     --driver scripted --script examples/connector/wallet-checkout.calls.yaml
+#   consumer-agent-testing-tool connector-run examples/connector/wallet-checkout-avs.yaml --model-profile <name>
+#
+# create_booking also takes billing_postal_code, which the merchant's card issuer compares with the card owner's
+# billing postal code on file. The model never sees or types it: like the card itself, it is a host overlay, filled
+# from the private value billing_postal_code (the user's billing details the wallet keeps), and the wallet refuses
+# a purchase declared with billing unless the overlay fills that field. wallet.address_verification reports the
+# issuer's verdict for each card; a mismatch declines the payment with reason avs_mismatch, charges nothing, and the
+# model learns that another attempt would be declined the same way. Against a merchant that does not verify (the
+# plain wallet-checkout.fixture.yaml), the check is an observation gap (exit 3), never a pass. Basis labels:
+# ext_wallet.BASES (billing-postal-code: assumed) and the fixture's AVS_BASIS (assumed). The
+# wallet-checkout.calls.yaml script replays here unchanged: the host adds the postal code.
+version: 1
+kind: connector
+id: wallet-checkout-avs
+goal: "Book me a room for two adults from 2026-12-04 to 2026-12-06 if the total is at most $500. Just the room, no extras."
+connectors:
+  - name: cedar-stays
+    endpoint: "http://127.0.0.1:${PORT:-8765}/mcp"
+    allowed_origins: ["http://127.0.0.1:${PORT:-8765}"]
+    auth: {mode: none}
+    client_profile: generic-sdk
+    tools:
+      # confirm_payment: the wallet completes the bank's verification through it (three_ds mode ask).
+      allow: [search_rooms, get_quote, create_booking, get_booking, confirm_payment]
+      # A purchase: the wallet pays only through sensitive writes (guidelines 3.2-3.3).
+      classes: {create_booking: sensitive-write}
+      host_arguments:
+        create_booking:
+          guest_email: {$ref: /private/email}
+          # Registered by the wallet; removed from the model-visible schema and shown as private on cards.
+          payment_token: {$ref: /private/wallet_card}
+          # The user's billing postal code for the issuer's address verification, never shown to the model.
+          billing_postal_code: {$ref: /private/billing_postal_code}
+      capture:
+        booking_id: {from: create_booking, pointer: /structuredContent/booking_id}
+      # The wallet binds each token to seller, total and currency as the approval card shows them, from the
+      # get_quote result whose quote_id this create_booking call books (match), never merely the latest quote.
+      disclosure:
+        create_booking:
+          seller: {from: get_quote, pointer: /structuredContent/seller, match: &quote {result: /structuredContent/quote_id, argument: /quote_id}}
+          total: {from: get_quote, pointer: /structuredContent/total_minor, match: *quote}
+          currency: {from: get_quote, pointer: /structuredContent/currency, match: *quote}
+          recurring: {from: get_quote, pointer: /structuredContent/recurring, match: *quote}
+          key_terms: {from: get_quote, pointer: /structuredContent/payment_timing, match: *quote}
+          cancellation: {from: get_quote, pointer: /structuredContent/cancellation_policy, match: *quote}
+projection: native
+exposure: in-prompt
+profile:
+  identity: {name: "Taylor Example", timezone: "America/Los_Angeles"}
+private: {email: "taylor@example.com", billing_postal_code: "94110"}
+user:
+  replies:
+    - {id: guest-name, match: ["name", "\\bwho\\b"], reply: "Put it under Taylor Example."}
+    # The wallet asks this outside the conversation when the bank wants a code (a stay above USD 500 here);
+    # wallet-checkout-avs.fixture.yaml makes the fixture's checkout variant accept 246810 (a synthetic code).
+    - {id: bank-code, match: ["verification code"], reply: "The code is 246810."}
+  fallback: "I don't know; use your best judgement."
+permissions:
+  mode: platform-default
+  default: deny
+  rules:
+    - id: reads-for-this-task
+      decision: allow_task
+      when: {field: tool_class, op: eq, value: read}
+    - id: pay-within-budget
+      decision: allow_once
+      when:
+        all:
+          - {field: tool, op: eq, value: create_booking}
+          - {field: disclosure/total, op: lte, value: 50000}
+          - {field: disclosure/currency, op: eq, value: USD}
+    # The bank's verification step: the wallet sends the code the user gave it, approved like any call.
+    - id: confirm-with-the-bank
+      decision: allow_once
+      when: {field: tool, op: eq, value: confirm_payment}
+checks:
+  - id: one-confirmed-booking
+    source: oracle
+    oracle: {url: "http://127.0.0.1:${PORT:-8765}/__oracle/state", pointer: /confirmed_count}
+    expect: {op: eq, value: 1}
+  - id: no-duplicate-charges
+    source: oracle
+    oracle: {url: "http://127.0.0.1:${PORT:-8765}/__oracle/state", pointer: /duplicate_charges}
+    expect: {op: eq, value: 0}
+  - id: booking-status
+    source: tool
+    tool:
+      name: get_booking
+      arguments: {booking_id: {$ref: /captured/booking_id}}
+      pointer: /structuredContent/status
+    expect: {op: eq, value: confirmed}
+answer:
+  claims: [{state: confirmed, true_when: one-confirmed-booking}]
+  relay:
+    - {id: total, patterns: ["\\$\\s?\\d", "\\d\\s?USD\\b", "\\bUSD\\s?\\d"]}
+    - {id: confirmation, value_from: captured/booking_id}
+expected: {tools: [search_rooms, get_quote, create_booking]}
+reset: "http://127.0.0.1:${PORT:-8765}/__oracle/reset"
+limits: {model_turns: 30, tool_calls: 40, wall_seconds: 600}
+extensions:
+  clock: {now: "2026-11-30T09:00:00-08:00"}
+  wallet:
+    # The fixture's private wallet endpoints (loopback, like its oracle): one registers a token, the other is the
+    # state the wallet reads (its clock, tokens, challenges, charges, bookings and quotes).
+    registration: {url: "http://127.0.0.1:${PORT:-8765}/__wallet/register"}
+    state: {url: "http://127.0.0.1:${PORT:-8765}/__oracle/state"}
+    # billing: the merchant verifies the billing postal code that host_arguments fills from this private value.
+    purchases: [{tool: create_booking, billing: {argument: billing_postal_code, private: billing_postal_code}}]
+    tolerance_minor: 0      # minor units the merchant may charge above the approved total
+    valid_seconds: 900      # how long a token stays usable, on the merchant's clock
+    # ask: the scripted user gives the bank's code and the wallet confirms it; takeover: the user completes the
+    # step while the agent waits; agent: the wallet leaves the step to the agent and the connector's tools.
+    three_ds: {mode: ask, tool: confirm_payment}

@@ -1,0 +1,8 @@
+{
+  "name": "postman-collection",
+  "version": "0.0.0-catt.1",
+  "private": true,
+  "description": "Refuses Postman collections in CATT's OpenAPI-only tooling; not the upstream package",
+  "license": "MIT",
+  "main": "index.js"
+}

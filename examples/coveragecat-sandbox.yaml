@@ -1,0 +1,80 @@
+version: 1
+id: coveragecat-sandbox
+goal: >-
+  Create a synthetic Coverage Cat consumer umbrella sandbox draft and verify
+  that follow-up retains sandbox mode and the same application identity.
+  Stop before submission. The application is not submitted yet and Coverage
+  Cat has not received a submitted application yet.
+endpoint: https://www.coveragecat.com/api/consumer/mcp
+allowed_origins:
+  - https://www.coveragecat.com
+browser_origins: []
+test_only: true
+treatment: baseline
+fixture:
+  shopper:
+    full_name: Taylor Sandbox Example
+    email: taylor.consumer-agent-testing-tool-sandbox@example.com
+    phone_number: "+12065550100"
+    birthday: "1990-04-01"
+    marital_status: single
+    license_state: WA
+    license_number: WA1234567
+    address:
+      street: 123 Main St
+      city: Seattle
+      state: WA
+      zip: "98101"
+    net_worth_numeric: 1500000
+    desired_coverage_limit: 2000000
+    required_coverage_e_limit: 300000
+    vehicle_count: 2
+tools:
+  umbrella_consumer_prefill:
+    effect: write
+    # Host-owned arguments cannot be changed by the model.
+    host_arguments:
+      sandbox: true
+      credit_consent_pending: true
+      intake: {$ref: /fixture/shopper}
+    capture:
+      intake_access: /structuredContent/intake_access_token
+  consumer_intake_issues:
+    effect: read
+    host_arguments:
+      uid: {$ref: /steps/prefill/result/structuredContent/uid}
+      intake_access_token: {$ref: /secrets/intake_access}
+steps:
+  - id: prefill
+    kind: tool
+    description: Create a synthetic sandbox draft; do not submit an application.
+    tool: umbrella_consumer_prefill
+    expose:
+      sandbox: /structuredContent/sandbox
+    checks:
+      - id: sandbox-created
+        layer: service
+        path: /prefill/result/structuredContent/sandbox
+        expected: true
+  - id: followup
+    kind: tool
+    description: Verify the same draft remains in the sandbox and is not submitted.
+    after: [prefill]
+    tool: consumer_intake_issues
+    expose:
+      sandbox: /structuredContent/sandbox
+      status: /structuredContent/status
+      application_submitted: /structuredContent/application_submitted
+    checks:
+      - id: sandbox-retained
+        layer: service
+        path: /followup/result/structuredContent/sandbox
+        expected: true
+      - id: same-draft
+        layer: service
+        path: /followup/result/structuredContent/uid
+        expected: {$ref: /steps/prefill/result/structuredContent/uid}
+      - id: not-submitted
+        layer: service
+        path: /followup/result/structuredContent/application_submitted
+        expected: false

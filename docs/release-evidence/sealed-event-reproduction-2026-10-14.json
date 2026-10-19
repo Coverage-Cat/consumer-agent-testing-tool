@@ -1,0 +1,66 @@
+{
+  "source_sha256": "950fc28edbf5139ce37691fa6c5a94e121cc637fab516f1b47ee97d2268b4e04",
+  "basis": "local synthetic fixture",
+  "requirements": "spec sections 3, 4, 15, 20",
+  "observations": [
+    {
+      "kind": "consumer",
+      "run": ".cache/event-audit-v9ato00s/runs/surface-e5f9d8ce3d98429f8b57e6248c33bcd3",
+      "event_count": 17,
+      "missing_event_fields": [
+        "agent_id",
+        "artifacts",
+        "event_id",
+        "event_type",
+        "monotonic_ns",
+        "parent_id",
+        "profile",
+        "provenance",
+        "redaction_status",
+        "run_id",
+        "scenario_id",
+        "surface",
+        "task_id",
+        "visibility",
+        "wall_timestamp"
+      ],
+      "missing_result_fields": [
+        "dependency_notices",
+        "evidence_label",
+        "lane",
+        "locations",
+        "run_id"
+      ]
+    },
+    {
+      "kind": "browser",
+      "run": ".cache/event-audit-v9ato00s/runs/browser-bb5a600e4825436c9e8a8cc7443d1132",
+      "event_count": 1,
+      "missing_event_fields": [
+        "agent_id",
+        "artifacts",
+        "event_id",
+        "event_type",
+        "monotonic_ns",
+        "parent_id",
+        "profile",
+        "provenance",
+        "redaction_status",
+        "run_id",
+        "scenario_id",
+        "surface",
+        "task_id",
+        "visibility",
+        "wall_timestamp"
+      ],
+      "missing_result_fields": [
+        "dependency_notices",
+        "evidence_label",
+        "lane",
+        "locations",
+        "run_id"
+      ]
+    }
+  ],
+  "limits": "Reproduces missing evidence metadata; no live service or isolation claim."
+}

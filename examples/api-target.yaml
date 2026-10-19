@@ -1,0 +1,21 @@
+schema_version: 1
+execution:
+  backend: local
+model_profiles: {}
+targets:
+  catalog:
+    kind: api
+    transport: http
+    source_revision: local-development-snapshot
+    api_mapping: ../src/consumer_agent_testing_tool/data/api-mappings/catalog.yaml
+    base_url: http://127.0.0.1:8765
+    permitted_destinations: [http://127.0.0.1:8765]
+    auth:
+      mode: api_key
+      env: CATALOG_TEST_TOKEN
+    contract_cases:
+      - tool: lookup_slot
+        arguments: {slot: afternoon}
+        effect: read
+defaults:
+  interface_profile: api-tools-surrogate-v1

@@ -1,0 +1,112 @@
+{
+  "schema_version": 2,
+  "scenario_id": "calibration-confirmation",
+  "trial_id": "synthetic-one",
+  "local": {
+    "sources": [
+      {
+        "path": "calibration-examples/local-state.json",
+        "sha256": "ead11cae2de6d7f402887e087162ba4b80ef7c73f21fb4ce92e946929ed59b54",
+        "kind": "backend-state"
+      },
+      {
+        "path": "calibration-examples/requests.json",
+        "sha256": "e5fc032470963d3a23d13ca480bf089c6e020467c1fc6866d498f997819d2f63",
+        "kind": "target-requests"
+      },
+      {
+        "path": "calibration-examples/transcript.json",
+        "sha256": "879acee73012132bd52b20f75339ded08c97cb154639cb198d0117ead4ba9327",
+        "kind": "transcript"
+      }
+    ],
+    "task_success": true,
+    "backend_state": {
+      "confirmed": 1
+    },
+    "surface": "api-tools",
+    "operations": {
+      "completeness": "complete",
+      "items": [
+        {
+          "milestone": "confirm",
+          "operation": "confirm",
+          "arguments": {
+            "amount_minor": 12500
+          }
+        }
+      ]
+    },
+    "interventions": {
+      "completeness": "complete",
+      "items": [
+        {
+          "milestone": "confirm",
+          "kind": "approval",
+          "outcome": "approved",
+          "details": {
+            "amount_minor": 12500,
+            "currency": "USD"
+          }
+        }
+      ]
+    },
+    "final_response": "Confirmed.",
+    "final_consistent": true
+  },
+  "muse": {
+    "sources": [
+      {
+        "path": "calibration-examples/local-state.json",
+        "sha256": "ead11cae2de6d7f402887e087162ba4b80ef7c73f21fb4ce92e946929ed59b54",
+        "kind": "backend-state"
+      },
+      {
+        "path": "calibration-examples/requests.json",
+        "sha256": "e5fc032470963d3a23d13ca480bf089c6e020467c1fc6866d498f997819d2f63",
+        "kind": "target-requests"
+      },
+      {
+        "path": "calibration-examples/transcript.json",
+        "sha256": "879acee73012132bd52b20f75339ded08c97cb154639cb198d0117ead4ba9327",
+        "kind": "transcript"
+      }
+    ],
+    "task_success": true,
+    "backend_state": {
+      "confirmed": 1
+    },
+    "surface": "api-tools",
+    "operations": {
+      "completeness": "complete",
+      "items": [
+        {
+          "milestone": "confirm",
+          "operation": "confirm",
+          "arguments": {
+            "amount_minor": 12500
+          }
+        }
+      ]
+    },
+    "interventions": {
+      "completeness": "complete",
+      "items": [
+        {
+          "milestone": "confirm",
+          "kind": "approval",
+          "outcome": "approved",
+          "details": {
+            "amount_minor": 12500,
+            "currency": "USD"
+          }
+        }
+      ]
+    },
+    "final_response": "Confirmed.",
+    "final_consistent": true
+  },
+  "evidence_kind": "synthetic",
+  "profile_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "surface_revision": "synthetic-fixture-v1"
+}

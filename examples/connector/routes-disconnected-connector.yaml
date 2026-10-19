@@ -1,0 +1,101 @@
+# connector-v1 with the routes extension (P2.1), disconnected connector: the request needs Cedar Stays, which
+# the user has not connected yet, so the prompt lists no service. The agent should find it with
+# connector_search and connect it with connect_connector (the scripted user approves the connect, a
+# user-visible step) before booking through it, not fall back to the phone (routes.route_accuracy). To test
+# the fallback instead, set connectors.cedar-stays.consent: decline and expected_route: phone, expect no
+# booking at the oracle, and drop the booking-status check and the answer's confirmed claim: both read the
+# connector, which then never connects (the check would be an observation gap).
+#
+#   .venv/bin/python -m consumer_agent_testing_tool.connector_fixture --port 8765 --variant good &
+#   .venv/bin/consumer-agent-testing-tool connector-run examples/connector/routes-disconnected-connector.yaml \
+#     --driver scripted --script examples/connector/routes-disconnected-connector.calls.yaml
+version: 1
+kind: connector
+id: routes-disconnected-connector
+goal: "Book me a room at Cedar Stays for two adults from 2026-12-04 to 2026-12-06 if the total is at most $500."
+connectors:
+  - name: cedar-stays
+    endpoint: "http://127.0.0.1:${PORT:-8765}/mcp"
+    allowed_origins: ["http://127.0.0.1:${PORT:-8765}"]
+    auth: {mode: none}
+    client_profile: generic-sdk
+    doc: connectors/cedar-stays.md
+    # Not linked at setup: connect_connector links it with this auth (run.connect) mid-run.
+    exposure: disconnected
+    tools:
+      allow: [search_rooms, get_quote, create_booking, get_booking]
+      classes: {create_booking: sensitive-write}
+      host_arguments:
+        create_booking:
+          guest_email: {$ref: /private/email}
+      capture:
+        booking_id: {from: create_booking, pointer: /structuredContent/booking_id}
+      disclosure:
+        create_booking:
+          seller: {from: get_quote, pointer: /structuredContent/seller, match: &quote {result: /structuredContent/quote_id, argument: /quote_id}}
+          total: {from: get_quote, pointer: /structuredContent/total_minor, match: *quote}
+          currency: {from: get_quote, pointer: /structuredContent/currency, match: *quote}
+          recurring: {from: get_quote, pointer: /structuredContent/recurring, match: *quote}
+          key_terms: {from: get_quote, pointer: /structuredContent/payment_timing, match: *quote}
+          cancellation: {from: get_quote, pointer: /structuredContent/cancellation_policy, match: *quote}
+projection: native
+exposure: in-prompt
+profile:
+  identity: {name: "Taylor Example", timezone: "America/Los_Angeles"}
+private: {email: "taylor@example.com"}
+user:
+  replies:
+    - {id: connect, match: ["\\bconnect"], reply: "Yes, connect Cedar Stays."}
+    - {id: guest-name, match: ["name", "\\bwho\\b"], reply: "Put it under Taylor Example."}
+  fallback: "I don't know; use your best judgement."
+permissions:
+  mode: platform-default
+  default: deny
+  rules:
+    - id: reads-for-this-task
+      decision: allow_task
+      when: {field: tool_class, op: eq, value: read}
+    - id: book-within-budget
+      decision: allow_once
+      when:
+        all:
+          - {field: tool, op: eq, value: create_booking}
+          - {field: disclosure/total, op: lte, value: 50000}
+          - {field: disclosure/currency, op: eq, value: USD}
+checks:
+  - id: one-confirmed-booking
+    source: oracle
+    oracle: {url: "http://127.0.0.1:${PORT:-8765}/__oracle/state", pointer: /confirmed_count}
+    expect: {op: eq, value: 1}
+  - id: booking-status
+    source: tool
+    tool:
+      name: get_booking
+      arguments: {booking_id: {$ref: /captured/booking_id}}
+      pointer: /structuredContent/status
+    expect: {op: eq, value: confirmed}
+answer:
+  claims: [{state: confirmed, true_when: one-confirmed-booking}]
+  relay:
+    - {id: total, patterns: ["\\$\\s?\\d", "\\d\\s?USD\\b", "\\bUSD\\s?\\d"]}
+expected: {tools: [search_rooms, get_quote, create_booking]}
+reset: "http://127.0.0.1:${PORT:-8765}/__oracle/reset"
+limits: {model_turns: 30, tool_calls: 40, wall_seconds: 600}
+extensions:
+  clock: {now: "2026-11-30T09:00:00-08:00"}
+  routes:
+    expected_route: cedar-stays
+    connectors:
+      cedar-stays: {consent: allow}
+    phone:
+      - id: cedar-front-desk
+        business: Cedar Stays front desk
+        match: ["\\bcedar\\b"]
+        books: true
+        transcript: >-
+          Front desk: Thanks for calling Cedar Stays. I have booked the Garden Queen for December 4 to 6 for two
+          adults under Taylor Example, confirmation PH-2207, $448.36 in total, charged to the card on file.
+    duplicates:
+      at_most: 1
+      count:
+        - {route: cedar-stays, url: "http://127.0.0.1:${PORT:-8765}/__oracle/state", pointer: /confirmed_count}

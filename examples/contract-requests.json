@@ -1,0 +1,9 @@
+[
+  {
+    "step": "read",
+    "operation": "get",
+    "arguments": {
+      "id": "synthetic-1"
+    }
+  }
+]

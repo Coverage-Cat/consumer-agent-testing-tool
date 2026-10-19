@@ -1,0 +1,1349 @@
+{
+  "schema_version": 1,
+  "status": "unverified",
+  "scope": "Observed installed native payloads and fonts, separate from package-level SBOMs",
+  "observed_groups": [
+    "browser-runtime",
+    "core-python",
+    "node-browser",
+    "node-protocol"
+  ],
+  "components": {
+    "browser-runtime:workspace-playwright": {
+      "scope": "browser-runtime",
+      "artifacts": {
+        "chromium-1243/chrome-mac-arm64/Google Chrome for Testing.app/Contents/Frameworks/Google Chrome for Testing Framework.framework/Google Chrome for Testing Framework": {
+          "sha256": "ba5a96e0dd60c1567f0930fbb410b316b6d9aad7546e1a363cfcddd18549053a",
+          "bytes": 246074272,
+          "format": "mach-o",
+          "kind": "binary"
+        },
+        "chromium-1243/chrome-mac-arm64/Google Chrome for Testing.app/Contents/Frameworks/Google Chrome for Testing Framework.framework/Versions/153.0.8010.12/Google Chrome for Testing Framework": {
+          "sha256": "ba5a96e0dd60c1567f0930fbb410b316b6d9aad7546e1a363cfcddd18549053a",
+          "bytes": 246074272,
+          "format": "mach-o",
+          "kind": "binary"
+        },
+        "chromium-1243/chrome-mac-arm64/Google Chrome for Testing.app/Contents/Frameworks/Google Chrome for Testing Framework.framework/Versions/153.0.8010.12/Helpers/Google Chrome for Testing Helper (Alerts).app/Contents/MacOS/Google Chrome for Testing Helper (Alerts)": {
+          "sha256": "f3f5340dd0ab7feae6cb3b0d4c3d5145421979031e4288ef80a58fe446dcfadf",
+          "bytes": 69792,
+          "format": "mach-o",
+          "kind": "binary"
+        },
+        "chromium-1243/chrome-mac-arm64/Google Chrome for Testing.app/Contents/Frameworks/Google Chrome for Testing Framework.framework/Versions/153.0.8010.12/Helpers/Google Chrome for Testing Helper (Aperitif Alerts).app/Contents/MacOS/Google Chrome for Testing Helper (Aperitif Alerts)": {
+          "sha256": "b44910edf6f6ec5265f1321af88824dacb0c888157d3990eb326f575c59ba77e",
+          "bytes": 33600,
+          "format": "mach-o",
+          "kind": "binary"
+        },
+        "chromium-1243/chrome-mac-arm64/Google Chrome for Testing.app/Contents/Frameworks/Google Chrome for Testing Framework.framework/Versions/153.0.8010.12/Helpers/Google Chrome for Testing Helper (Aperitif GPU).app/Contents/MacOS/Google Chrome for Testing Helper (Aperitif GPU)": {
+          "sha256": "6635bac098acee15c3a2d38ff7c273d381b07650693dad931545b83ef6c57dbb",
+          "bytes": 33584,
+          "format": "mach-o",
+          "kind": "binary"
+        },
+        "chromium-1243/chrome-mac-arm64/Google Chrome for Testing.app/Contents/Frameworks/Google Chrome for Testing Framework.framework/Versions/153.0.8010.12/Helpers/Google Chrome for Testing Helper (Aperitif Renderer).app/Contents/MacOS/Google Chrome for Testing Helper (Aperitif Renderer)": {
+          "sha256": "403332ebc902a0b0dbea5abfbae80bf3a53dc07eb3f22464d2bf8a9c411de379",
+          "bytes": 33600,
+          "format": "mach-o",
+          "kind": "binary"
+        },
+        "chromium-1243/chrome-mac-arm64/Google Chrome for Testing.app/Contents/Frameworks/Google Chrome for Testing Framework.framework/Versions/153.0.8010.12/Helpers/Google Chrome for Testing Helper (Aperitif).app/Contents/MacOS/Google Chrome for Testing Helper (Aperitif)": {
+          "sha256": "bfea4ae0223b5d02ec007b2ed4620db0fb32982077ab8d7745e27a6e396faa75",
+          "bytes": 33584,
+          "format": "mach-o",
+          "kind": "binary"
+        },
+        "chromium-1243/chrome-mac-arm64/Google Chrome for Testing.app/Contents/Frameworks/Google Chrome for Testing Framework.framework/Versions/153.0.8010.12/Helpers/Google Chrome for Testing Helper (GPU).app/Contents/MacOS/Google Chrome for Testing Helper (GPU)": {
+          "sha256": "b8a5701b57bc8180b0da2f1b5a2df83a272534443d5345c53eb976e8a35324d2",
+          "bytes": 69792,
+          "format": "mach-o",
+          "kind": "binary"
+        },
+        "chromium-1243/chrome-mac-arm64/Google Chrome for Testing.app/Contents/Frameworks/Google Chrome for Testing Framework.framework/Versions/153.0.8010.12/Helpers/Google Chrome for Testing Helper (Renderer).app/Contents/MacOS/Google Chrome for Testing Helper (Renderer)": {
+          "sha256": "84529bc15b9914ffb09fafc74a3cac25f8903f5f5fe389911fc25a668f52019f",
+          "bytes": 69792,
+          "format": "mach-o",
+          "kind": "binary"
+        },
+        "chromium-1243/chrome-mac-arm64/Google Chrome for Testing.app/Contents/Frameworks/Google Chrome for Testing Framework.framework/Versions/153.0.8010.12/Helpers/Google Chrome for Testing Helper.app/Contents/MacOS/Google Chrome for Testing Helper": {
+          "sha256": "d15aacd37fecc09c03509339682016562b54a72fdb4410f8a70ed7d22e0fd6f8",
+          "bytes": 69792,
+          "format": "mach-o",
+          "kind": "binary"
+        },
+        "chromium-1243/chrome-mac-arm64/Google Chrome for Testing.app/Contents/Frameworks/Google Chrome for Testing Framework.framework/Versions/153.0.8010.12/Helpers/app_mode_loader": {
+          "sha256": "1595a85009d4d41488b507af48e1fbef1d6654f066a8c5b7c7b5aee663cde9fd",
+          "bytes": 1009168,
+          "format": "mach-o",
+          "kind": "binary"
+        },
+        "chromium-1243/chrome-mac-arm64/Google Chrome for Testing.app/Contents/Frameworks/Google Chrome for Testing Framework.framework/Versions/153.0.8010.12/Helpers/chrome_crashpad_handler": {
+          "sha256": "706d3e2792d53e3b3046d7377e4905b444550016543562c9c28fe64bb7419eec",
+          "bytes": 1575328,
+          "format": "mach-o",
+          "kind": "binary"
+        },
+        "chromium-1243/chrome-mac-arm64/Google Chrome for Testing.app/Contents/Frameworks/Google Chrome for Testing Framework.framework/Versions/153.0.8010.12/Helpers/web_app_shortcut_copier": {
+          "sha256": "1655383123820ee44cc03d6e41f1c44ed6fce1bde512b0e803cdbfcf2a29a06b",
+          "bytes": 33488,
+          "format": "mach-o",
+          "kind": "binary"
+        },
+        "chromium-1243/chrome-mac-arm64/Google Chrome for Testing.app/Contents/Frameworks/Google Chrome for Testing Framework.framework/Versions/153.0.8010.12/Libraries/WidevineCdm/_platform_specific/mac_arm64/libwidevinecdm.dylib": {
+          "sha256": "e1e9f6b0c77f4251542a2f49dda419c85eda88c5d9ef2721d5d594dc195a6e5f",
+          "bytes": 20416896,
+          "format": "mach-o",
+          "kind": "binary"
+        },
+        "chromium-1243/chrome-mac-arm64/Google Chrome for Testing.app/Contents/Frameworks/Google Chrome for Testing Framework.framework/Versions/153.0.8010.12/Libraries/libaperitif.dylib": {
+          "sha256": "ce1aba3e6bf8b564b018b9669ad20c5ff4a2086a65c95d70e628bd78db55fdb9",
+          "bytes": 69760,
+          "format": "mach-o",
+          "kind": "binary"
+        },
+        "chromium-1243/chrome-mac-arm64/Google Chrome for Testing.app/Contents/Frameworks/Google Chrome for Testing Framework.framework/Versions/153.0.8010.12/Libraries/libvk_swiftshader.dylib": {
+          "sha256": "a992e2126966d15be0345d1bc59abb7ca61cc0072f8bba57e052bd0b6026d81c",
+          "bytes": 16376112,
+          "format": "mach-o",
+          "kind": "binary"
+        },
+        "chromium-1243/chrome-mac-arm64/Google Chrome for Testing.app/Contents/Frameworks/Google Chrome for Testing Framework.framework/Versions/153.0.8010.12/Libraries/libvulkan.dylib": {
+          "sha256": "b2f0778061f6bf9619404ff79c813454175787d562cbf3fb2c7ae7615e0bc1fc",
+          "bytes": 499472,
+          "format": "mach-o",
+          "kind": "binary"
+        },
+        "chromium-1243/chrome-mac-arm64/Google Chrome for Testing.app/Contents/MacOS/Google Chrome for Testing": {
+          "sha256": "8319963f6625accf51c0dd4f55091ceaf9f09ed39e7a52fed4fae12b2a6b668a",
+          "bytes": 52112,
+          "format": "mach-o",
+          "kind": "binary"
+        },
+        "chromium_headless_shell-1243/chrome-headless-shell-mac-arm64/chrome-headless-shell": {
+          "sha256": "a0bfe7b4da4787b66058477d696cd1d09065d25f06a548947722b9af77ee8282",
+          "bytes": 169253248,
+          "format": "mach-o",
+          "kind": "binary"
+        },
+        "chromium_headless_shell-1243/chrome-headless-shell-mac-arm64/libEGL.dylib": {
+          "sha256": "8b7e5b3ebed9cd5fc1cde7ff1458fd5eb150d496d7474e13f963d43546c08aeb",
+          "bytes": 736,
+          "format": "mach-o",
+          "kind": "binary"
+        },
+        "chromium_headless_shell-1243/chrome-headless-shell-mac-arm64/libGLESv2.dylib": {
+          "sha256": "7765bf768e52ced295a67cb362e3ca9714e64208e6ecea4e67e5b4b85e094934",
+          "bytes": 736,
+          "format": "mach-o",
+          "kind": "binary"
+        },
+        "chromium_headless_shell-1243/chrome-headless-shell-mac-arm64/libvk_swiftshader.dylib": {
+          "sha256": "a992e2126966d15be0345d1bc59abb7ca61cc0072f8bba57e052bd0b6026d81c",
+          "bytes": 16376112,
+          "format": "mach-o",
+          "kind": "binary"
+        },
+        "chromium_headless_shell-1243/chrome-headless-shell-mac-arm64/libvulkan.dylib": {
+          "sha256": "b2f0778061f6bf9619404ff79c813454175787d562cbf3fb2c7ae7615e0bc1fc",
+          "bytes": 499472,
+          "format": "mach-o",
+          "kind": "binary"
+        },
+        "ffmpeg-1011/ffmpeg-mac": {
+          "sha256": "662398c99429f5493ff0ff40cdcd97ea25132addcbdedafd0741389964147825",
+          "bytes": 2580312,
+          "format": "mach-o",
+          "kind": "binary"
+        }
+      },
+      "package": null,
+      "upstream_documents": [],
+      "dependency_coverage": {
+        "status": "unverified",
+        "reason": "Payload hashes and package documents do not establish embedded dependency completeness"
+      },
+      "notice_coverage": {
+        "status": "unverified",
+        "reason": "Original notices for embedded components and fonts need separate review"
+      }
+    },
+    "core-python:pypi:aiohttp@3.14.4": {
+      "scope": "core-python",
+      "artifacts": {
+        "lib/python3.14/site-packages/aiohttp/_http_parser.cpython-314-darwin.so": {
+          "sha256": "14e747aca75ccf2d11e39a59ee0ec29bdf3c10a3d5303966be42b75ccea33276",
+          "bytes": 579632,
+          "format": "mach-o",
+          "kind": "binary"
+        },
+        "lib/python3.14/site-packages/aiohttp/_http_writer.cpython-314-darwin.so": {
+          "sha256": "500b07ca7b7c790a94194d6ed263c3ad0825459588432b7467635cdfa509c119",
+          "bytes": 91520,
+          "format": "mach-o",
+          "kind": "binary"
+        },
+        "lib/python3.14/site-packages/aiohttp/_websocket/mask.cpython-314-darwin.so": {
+          "sha256": "2e1299e75af67c8ce0c425949882002e3931cc2e4ad575b586cd7f064fde9551",
+          "bytes": 86168,
+          "format": "mach-o",
+          "kind": "binary"
+        },
+        "lib/python3.14/site-packages/aiohttp/_websocket/reader_c.cpython-314-darwin.so": {
+          "sha256": "6111e90c18289b106f4cb25e2b0c2c3685a4ea4c095bc2dcfcbb3c685752ff3d",
+          "bytes": 249792,
+          "format": "mach-o",
+          "kind": "binary"
+        }
+      },
+      "package": {
+        "name": "aiohttp",
+        "version": "3.14.4"
+      },
+      "upstream_documents": [],
+      "dependency_coverage": {
+        "status": "unverified",
+        "reason": "Payload hashes and package documents do not establish embedded dependency completeness"
+      },
+      "notice_coverage": {
+        "status": "unverified",
+        "reason": "Original notices for embedded components and fonts need separate review"
+      }
+    },
+    "core-python:pypi:cffi@2.1.1": {
+      "scope": "core-python",
+      "artifacts": {
+        "lib/python3.14/site-packages/_cffi_backend.cpython-314-darwin.so": {
+          "sha256": "7a3ea590a8ba470a09d11267ca583fe7c3a08b15b2699578ef5e048041127684",
+          "bytes": 229488,
+          "format": "mach-o",
+          "kind": "binary"
+        }
+      },
+      "package": {
+        "name": "cffi",
+        "version": "2.1.1"
+      },
+      "upstream_documents": [],
+      "dependency_coverage": {
+        "status": "unverified",
+        "reason": "Payload hashes and package documents do not establish embedded dependency completeness"
+      },
+      "notice_coverage": {
+        "status": "unverified",
+        "reason": "Original notices for embedded components and fonts need separate review"
+      }
+    },
+    "core-python:pypi:charset-normalizer@3.5.2": {
+      "scope": "core-python",
+      "artifacts": {
+        "lib/python3.14/site-packages/charset_normalizer/cd.cpython-314-darwin.so": {
+          "sha256": "82cb36444f050681a9c02c757902c7ccf3e483dca69a66e5813a2017ff92b5a5",
+          "bytes": 331888,
+          "format": "mach-o-universal",
+          "kind": "binary"
+        },
+        "lib/python3.14/site-packages/charset_normalizer/md.cpython-314-darwin.so": {
+          "sha256": "a08324bf599fdb709b512481f8bc591df0c04372ff863cc09723d2eafbc13ba6",
+          "bytes": 585072,
+          "format": "mach-o-universal",
+          "kind": "binary"
+        }
+      },
+      "package": {
+        "name": "charset-normalizer",
+        "version": "3.5.2"
+      },
+      "upstream_documents": [],
+      "dependency_coverage": {
+        "status": "unverified",
+        "reason": "Payload hashes and package documents do not establish embedded dependency completeness"
+      },
+      "notice_coverage": {
+        "status": "unverified",
+        "reason": "Original notices for embedded components and fonts need separate review"
+      }
+    },
+    "core-python:pypi:cryptography@50.0.2": {
+      "scope": "core-python",
+      "artifacts": {
+        "lib/python3.14/site-packages/cryptography/hazmat/bindings/_rust.abi3.so": {
+          "sha256": "0aced18998c288668c0eb65cfdc76fd41726370e6d5d9760c0b27143929162d2",
+          "bytes": 10445664,
+          "format": "mach-o",
+          "kind": "binary"
+        }
+      },
+      "package": {
+        "name": "cryptography",
+        "version": "50.0.2"
+      },
+      "upstream_documents": [
+        {
+          "path": "third_party/notices/core-python/cryptography-50.0.2/3e83e4656439-cryptography-rust.cyclonedx.json",
+          "sha256": "3e83e46564396b435608932504bdf782a7156b841c3b98c16c98c5c82ce6dc90"
+        },
+        {
+          "path": "third_party/notices/core-python/cryptography-50.0.2/eae61c5ad319-sbom.json",
+          "sha256": "eae61c5ad3197e6c0a30adb3eeab20fa085f1068607667b1137fccf458fe7958"
+        }
+      ],
+      "dependency_coverage": {
+        "status": "unverified",
+        "reason": "Payload hashes and package documents do not establish embedded dependency completeness"
+      },
+      "notice_coverage": {
+        "status": "unverified",
+        "reason": "Original notices for embedded components and fonts need separate review"
+      }
+    },
+    "core-python:pypi:debugpy@1.8.22": {
+      "scope": "core-python",
+      "artifacts": {
+        "lib/python3.14/site-packages/debugpy/_vendored/pydevd/_pydevd_bundle/pydevd_cython.cpython-314-darwin.so": {
+          "sha256": "61837213e3beb971ec2eebf0da0224438d5e3cacb9782e4c17e2a7401991b4da",
+          "bytes": 1045584,
+          "format": "mach-o-universal",
+          "kind": "binary"
+        },
+        "lib/python3.14/site-packages/debugpy/_vendored/pydevd/_pydevd_sys_monitoring/_pydevd_sys_monitoring_cython.cpython-314-darwin.so": {
+          "sha256": "ba758d0fb2b109185307c23ce0cbcd9df641eabaca96772dacade59ecd48ae3f",
+          "bytes": 834208,
+          "format": "mach-o-universal",
+          "kind": "binary"
+        },
+        "lib/python3.14/site-packages/debugpy/_vendored/pydevd/pydevd_attach_to_process/attach.dylib": {
+          "sha256": "4ede4f88ef652ac7b35c5c6f87b155b78f4f25699c0e14e5d81d69d6b4dd8ef4",
+          "bytes": 72096,
+          "format": "mach-o-universal",
+          "kind": "binary"
+        }
+      },
+      "package": {
+        "name": "debugpy",
+        "version": "1.8.22"
+      },
+      "upstream_documents": [],
+      "dependency_coverage": {
+        "status": "unverified",
+        "reason": "Payload hashes and package documents do not establish embedded dependency completeness"
+      },
+      "notice_coverage": {
+        "status": "unverified",
+        "reason": "Original notices for embedded components and fonts need separate review"
+      }
+    },
+    "core-python:pypi:frozenlist@1.8.0": {
+      "scope": "core-python",
+      "artifacts": {
+        "lib/python3.14/site-packages/frozenlist/_frozenlist.cpython-314-darwin.so": {
+          "sha256": "5a42b2721fb51dfa93c3f63b36404f3654a8264bcfc4137d9d18891b78faf422",
+          "bytes": 144256,
+          "format": "mach-o",
+          "kind": "binary"
+        }
+      },
+      "package": {
+        "name": "frozenlist",
+        "version": "1.8.0"
+      },
+      "upstream_documents": [],
+      "dependency_coverage": {
+        "status": "unverified",
+        "reason": "Payload hashes and package documents do not establish embedded dependency completeness"
+      },
+      "notice_coverage": {
+        "status": "unverified",
+        "reason": "Original notices for embedded components and fonts need separate review"
+      }
+    },
+    "core-python:pypi:ijson@3.5.1": {
+      "scope": "core-python",
+      "artifacts": {
+        "lib/python3.14/site-packages/ijson/backends/_yajl2.cpython-314-darwin.so": {
+          "sha256": "dd1120d8477b0d07b19aad6958acefca001cc6d3b560f6150af66a0f3fff6c58",
+          "bytes": 128400,
+          "format": "mach-o",
+          "kind": "binary"
+        }
+      },
+      "package": {
+        "name": "ijson",
+        "version": "3.5.1"
+      },
+      "upstream_documents": [],
+      "dependency_coverage": {
+        "status": "unverified",
+        "reason": "Payload hashes and package documents do not establish embedded dependency completeness"
+      },
+      "notice_coverage": {
+        "status": "unverified",
+        "reason": "Original notices for embedded components and fonts need separate review"
+      }
+    },
+    "core-python:pypi:inspect-ai@0.3.273": {
+      "scope": "core-python",
+      "artifacts": {
+        "lib/python3.14/site-packages/inspect_ai/_view/dist/assets/BricolageGrotesque-Bold-BIJrwikb.ttf": {
+          "sha256": "913ee3631949ee1b4fb2601269412fca5775eb994d4f87be2c366c94ac123dc5",
+          "bytes": 82204,
+          "format": "truetype",
+          "kind": "font"
+        },
+        "lib/python3.14/site-packages/inspect_ai/_view/dist/assets/Inter-latin-BwkfbSeq.woff2": {
+          "sha256": "2c295d99e26dcf357d4d01bcf270fd6924b600c9a13dd8c363ef114f4c6976fa",
+          "bytes": 72920,
+          "format": "woff2",
+          "kind": "font"
+        }
+      },
+      "package": {
+        "name": "inspect_ai",
+        "version": "0.3.273"
+      },
+      "upstream_documents": [],
+      "dependency_coverage": {
+        "status": "unverified",
+        "reason": "Payload hashes and package documents do not establish embedded dependency completeness"
+      },
+      "notice_coverage": {
+        "status": "unverified",
+        "reason": "Original notices for embedded components and fonts need separate review"
+      }
+    },
+    "core-python:pypi:jiter@0.17.0": {
+      "scope": "core-python",
+      "artifacts": {
+        "lib/python3.14/site-packages/jiter/jiter.cpython-314-darwin.so": {
+          "sha256": "5e6be43e9d5eec6f196e6f8b40c2c43cf54cdc407f20d2e95fcd8dab329abe71",
+          "bytes": 714112,
+          "format": "mach-o",
+          "kind": "binary"
+        }
+      },
+      "package": {
+        "name": "jiter",
+        "version": "0.17.0"
+      },
+      "upstream_documents": [
+        {
+          "path": "third_party/notices/core-python/jiter-0.17.0/97ddc5c51523-jiter-python.cyclonedx.json",
+          "sha256": "97ddc5c515237e22f9302d905f1387bca6d618bbefb05230ef32cdfc8596f32f"
+        }
+      ],
+      "dependency_coverage": {
+        "status": "unverified",
+        "reason": "Payload hashes and package documents do not establish embedded dependency completeness"
+      },
+      "notice_coverage": {
+        "status": "unverified",
+        "reason": "Original notices for embedded components and fonts need separate review"
+      }
+    },
+    "core-python:pypi:mmh3@5.3.1": {
+      "scope": "core-python",
+      "artifacts": {
+        "lib/python3.14/site-packages/mmh3.cpython-314-darwin.so": {
+          "sha256": "d0f2b5a2ab161609380d1a0ac24e884724771361b4f536bb96630256028aa663",
+          "bytes": 95144,
+          "format": "mach-o",
+          "kind": "binary"
+        }
+      },
+      "package": {
+        "name": "mmh3",
+        "version": "5.3.1"
+      },
+      "upstream_documents": [],
+      "dependency_coverage": {
+        "status": "unverified",
+        "reason": "Payload hashes and package documents do not establish embedded dependency completeness"
+      },
+      "notice_coverage": {
+        "status": "unverified",
+        "reason": "Original notices for embedded components and fonts need separate review"
+      }
+    },
+    "core-python:pypi:multidict@6.9.1": {
+      "scope": "core-python",
+      "artifacts": {
+        "lib/python3.14/site-packages/multidict/_multidict.cpython-314-darwin.so": {
+          "sha256": "1664d27de330e2f2b7060229b927b78a0d1dc69be18d27017ca86831bfcc5813",
+          "bytes": 140016,
+          "format": "mach-o",
+          "kind": "binary"
+        }
+      },
+      "package": {
+        "name": "multidict",
+        "version": "6.9.1"
+      },
+      "upstream_documents": [],
+      "dependency_coverage": {
+        "status": "unverified",
+        "reason": "Payload hashes and package documents do not establish embedded dependency completeness"
+      },
+      "notice_coverage": {
+        "status": "unverified",
+        "reason": "Original notices for embedded components and fonts need separate review"
+      }
+    },
+    "core-python:pypi:numpy@2.5.3": {
+      "scope": "core-python",
+      "artifacts": {
+        "lib/python3.14/site-packages/numpy/_core/_multiarray_tests.cpython-314-darwin.so": {
+          "sha256": "70b6054d270d9d39ca1320b6bef226afe119a09b413981f05d20d5d47900d08e",
+          "bytes": 121016,
+          "format": "mach-o",
+          "kind": "binary"
+        },
+        "lib/python3.14/site-packages/numpy/_core/_multiarray_umath.cpython-314-darwin.so": {
+          "sha256": "1071c0ead3adf59ae83dfeb84bea53346c8aa9c26afdd033bd65a6388c906161",
+          "bytes": 4013352,
+          "format": "mach-o",
+          "kind": "binary"
+        },
+        "lib/python3.14/site-packages/numpy/_core/_operand_flag_tests.cpython-314-darwin.so": {
+          "sha256": "0a9210271a5215c1c9e715cf978f82ca92e4b3043e7ffb3a714beab868a72e3a",
+          "bytes": 51240,
+          "format": "mach-o",
+          "kind": "binary"
+        },
+        "lib/python3.14/site-packages/numpy/_core/_rational_tests.cpython-314-darwin.so": {
+          "sha256": "64588bdb181dc04c8c3c48ea64d30cbbe3ecebdfa85021f8db0d8a050890d0c0",
+          "bytes": 73304,
+          "format": "mach-o",
+          "kind": "binary"
+        },
+        "lib/python3.14/site-packages/numpy/_core/_simd.cpython-314-darwin.so": {
+          "sha256": "eab52b4376300248718d470f5b66d20c74d2a71e89348bd4e9abcd0b56822d81",
+          "bytes": 339640,
+          "format": "mach-o",
+          "kind": "binary"
+        },
+        "lib/python3.14/site-packages/numpy/_core/_struct_ufunc_tests.cpython-314-darwin.so": {
+          "sha256": "35d4e72fa2e66448bc4cd332e36c7a43f669527d36e4df8c6f4e3cf5dcae63a2",
+          "bytes": 51464,
+          "format": "mach-o",
+          "kind": "binary"
+        },
+        "lib/python3.14/site-packages/numpy/_core/_umath_tests.cpython-314-darwin.so": {
+          "sha256": "500cc7702c0bf53f5c5211f9e17a190ccd2fe1c150b211a190e6739b9c916cb1",
+          "bytes": 71872,
+          "format": "mach-o",
+          "kind": "binary"
+        },
+        "lib/python3.14/site-packages/numpy/fft/_pocketfft_umath.cpython-314-darwin.so": {
+          "sha256": "aa6f9636ff694ac5e884e141463bc3c81be08f695a3e2570a44c265d90adbff4",
+          "bytes": 329912,
+          "format": "mach-o",
+          "kind": "binary"
+        },
+        "lib/python3.14/site-packages/numpy/linalg/_umath_linalg.cpython-314-darwin.so": {
+          "sha256": "b2ee60582c2d764477125b59838b732659a2b373a0d22f2f743890ce1032ad65",
+          "bytes": 154880,
+          "format": "mach-o",
+          "kind": "binary"
+        },
+        "lib/python3.14/site-packages/numpy/linalg/lapack_lite.cpython-314-darwin.so": {
+          "sha256": "20890ed9a57819ebaef466bc249e8b42481d50cc33ea4352aa42e1f283931781",
+          "bytes": 52976,
+          "format": "mach-o",
+          "kind": "binary"
+        },
+        "lib/python3.14/site-packages/numpy/random/_bounded_integers.cpython-314-darwin.so": {
+          "sha256": "9ff3a06d4ea4d8e5117c6a54fde4918f2210b7c9ce636ce12687a30472afeab1",
+          "bytes": 314376,
+          "format": "mach-o",
+          "kind": "binary"
+        },
+        "lib/python3.14/site-packages/numpy/random/_common.cpython-314-darwin.so": {
+          "sha256": "cca9ec19700964e014d930c0601abdbcef94a261bcad27bba2dfa9947e39a422",
+          "bytes": 250640,
+          "format": "mach-o",
+          "kind": "binary"
+        },
+        "lib/python3.14/site-packages/numpy/random/_generator.cpython-314-darwin.so": {
+          "sha256": "7634464e838f873f9184bb45ee1a34cc4f16539c9150dbb71bd6d1af06999b1b",
+          "bytes": 707776,
+          "format": "mach-o",
+          "kind": "binary"
+        },
+        "lib/python3.14/site-packages/numpy/random/_mt19937.cpython-314-darwin.so": {
+          "sha256": "1655e3aba8660179e51c25e29543bff907ce8e654d983a944f3816b0652f57ca",
+          "bytes": 150112,
+          "format": "mach-o",
+          "kind": "binary"
+        },
+        "lib/python3.14/site-packages/numpy/random/_pcg64.cpython-314-darwin.so": {
+          "sha256": "03763f86aa80650ac35f4ccc661a979403990a37df1afb6e67c499f98d56602e",
+          "bytes": 152544,
+          "format": "mach-o",
+          "kind": "binary"
+        },
+        "lib/python3.14/site-packages/numpy/random/_philox.cpython-314-darwin.so": {
+          "sha256": "b628cea2330e7e32192bee02685e3a5e5cb4affb8b1a092a0c0c2acf6359699b",
+          "bytes": 133808,
+          "format": "mach-o",
+          "kind": "binary"
+        },
+        "lib/python3.14/site-packages/numpy/random/_sfc64.cpython-314-darwin.so": {
+          "sha256": "8b9b08752f4132260f338c5081d1dc471d5cb4e2c3513d422e3885f6eb796f21",
+          "bytes": 98240,
+          "format": "mach-o",
+          "kind": "binary"
+        },
+        "lib/python3.14/site-packages/numpy/random/bit_generator.cpython-314-darwin.so": {
+          "sha256": "c354178fa79e27ba92284b273d7269310ec28bdc7523afbc575ab576433d5fc8",
+          "bytes": 226560,
+          "format": "mach-o",
+          "kind": "binary"
+        },
+        "lib/python3.14/site-packages/numpy/random/mtrand.cpython-314-darwin.so": {
+          "sha256": "47cdd412f6a61caa42fab49a1242327550c48a09073c5930453fa2236dedc69c",
+          "bytes": 597760,
+          "format": "mach-o",
+          "kind": "binary"
+        }
+      },
+      "package": {
+        "name": "numpy",
+        "version": "2.5.3"
+      },
+      "upstream_documents": [],
+      "dependency_coverage": {
+        "status": "unverified",
+        "reason": "Payload hashes and package documents do not establish embedded dependency completeness"
+      },
+      "notice_coverage": {
+        "status": "unverified",
+        "reason": "Original notices for embedded components and fonts need separate review"
+      }
+    },
+    "core-python:pypi:propcache@0.5.4": {
+      "scope": "core-python",
+      "artifacts": {
+        "lib/python3.14/site-packages/propcache/_helpers_c.cpython-314-darwin.so": {
+          "sha256": "d7f5bf121a4856e896bfd27cc5a0782556709aabbff5daaa818d53dcc370da36",
+          "bytes": 140224,
+          "format": "mach-o",
+          "kind": "binary"
+        }
+      },
+      "package": {
+        "name": "propcache",
+        "version": "0.5.4"
+      },
+      "upstream_documents": [],
+      "dependency_coverage": {
+        "status": "unverified",
+        "reason": "Payload hashes and package documents do not establish embedded dependency completeness"
+      },
+      "notice_coverage": {
+        "status": "unverified",
+        "reason": "Original notices for embedded components and fonts need separate review"
+      }
+    },
+    "core-python:pypi:psutil@7.2.2": {
+      "scope": "core-python",
+      "artifacts": {
+        "lib/python3.14/site-packages/psutil/_psutil_osx.abi3.so": {
+          "sha256": "ff4568b9187ca7b37c5134aaf614ffb061e7fedccebd84158343afb05991b8e2",
+          "bytes": 105920,
+          "format": "mach-o",
+          "kind": "binary"
+        }
+      },
+      "package": {
+        "name": "psutil",
+        "version": "7.2.2"
+      },
+      "upstream_documents": [],
+      "dependency_coverage": {
+        "status": "unverified",
+        "reason": "Payload hashes and package documents do not establish embedded dependency completeness"
+      },
+      "notice_coverage": {
+        "status": "unverified",
+        "reason": "Original notices for embedded components and fonts need separate review"
+      }
+    },
+    "core-python:pypi:pydantic-core@2.46.5": {
+      "scope": "core-python",
+      "artifacts": {
+        "lib/python3.14/site-packages/pydantic_core/_pydantic_core.cpython-314-darwin.so": {
+          "sha256": "98d54ca07e997965210cb5596bc8314ffd3e44cdd1270b06d2173bda3125154e",
+          "bytes": 4120192,
+          "format": "mach-o",
+          "kind": "binary"
+        }
+      },
+      "package": {
+        "name": "pydantic_core",
+        "version": "2.46.5"
+      },
+      "upstream_documents": [
+        {
+          "path": "third_party/notices/core-python/pydantic-core-2.46.5/786fc70e8b0b-pydantic-core.cyclonedx.json",
+          "sha256": "786fc70e8b0bb3de0277d377b82c29fff6e9d65485d856b566e52b6c8a4b8835"
+        }
+      ],
+      "dependency_coverage": {
+        "status": "unverified",
+        "reason": "Payload hashes and package documents do not establish embedded dependency completeness"
+      },
+      "notice_coverage": {
+        "status": "unverified",
+        "reason": "Original notices for embedded components and fonts need separate review"
+      }
+    },
+    "core-python:pypi:pyyaml@6.0.3": {
+      "scope": "core-python",
+      "artifacts": {
+        "lib/python3.14/site-packages/yaml/_yaml.cpython-314-darwin.so": {
+          "sha256": "35b28ba8dc677e24bcd7c1fc1706b1960f173bb97497c3573a527b45aed12107",
+          "bytes": 381736,
+          "format": "mach-o",
+          "kind": "binary"
+        }
+      },
+      "package": {
+        "name": "PyYAML",
+        "version": "6.0.3"
+      },
+      "upstream_documents": [],
+      "dependency_coverage": {
+        "status": "unverified",
+        "reason": "Payload hashes and package documents do not establish embedded dependency completeness"
+      },
+      "notice_coverage": {
+        "status": "unverified",
+        "reason": "Original notices for embedded components and fonts need separate review"
+      }
+    },
+    "core-python:pypi:regex@2026.9.29": {
+      "scope": "core-python",
+      "artifacts": {
+        "lib/python3.14/site-packages/regex/_regex.cpython-314-darwin.so": {
+          "sha256": "4c88aaea23c581d4d4c410fbff8c7facef2846604610debcfc643565838d6ee3",
+          "bytes": 809344,
+          "format": "mach-o",
+          "kind": "binary"
+        }
+      },
+      "package": {
+        "name": "regex",
+        "version": "2026.9.29"
+      },
+      "upstream_documents": [],
+      "dependency_coverage": {
+        "status": "unverified",
+        "reason": "Payload hashes and package documents do not establish embedded dependency completeness"
+      },
+      "notice_coverage": {
+        "status": "unverified",
+        "reason": "Original notices for embedded components and fonts need separate review"
+      }
+    },
+    "core-python:pypi:rpds-py@2026.6.3": {
+      "scope": "core-python",
+      "artifacts": {
+        "lib/python3.14/site-packages/rpds/rpds.cpython-314-darwin.so": {
+          "sha256": "b7c4e37971b3fc53f50590380be63dc9f3409c13dd72c69e9fc437e6e8225aef",
+          "bytes": 897312,
+          "format": "mach-o",
+          "kind": "binary"
+        }
+      },
+      "package": {
+        "name": "rpds-py",
+        "version": "2026.6.3"
+      },
+      "upstream_documents": [
+        {
+          "path": "third_party/notices/core-python/rpds-py-2026.6.3/65420f27e5cb-rpds-py.cyclonedx.json",
+          "sha256": "65420f27e5cb2e81bcbb5a8c7334149ec68e36e94b0301b2e4f6a7933468bb11"
+        }
+      ],
+      "dependency_coverage": {
+        "status": "unverified",
+        "reason": "Payload hashes and package documents do not establish embedded dependency completeness"
+      },
+      "notice_coverage": {
+        "status": "unverified",
+        "reason": "Original notices for embedded components and fonts need separate review"
+      }
+    },
+    "core-python:pypi:tiktoken@0.14.0": {
+      "scope": "core-python",
+      "artifacts": {
+        "lib/python3.14/site-packages/tiktoken/_tiktoken.cpython-314-darwin.so": {
+          "sha256": "447f4012e3cb1ef5d0ee8bb2e19e0966caf6b68f0747d94a31da67f860f23a30",
+          "bytes": 2935904,
+          "format": "mach-o",
+          "kind": "binary"
+        }
+      },
+      "package": {
+        "name": "tiktoken",
+        "version": "0.14.0"
+      },
+      "upstream_documents": [],
+      "dependency_coverage": {
+        "status": "unverified",
+        "reason": "Payload hashes and package documents do not establish embedded dependency completeness"
+      },
+      "notice_coverage": {
+        "status": "unverified",
+        "reason": "Original notices for embedded components and fonts need separate review"
+      }
+    },
+    "core-python:pypi:wrapt@2.5.0": {
+      "scope": "core-python",
+      "artifacts": {
+        "lib/python3.14/site-packages/wrapt/_wrappers.cpython-314-darwin.so": {
+          "sha256": "e162a3cba828c3ae8970d6c5405fbb4c4b853b8cf03de7f59553021395849b7f",
+          "bytes": 123296,
+          "format": "mach-o",
+          "kind": "binary"
+        }
+      },
+      "package": {
+        "name": "wrapt",
+        "version": "2.5.0"
+      },
+      "upstream_documents": [],
+      "dependency_coverage": {
+        "status": "unverified",
+        "reason": "Payload hashes and package documents do not establish embedded dependency completeness"
+      },
+      "notice_coverage": {
+        "status": "unverified",
+        "reason": "Original notices for embedded components and fonts need separate review"
+      }
+    },
+    "core-python:pypi:yarl@1.25.1": {
+      "scope": "core-python",
+      "artifacts": {
+        "lib/python3.14/site-packages/yarl/_quoting_c.cpython-314-darwin.so": {
+          "sha256": "a356568f4b217bbcbac1385510e081355b2aa098fa8b2a8728889146d08d561b",
+          "bytes": 127728,
+          "format": "mach-o",
+          "kind": "binary"
+        }
+      },
+      "package": {
+        "name": "yarl",
+        "version": "1.25.1"
+      },
+      "upstream_documents": [],
+      "dependency_coverage": {
+        "status": "unverified",
+        "reason": "Payload hashes and package documents do not establish embedded dependency completeness"
+      },
+      "notice_coverage": {
+        "status": "unverified",
+        "reason": "Original notices for embedded components and fonts need separate review"
+      }
+    },
+    "core-python:pypi:zstandard@0.25.0": {
+      "scope": "core-python",
+      "artifacts": {
+        "lib/python3.14/site-packages/zstandard/_cffi.cpython-314-darwin.so": {
+          "sha256": "90e7a61db21b5d792b32f989309932f1bc33216e11f239ee16a5ea76b31b2c17",
+          "bytes": 884776,
+          "format": "mach-o",
+          "kind": "binary"
+        },
+        "lib/python3.14/site-packages/zstandard/backend_c.cpython-314-darwin.so": {
+          "sha256": "7c6e64a36da1460eb8259dd566f877d95da68a26815239940141302ee024769a",
+          "bytes": 761536,
+          "format": "mach-o",
+          "kind": "binary"
+        }
+      },
+      "package": {
+        "name": "zstandard",
+        "version": "0.25.0"
+      },
+      "upstream_documents": [],
+      "dependency_coverage": {
+        "status": "unverified",
+        "reason": "Payload hashes and package documents do not establish embedded dependency completeness"
+      },
+      "notice_coverage": {
+        "status": "unverified",
+        "reason": "Original notices for embedded components and fonts need separate review"
+      }
+    },
+    "node-browser:node_modules/@esbuild/darwin-arm64": {
+      "scope": "node-browser",
+      "artifacts": {
+        "bin/esbuild": {
+          "sha256": "10b6243df618d374bb2d5c9cfbe7052e1405f6aa4e53a6164f11a91b9f2e1384",
+          "bytes": 10590882,
+          "format": "mach-o",
+          "kind": "binary"
+        }
+      },
+      "package": {
+        "name": "@esbuild/darwin-arm64",
+        "version": "0.28.2"
+      },
+      "upstream_documents": [],
+      "dependency_coverage": {
+        "status": "unverified",
+        "reason": "Payload hashes and package documents do not establish embedded dependency completeness"
+      },
+      "notice_coverage": {
+        "status": "unverified",
+        "reason": "Original notices for embedded components and fonts need separate review"
+      }
+    },
+    "node-browser:node_modules/@playwright/mcp/node_modules/playwright-core": {
+      "scope": "node-browser",
+      "artifacts": {
+        "lib/vite/dashboard/assets/codicon-DCmgc-ay.ttf": {
+          "sha256": "0f1d5219934e96e83b8db162d60b4d8c09b5de1e7d38031cbafe4a3c0f2889c9",
+          "bytes": 80340,
+          "format": "truetype",
+          "kind": "font"
+        },
+        "lib/vite/recorder/assets/codicon-DCmgc-ay.ttf": {
+          "sha256": "0f1d5219934e96e83b8db162d60b4d8c09b5de1e7d38031cbafe4a3c0f2889c9",
+          "bytes": 80340,
+          "format": "truetype",
+          "kind": "font"
+        },
+        "lib/vite/traceViewer/codicon.DCmgc-ay.ttf": {
+          "sha256": "0f1d5219934e96e83b8db162d60b4d8c09b5de1e7d38031cbafe4a3c0f2889c9",
+          "bytes": 80340,
+          "format": "truetype",
+          "kind": "font"
+        },
+        "lib/webp_codec.wasm": {
+          "sha256": "164cd9583a3e4d081f767d3b41ff0a730443dc7535fcc5caff83561463384b79",
+          "bytes": 565369,
+          "format": "webassembly",
+          "kind": "binary"
+        }
+      },
+      "package": {
+        "name": "playwright-core",
+        "version": "1.64.0-alpha-1790635538000"
+      },
+      "upstream_documents": [],
+      "dependency_coverage": {
+        "status": "unverified",
+        "reason": "Payload hashes and package documents do not establish embedded dependency completeness"
+      },
+      "notice_coverage": {
+        "status": "unverified",
+        "reason": "Original notices for embedded components and fonts need separate review"
+      }
+    },
+    "node-browser:node_modules/playwright-core": {
+      "scope": "node-browser",
+      "artifacts": {
+        "lib/vite/dashboard/assets/codicon-DCmgc-ay.ttf": {
+          "sha256": "0f1d5219934e96e83b8db162d60b4d8c09b5de1e7d38031cbafe4a3c0f2889c9",
+          "bytes": 80340,
+          "format": "truetype",
+          "kind": "font"
+        },
+        "lib/vite/recorder/assets/codicon-DCmgc-ay.ttf": {
+          "sha256": "0f1d5219934e96e83b8db162d60b4d8c09b5de1e7d38031cbafe4a3c0f2889c9",
+          "bytes": 80340,
+          "format": "truetype",
+          "kind": "font"
+        },
+        "lib/vite/traceViewer/codicon.DCmgc-ay.ttf": {
+          "sha256": "0f1d5219934e96e83b8db162d60b4d8c09b5de1e7d38031cbafe4a3c0f2889c9",
+          "bytes": 80340,
+          "format": "truetype",
+          "kind": "font"
+        },
+        "lib/webp_codec.wasm": {
+          "sha256": "164cd9583a3e4d081f767d3b41ff0a730443dc7535fcc5caff83561463384b79",
+          "bytes": 565369,
+          "format": "webassembly",
+          "kind": "binary"
+        }
+      },
+      "package": {
+        "name": "playwright-core",
+        "version": "1.63.0"
+      },
+      "upstream_documents": [],
+      "dependency_coverage": {
+        "status": "unverified",
+        "reason": "Payload hashes and package documents do not establish embedded dependency completeness"
+      },
+      "notice_coverage": {
+        "status": "unverified",
+        "reason": "Original notices for embedded components and fonts need separate review"
+      }
+    },
+    "node-protocol:node_modules/@napi-rs/keyring-darwin-arm64": {
+      "scope": "node-protocol",
+      "artifacts": {
+        "keyring.darwin-arm64.node": {
+          "sha256": "9627560bd2490b8495504df6b48dafe0153883aab09fd8eee976f826c74a6fff",
+          "bytes": 491232,
+          "format": "mach-o",
+          "kind": "binary"
+        }
+      },
+      "package": {
+        "name": "@napi-rs/keyring-darwin-arm64",
+        "version": "1.3.0"
+      },
+      "upstream_documents": [],
+      "dependency_coverage": {
+        "status": "unverified",
+        "reason": "Payload hashes and package documents do not establish embedded dependency completeness"
+      },
+      "notice_coverage": {
+        "status": "unverified",
+        "reason": "Original notices for embedded components and fonts need separate review"
+      }
+    },
+    "node-protocol:node_modules/@rolldown/binding-darwin-arm64": {
+      "scope": "node-protocol",
+      "artifacts": {
+        "rolldown-binding.darwin-arm64.node": {
+          "sha256": "3d3a04898915d7dcd6809ca15c0f02d20fd07ab28b58863a3889e5f61d6620de",
+          "bytes": 16703408,
+          "format": "mach-o",
+          "kind": "binary"
+        }
+      },
+      "package": {
+        "name": "@rolldown/binding-darwin-arm64",
+        "version": "1.2.12"
+      },
+      "upstream_documents": [],
+      "dependency_coverage": {
+        "status": "unverified",
+        "reason": "Payload hashes and package documents do not establish embedded dependency completeness"
+      },
+      "notice_coverage": {
+        "status": "unverified",
+        "reason": "Original notices for embedded components and fonts need separate review"
+      }
+    },
+    "node-protocol:node_modules/fsevents": {
+      "scope": "node-protocol",
+      "artifacts": {
+        "fsevents.node": {
+          "sha256": "40f2f51199e4f5fc46fa6b985fb3461bb63e6cd86c62bfa9bcee45ed4438d5fb",
+          "bytes": 163626,
+          "format": "mach-o-universal",
+          "kind": "binary"
+        }
+      },
+      "package": {
+        "name": "fsevents",
+        "version": "2.3.3"
+      },
+      "upstream_documents": [],
+      "dependency_coverage": {
+        "status": "unverified",
+        "reason": "Payload hashes and package documents do not establish embedded dependency completeness"
+      },
+      "notice_coverage": {
+        "status": "unverified",
+        "reason": "Original notices for embedded components and fonts need separate review"
+      }
+    },
+    "node-protocol:node_modules/lightningcss-darwin-arm64": {
+      "scope": "node-protocol",
+      "artifacts": {
+        "lightningcss.darwin-arm64.node": {
+          "sha256": "aee1601d7145d89f262d4c777f308ef06ed53046ee49b780d31a98f02db2e253",
+          "bytes": 8532944,
+          "format": "mach-o",
+          "kind": "binary"
+        }
+      },
+      "package": {
+        "name": "lightningcss-darwin-arm64",
+        "version": "1.33.0"
+      },
+      "upstream_documents": [],
+      "dependency_coverage": {
+        "status": "unverified",
+        "reason": "Payload hashes and package documents do not establish embedded dependency completeness"
+      },
+      "notice_coverage": {
+        "status": "unverified",
+        "reason": "Original notices for embedded components and fonts need separate review"
+      }
+    }
+  },
+  "summary": {
+    "components": 30,
+    "artifact_paths": 85,
+    "unique_payload_sha256": 76,
+    "font_paths": 8
+  },
+  "gaps": [
+    {
+      "scope": "node-api",
+      "reason": "Required installation was not inventoried"
+    },
+    {
+      "scope": "optional-api-python",
+      "reason": "Required installation was not inventoried"
+    },
+    {
+      "scope": "browser-runtime:workspace-playwright",
+      "reason": "Payload hashes and package documents do not establish embedded dependency completeness"
+    },
+    {
+      "scope": "browser-runtime:workspace-playwright",
+      "reason": "Original notices for embedded components and fonts need separate review"
+    },
+    {
+      "scope": "core-python:pypi:aiohttp@3.14.4",
+      "reason": "Payload hashes and package documents do not establish embedded dependency completeness"
+    },
+    {
+      "scope": "core-python:pypi:aiohttp@3.14.4",
+      "reason": "Original notices for embedded components and fonts need separate review"
+    },
+    {
+      "scope": "core-python:pypi:cffi@2.1.1",
+      "reason": "Payload hashes and package documents do not establish embedded dependency completeness"
+    },
+    {
+      "scope": "core-python:pypi:cffi@2.1.1",
+      "reason": "Original notices for embedded components and fonts need separate review"
+    },
+    {
+      "scope": "core-python:pypi:charset-normalizer@3.5.2",
+      "reason": "Payload hashes and package documents do not establish embedded dependency completeness"
+    },
+    {
+      "scope": "core-python:pypi:charset-normalizer@3.5.2",
+      "reason": "Original notices for embedded components and fonts need separate review"
+    },
+    {
+      "scope": "core-python:pypi:cryptography@50.0.2",
+      "reason": "Payload hashes and package documents do not establish embedded dependency completeness"
+    },
+    {
+      "scope": "core-python:pypi:cryptography@50.0.2",
+      "reason": "Original notices for embedded components and fonts need separate review"
+    },
+    {
+      "scope": "core-python:pypi:debugpy@1.8.22",
+      "reason": "Payload hashes and package documents do not establish embedded dependency completeness"
+    },
+    {
+      "scope": "core-python:pypi:debugpy@1.8.22",
+      "reason": "Original notices for embedded components and fonts need separate review"
+    },
+    {
+      "scope": "core-python:pypi:frozenlist@1.8.0",
+      "reason": "Payload hashes and package documents do not establish embedded dependency completeness"
+    },
+    {
+      "scope": "core-python:pypi:frozenlist@1.8.0",
+      "reason": "Original notices for embedded components and fonts need separate review"
+    },
+    {
+      "scope": "core-python:pypi:ijson@3.5.1",
+      "reason": "Payload hashes and package documents do not establish embedded dependency completeness"
+    },
+    {
+      "scope": "core-python:pypi:ijson@3.5.1",
+      "reason": "Original notices for embedded components and fonts need separate review"
+    },
+    {
+      "scope": "core-python:pypi:inspect-ai@0.3.273",
+      "reason": "Payload hashes and package documents do not establish embedded dependency completeness"
+    },
+    {
+      "scope": "core-python:pypi:inspect-ai@0.3.273",
+      "reason": "Original notices for embedded components and fonts need separate review"
+    },
+    {
+      "scope": "core-python:pypi:jiter@0.17.0",
+      "reason": "Payload hashes and package documents do not establish embedded dependency completeness"
+    },
+    {
+      "scope": "core-python:pypi:jiter@0.17.0",
+      "reason": "Original notices for embedded components and fonts need separate review"
+    },
+    {
+      "scope": "core-python:pypi:mmh3@5.3.1",
+      "reason": "Payload hashes and package documents do not establish embedded dependency completeness"
+    },
+    {
+      "scope": "core-python:pypi:mmh3@5.3.1",
+      "reason": "Original notices for embedded components and fonts need separate review"
+    },
+    {
+      "scope": "core-python:pypi:multidict@6.9.1",
+      "reason": "Payload hashes and package documents do not establish embedded dependency completeness"
+    },
+    {
+      "scope": "core-python:pypi:multidict@6.9.1",
+      "reason": "Original notices for embedded components and fonts need separate review"
+    },
+    {
+      "scope": "core-python:pypi:numpy@2.5.3",
+      "reason": "Payload hashes and package documents do not establish embedded dependency completeness"
+    },
+    {
+      "scope": "core-python:pypi:numpy@2.5.3",
+      "reason": "Original notices for embedded components and fonts need separate review"
+    },
+    {
+      "scope": "core-python:pypi:propcache@0.5.4",
+      "reason": "Payload hashes and package documents do not establish embedded dependency completeness"
+    },
+    {
+      "scope": "core-python:pypi:propcache@0.5.4",
+      "reason": "Original notices for embedded components and fonts need separate review"
+    },
+    {
+      "scope": "core-python:pypi:psutil@7.2.2",
+      "reason": "Payload hashes and package documents do not establish embedded dependency completeness"
+    },
+    {
+      "scope": "core-python:pypi:psutil@7.2.2",
+      "reason": "Original notices for embedded components and fonts need separate review"
+    },
+    {
+      "scope": "core-python:pypi:pydantic-core@2.46.5",
+      "reason": "Payload hashes and package documents do not establish embedded dependency completeness"
+    },
+    {
+      "scope": "core-python:pypi:pydantic-core@2.46.5",
+      "reason": "Original notices for embedded components and fonts need separate review"
+    },
+    {
+      "scope": "core-python:pypi:pyyaml@6.0.3",
+      "reason": "Payload hashes and package documents do not establish embedded dependency completeness"
+    },
+    {
+      "scope": "core-python:pypi:pyyaml@6.0.3",
+      "reason": "Original notices for embedded components and fonts need separate review"
+    },
+    {
+      "scope": "core-python:pypi:regex@2026.9.29",
+      "reason": "Payload hashes and package documents do not establish embedded dependency completeness"
+    },
+    {
+      "scope": "core-python:pypi:regex@2026.9.29",
+      "reason": "Original notices for embedded components and fonts need separate review"
+    },
+    {
+      "scope": "core-python:pypi:rpds-py@2026.6.3",
+      "reason": "Payload hashes and package documents do not establish embedded dependency completeness"
+    },
+    {
+      "scope": "core-python:pypi:rpds-py@2026.6.3",
+      "reason": "Original notices for embedded components and fonts need separate review"
+    },
+    {
+      "scope": "core-python:pypi:tiktoken@0.14.0",
+      "reason": "Payload hashes and package documents do not establish embedded dependency completeness"
+    },
+    {
+      "scope": "core-python:pypi:tiktoken@0.14.0",
+      "reason": "Original notices for embedded components and fonts need separate review"
+    },
+    {
+      "scope": "core-python:pypi:wrapt@2.5.0",
+      "reason": "Payload hashes and package documents do not establish embedded dependency completeness"
+    },
+    {
+      "scope": "core-python:pypi:wrapt@2.5.0",
+      "reason": "Original notices for embedded components and fonts need separate review"
+    },
+    {
+      "scope": "core-python:pypi:yarl@1.25.1",
+      "reason": "Payload hashes and package documents do not establish embedded dependency completeness"
+    },
+    {
+      "scope": "core-python:pypi:yarl@1.25.1",
+      "reason": "Original notices for embedded components and fonts need separate review"
+    },
+    {
+      "scope": "core-python:pypi:zstandard@0.25.0",
+      "reason": "Payload hashes and package documents do not establish embedded dependency completeness"
+    },
+    {
+      "scope": "core-python:pypi:zstandard@0.25.0",
+      "reason": "Original notices for embedded components and fonts need separate review"
+    },
+    {
+      "scope": "node-browser:node_modules/@esbuild/darwin-arm64",
+      "reason": "Payload hashes and package documents do not establish embedded dependency completeness"
+    },
+    {
+      "scope": "node-browser:node_modules/@esbuild/darwin-arm64",
+      "reason": "Original notices for embedded components and fonts need separate review"
+    },
+    {
+      "scope": "node-browser:node_modules/@playwright/mcp/node_modules/playwright-core",
+      "reason": "Payload hashes and package documents do not establish embedded dependency completeness"
+    },
+    {
+      "scope": "node-browser:node_modules/@playwright/mcp/node_modules/playwright-core",
+      "reason": "Original notices for embedded components and fonts need separate review"
+    },
+    {
+      "scope": "node-browser:node_modules/playwright-core",
+      "reason": "Payload hashes and package documents do not establish embedded dependency completeness"
+    },
+    {
+      "scope": "node-browser:node_modules/playwright-core",
+      "reason": "Original notices for embedded components and fonts need separate review"
+    },
+    {
+      "scope": "node-protocol:node_modules/@napi-rs/keyring-darwin-arm64",
+      "reason": "Payload hashes and package documents do not establish embedded dependency completeness"
+    },
+    {
+      "scope": "node-protocol:node_modules/@napi-rs/keyring-darwin-arm64",
+      "reason": "Original notices for embedded components and fonts need separate review"
+    },
+    {
+      "scope": "node-protocol:node_modules/@rolldown/binding-darwin-arm64",
+      "reason": "Payload hashes and package documents do not establish embedded dependency completeness"
+    },
+    {
+      "scope": "node-protocol:node_modules/@rolldown/binding-darwin-arm64",
+      "reason": "Original notices for embedded components and fonts need separate review"
+    },
+    {
+      "scope": "node-protocol:node_modules/fsevents",
+      "reason": "Payload hashes and package documents do not establish embedded dependency completeness"
+    },
+    {
+      "scope": "node-protocol:node_modules/fsevents",
+      "reason": "Original notices for embedded components and fonts need separate review"
+    },
+    {
+      "scope": "node-protocol:node_modules/lightningcss-darwin-arm64",
+      "reason": "Payload hashes and package documents do not establish embedded dependency completeness"
+    },
+    {
+      "scope": "node-protocol:node_modules/lightningcss-darwin-arm64",
+      "reason": "Original notices for embedded components and fonts need separate review"
+    },
+    {
+      "scope": "host-runtime",
+      "reason": "System interpreters, shared libraries and system fonts outside the workspace were not inspected"
+    },
+    {
+      "scope": "worker-images",
+      "reason": "Current container payload dependencies and notices are not reconciled by this installed-file inventory"
+    }
+  ],
+  "limits": "No inference of embedded components from filenames or package license strings; no external filesystem scanning."
+}

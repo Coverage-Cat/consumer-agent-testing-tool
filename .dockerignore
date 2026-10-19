@@ -1,0 +1,9 @@
+**
+!containers/
+!containers/**
+!src/
+!src/consumer_agent_testing_tool/
+!src/consumer_agent_testing_tool/__init__.py
+!src/consumer_agent_testing_tool/fixture.py
+!src/consumer_agent_testing_tool/fixture_service.py
+!src/consumer_agent_testing_tool/fixture_cli.py

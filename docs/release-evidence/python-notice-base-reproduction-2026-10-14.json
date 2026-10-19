@@ -1,0 +1,8 @@
+{
+  "kind": "synthetic-reproduction",
+  "source_sha256": "6a73de278f1de2a3de57cd223392e9a194218d09185dcd7347dffdccc639009d",
+  "status": "reproduced",
+  "problem": "Python payload binding resolves at interpreter prefix rather than metadata distribution root",
+  "error": "Supplemental artifact hash mismatch: fixture/fixture/font.ttf",
+  "work": ".cache/native-review-2026-10-14/python-notice-base-h604nzg_"
+}

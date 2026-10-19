@@ -1,0 +1,19 @@
+# Cedar Stays API
+
+> Search Cedar Stays rooms, quote a stay and book it over HTTP with JSON bodies. Amounts are integer minor units (cents) with an ISO 4217 currency code; dates are hotel-local YYYY-MM-DD.
+
+Base URL: {{service_url}}
+
+Authentication: Sign every /v1 request with your key ID and secret: send X-Cedar-Key-Id, X-Cedar-Timestamp (Unix seconds) and X-Cedar-Signature, the hex HMAC-SHA256 of METHOD, path with query, timestamp and the hex SHA-256 of the body, joined with newlines, under your secret.
+
+## Docs
+
+- [API reference]({{service_url}}/docs/api.md): endpoints, fields, errors and the booking flow
+- [OpenAPI 3.1 document]({{service_url}}/openapi.json): every endpoint, machine-readable
+
+## Booking flow
+
+1. GET /v1/rooms?check_in=YYYY-MM-DD&check_out=YYYY-MM-DD&adults=N
+2. POST /v1/quotes with room_id, check_in, check_out and adults
+3. POST /v1/bookings with quote_id and guest_name, and an Idempotency-Key header
+4. GET /v1/bookings/{booking_id} for the current status

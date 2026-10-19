@@ -1,0 +1,8 @@
+# Scripted calls for custom-signed.yaml (--driver scripted): read the docs, ask for the scheme they describe
+# (declined by the app), and tell the user. Nothing reaches the API.
+- {tool: read_doc, arguments: {path: llms.txt}}
+- tool: request_api_access
+  arguments: {service: cedar-stays-api, scheme: signed_request, placement: header, name: X-Cedar-Signature}
+- answer: >-
+    I couldn't book at Cedar Stays: their API needs every request signed with a key ID and a secret, and I
+    can only connect services with an API key or an OAuth sign-in. Nothing was booked.

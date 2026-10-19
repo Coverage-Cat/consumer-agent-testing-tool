@@ -1,0 +1,56 @@
+# connector-v1: a Muse-like agent answers a weather question through the official MCP reference server,
+# "Everything" (@modelcontextprotocol/server-everything, MIT, github.com/modelcontextprotocol/servers): the
+# server MCP client authors test against. Its weather data is simulated, so the run needs no account or key.
+# Start the server in a second terminal (it listens on PORT, default 3001):
+#   PORT=3001 npx -y @modelcontextprotocol/server-everything@1.0.0 streamableHttp
+# Then replay the scripted calls, with no model:
+#   consumer-agent-testing-tool connector-run examples/connector/everything-weather.yaml \
+#     --driver scripted --script examples/connector/everything-weather.calls.json
+# See examples/connector/README.md for the agent run and the unofficial Muse template client profile.
+version: 1
+kind: connector
+id: everything-weather
+goal: "What's the weather in Chicago right now? Tell me the temperature and the conditions."
+connectors:
+  - name: everything
+    endpoint: "http://127.0.0.1:${PORT:-3001}/mcp"
+    allowed_origins: ["http://127.0.0.1:${PORT:-3001}"]
+    auth: {mode: none}
+    client_profile: generic-sdk
+    tools:
+      # A reviewed allowlist, as a connector review would keep it. The server also publishes get-env, which
+      # returns the server process's environment variables, and gzip-file-as-resource, which fetches any URL
+      # it is given: neither belongs in front of a consumer agent.
+      allow: [get-structured-content, get-sum, echo]
+projection: native
+exposure: in-prompt
+profile:
+  memory: ["Lives in Chicago."]
+  identity: {name: "Taylor Example", timezone: "America/Chicago"}
+user:
+  replies: []
+  fallback: "I don't know; use your best judgement."
+permissions:
+  # Guidelines 3.3: reads ask on first use; the scripted user allows them for this task.
+  mode: platform-default
+  default: deny
+  rules:
+    - id: reads-for-this-task
+      decision: allow_task
+      when: {field: tool_class, op: eq, value: read}
+checks:
+  # The server has no private oracle, so the host reads the same tool itself after the agent stops; the model
+  # never sees this call. The answer checks below then compare the reply with what the server returned.
+  - id: chicago-conditions
+    source: tool
+    tool:
+      name: get-structured-content
+      arguments: {location: Chicago}
+      pointer: /structuredContent/conditions
+    expect: {op: eq, value: "Light rain / drizzle"}
+answer:
+  relay:
+    - {id: temperature, patterns: ["\\b36\\b"]}
+    - {id: conditions, patterns: ["(?i)\\b(?:rain|drizzle)\\b"]}
+expected: {tools: [get-structured-content]}
+limits: {model_turns: 10, tool_calls: 10, wall_seconds: 300}

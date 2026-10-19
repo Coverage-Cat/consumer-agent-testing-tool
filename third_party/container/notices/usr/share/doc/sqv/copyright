@@ -1,0 +1,27 @@
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: sequoia-sqv
+Upstream-Contact:
+ Justus Winter <justus@sequoia-pgp.org>
+ Kai Michaelis <kai@sequoia-pgp.org>
+ Neal H. Walfield <neal@sequoia-pgp.org>
+Source: https://gitlab.com/sequoia-pgp/sequoia-sqv
+
+Files: *
+Copyright:
+ 2019 Juga <juga@sequoia-pgp.org>
+ 2017-2021 Justus Winter <justus@sequoia-pgp.org>
+ 2018-2019 Kai Michaelis <kai@sequoia-pgp.org>
+ 2017-2020 Neal H. Walfield <neal@sequoia-pgp.org>
+ 2021 Nora Widdecke <nora@sequoia-pgp.org>
+License: LGPL-2.0-or-later
+
+Files: debian/*
+Copyright:
+ 2019-2025 Debian Rust Maintainers <pkg-rust-maintainers@alioth-lists.debian.net>
+ 2024-2025 Alexander Kjäll <alexander.kjall@gmail.com>
+ 2019-2025 Daniel Kahn Gillmor <dkg@fifthhorseman.net>
+ 2024-2025 Holger Levsen <holger@debian.org>
+License: LGPL-2.0-or-later
+
+License: LGPL-2.0-or-later
+ Debian systems provide the LGPL 2.0 in /usr/share/common-licenses/LGPL-2

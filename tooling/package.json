@@ -1,0 +1,10 @@
+{
+  "name": "consumer-agent-testing-tool-protocol-tooling",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Optional upstream protocol tools; setup separately from the Python core",
+  "dependencies": {
+    "@modelcontextprotocol/conformance": "0.1.16",
+    "@modelcontextprotocol/inspector": "2.9.0"
+  }
+}

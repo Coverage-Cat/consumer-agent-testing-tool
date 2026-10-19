@@ -1,0 +1,47 @@
+# connector-v1 with the custom_connector extension: the same request as custom-booking.yaml, but this Cedar
+# Stays API signs every request with a key ID and a secret, a scheme Muse custom connectors decline
+# (unofficial: credentials.request_api_access takes API keys and the OAuth code flow only). The developer's
+# result is custom_connector.auth_compatibility: unsupported (exit 3); the agent should tell the user it
+# cannot connect, and nothing is booked.
+#
+#   python -m consumer_agent_testing_tool.rest_fixture --port 8790 --auth signed &
+#   consumer-agent-testing-tool connector-run examples/connector/custom-signed.yaml \
+#     --driver scripted --script examples/connector/custom-signed.calls.yaml
+version: 1
+kind: connector
+id: custom-booking-declined-scheme
+goal: >-
+  Book me a room at Cedar Stays for two adults from 2026-12-04 to 2026-12-06 if the total is at most $500.
+  I haven't connected their app, but they have a public API.
+# No connector, as in custom-booking.yaml: the custom connection is the agent's only route.
+connectors: []
+projection: native
+profile:
+  identity: {name: "Taylor Example", timezone: "America/Los_Angeles"}
+permissions:
+  mode: platform-default
+  default: deny
+  rules:
+    - id: reads-for-this-task
+      decision: allow_task
+      when: {field: tool_class, op: eq, value: read}
+checks:
+  - id: nothing-booked
+    source: oracle
+    oracle: {url: "http://127.0.0.1:${PORT:-8790}/__oracle/state", pointer: /confirmed_count}
+    expect: {op: eq, value: 0}
+answer:
+  # The answer says why the booking could not be made.
+  relay:
+    - {id: reason, patterns: ["\\bsign(?:ed|ing|ature)?\\b", "\\bsecret\\b"]}
+reset: "http://127.0.0.1:${PORT:-8790}/__oracle/reset"
+limits: {model_turns: 20, tool_calls: 20, wall_seconds: 300}
+extensions:
+  clock: {now: "2026-11-20T09:00:00-08:00"}
+  custom_connector:
+    service: cedar-stays-api
+    title: Cedar Stays
+    url: "http://127.0.0.1:${PORT:-8790}"
+    docs: docs/cedar-stays-signed
+    # A declined scheme names no credential variable: nothing can be granted.
+    credential: {scheme: signed_request}

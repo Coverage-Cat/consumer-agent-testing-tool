@@ -1,0 +1,54 @@
+{
+  "schema_version": 1,
+  "kind": "original-subtree-notice-recovery",
+  "checked_at": "2026-10-14",
+  "repository": "https://github.com/microsoft/playwright",
+  "commit": "1b025d7e20a026371cd5f98ba0cdce48892737c8",
+  "revision_basis": "gitHead in the npm playwright-core 1.63.0 release metadata",
+  "registry_url": "https://registry.npmjs.org/playwright-core/1.63.0",
+  "registry_response_sha256": "166f23c4dbd19b986cf0fd8c82b0d9fb60b1c1f98144298d357950f2762e769f",
+  "source_entries": [
+    {
+      "path": "packages/web/src/third_party/vscode/LICENSE.txt",
+      "url": "https://raw.githubusercontent.com/microsoft/playwright/1b025d7e20a026371cd5f98ba0cdce48892737c8/packages/web/src/third_party/vscode/LICENSE.txt",
+      "git_blob_sha1": "293c59e320ae6eae78049d80b8c9b77155df7bb7",
+      "sha256": "20535828272932407c2f5172aeb714ac7b374a34e5ecb1825af509f2902cde54",
+      "bytes": 1087
+    },
+    {
+      "path": "packages/web/src/third_party/vscode/codicon.ttf",
+      "url": "https://raw.githubusercontent.com/microsoft/playwright/1b025d7e20a026371cd5f98ba0cdce48892737c8/packages/web/src/third_party/vscode/codicon.ttf",
+      "git_blob_sha1": "27ee4c68caef1cd22342f481420d6dbda1648012",
+      "sha256": "0f1d5219934e96e83b8db162d60b4d8c09b5de1e7d38031cbafe4a3c0f2889c9",
+      "bytes": 80340
+    },
+    {
+      "path": "packages/web/src/third_party/vscode/codicon.css",
+      "url": "https://raw.githubusercontent.com/microsoft/playwright/1b025d7e20a026371cd5f98ba0cdce48892737c8/packages/web/src/third_party/vscode/codicon.css",
+      "git_blob_sha1": "41360ce21d6435db886a3757473e7153774369ef",
+      "sha256": "475c72e3a1766bd9989d15906507878e7218885d9b3a937dc91a68682befda6d",
+      "bytes": 29572
+    }
+  ],
+  "installed_matches": [
+    {
+      "package": "tooling/payment-ui/node_modules/playwright-core",
+      "version": "1.63.0",
+      "artifacts": {
+        "lib/vite/dashboard/assets/codicon-DCmgc-ay.ttf": "0f1d5219934e96e83b8db162d60b4d8c09b5de1e7d38031cbafe4a3c0f2889c9",
+        "lib/vite/recorder/assets/codicon-DCmgc-ay.ttf": "0f1d5219934e96e83b8db162d60b4d8c09b5de1e7d38031cbafe4a3c0f2889c9",
+        "lib/vite/traceViewer/codicon.DCmgc-ay.ttf": "0f1d5219934e96e83b8db162d60b4d8c09b5de1e7d38031cbafe4a3c0f2889c9"
+      }
+    },
+    {
+      "package": "tooling/payment-ui/node_modules/@playwright/mcp/node_modules/playwright-core",
+      "version": "1.64.0-alpha-1790635538000",
+      "artifacts": {
+        "lib/vite/dashboard/assets/codicon-DCmgc-ay.ttf": "0f1d5219934e96e83b8db162d60b4d8c09b5de1e7d38031cbafe4a3c0f2889c9",
+        "lib/vite/recorder/assets/codicon-DCmgc-ay.ttf": "0f1d5219934e96e83b8db162d60b4d8c09b5de1e7d38031cbafe4a3c0f2889c9",
+        "lib/vite/traceViewer/codicon.DCmgc-ay.ttf": "0f1d5219934e96e83b8db162d60b4d8c09b5de1e7d38031cbafe4a3c0f2889c9"
+      }
+    }
+  ],
+  "limits": "Byte identity binds this recovered notice to six observed font paths. This is not a complete audit of Playwright, native libraries, other fonts, or redistribution terms."
+}

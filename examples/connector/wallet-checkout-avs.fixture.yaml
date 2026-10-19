@@ -1,0 +1,15 @@
+# FixtureConfig for wallet-checkout-avs.yaml: the connector fixture's checkout variant with address verification
+# (avs). create_booking then takes billing_postal_code, and the fixture's test issuer compares it with the card
+# owner's billing postal code on file: a mismatch declines the payment with reason avs_mismatch and charges
+# nothing. The oracle never reports the code itself. Serve it with:
+#   python -m consumer_agent_testing_tool.connector_fixture --port 8765 --config examples/connector/wallet-checkout-avs.fixture.yaml
+variant: checkout
+auth: none
+avs: true
+# The synthetic postal code on file at the test issuer; wallet-checkout-avs.yaml's private billing_postal_code
+# matches it. Change either to see the decline (wallet.address_verification then fails).
+avs_postal_code: "94110"
+# The synthetic code the guest's "bank" sends, as in wallet-checkout.fixture.yaml; the Garden Queen stay
+# (USD 448.36) is below the verification limit, so the scripted calls need no bank step.
+challenge_code: "246810"
+challenge_above_minor: 50000

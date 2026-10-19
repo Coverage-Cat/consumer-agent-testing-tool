@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "status": "failed",
+  "source_before": "dbf99422fe40797c851ae4e8c01a5b31d9696df6c525b85093876250239e40ed",
+  "started_at": "2026-10-14T20:11:48.864045+00:00",
+  "work": ".cache/regression-run-2es6ybg7",
+  "junit": "docs/release-evidence/qualification-audit-regression-2026-10-14.xml",
+  "log": "docs/release-evidence/qualification-audit-regression-2026-10-14.log",
+  "opt_in_tests": {
+    "SURFACE_LAB_TEST_DOCKER": "1",
+    "SURFACE_BROWSER_WORKER_TEST": "1"
+  },
+  "command": [
+    "~/Development/consumer-agent-testing/.venv/bin/python",
+    "-m",
+    "pytest",
+    "-q",
+    "-o",
+    "addopts=",
+    "--basetemp=~/Development/consumer-agent-testing/.cache/regression-run-2es6ybg7/tests",
+    "--junitxml=~/Development/consumer-agent-testing/docs/release-evidence/qualification-audit-regression-2026-10-14.xml",
+    "tests"
+  ],
+  "returncode": 1,
+  "source_after": "dbf99422fe40797c851ae4e8c01a5b31d9696df6c525b85093876250239e40ed",
+  "finished_at": "2026-10-14T20:35:05.476480+00:00",
+  "junit_sha256": "84bfd070b1627fc297d59d031541a1121ffa8a38b2501095917f3270538f40e1",
+  "log_sha256": "af2aee2feb2f34095c30f75e4ae3ca6e5a44463b2823988e23cd757636f90fae"
+}

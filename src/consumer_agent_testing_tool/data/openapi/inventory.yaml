@@ -1,0 +1,51 @@
+openapi: 3.0.3
+info:
+  title: Synthetic inventory contract
+  version: "1"
+  description: A sample for an owned test service; no public service is contacted.
+  contact:
+    name: Test fixture owner
+servers:
+  - url: http://127.0.0.1:8765/v1
+tags:
+  - name: inventory
+    description: Read synthetic inventory.
+paths:
+  /items:
+    get:
+      operationId: listItems
+      description: Read the requested item count. No prerequisites. Invalid counts return HTTP 400; correct the count and retry.
+      x-consumer-agent-testing-tool-effect: read
+      tags: [inventory]
+      parameters:
+        - in: query
+          name: count
+          required: true
+          description: Number of items, in whole items.
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 2
+      responses:
+        "200":
+          description: The requested count.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  count:
+                    type: integer
+                required: [count]
+                additionalProperties: false
+        "400":
+          description: The input does not meet this contract.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                required: [error]
+                additionalProperties: false

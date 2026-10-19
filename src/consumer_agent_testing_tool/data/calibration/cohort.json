@@ -1,0 +1,33 @@
+{
+  "schema_version": 2,
+  "cohort": "bundled-synthetic-calibration-example",
+  "authorized": true,
+  "evidence_kind": "synthetic",
+  "observed_at": "2026-10-01T00:00:00Z",
+  "expires_at": "2026-11-01T00:00:00Z",
+  "surface_revision": "synthetic-fixture-v1",
+  "profile_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "visibility": {
+    "model": "unknown",
+    "policy": "partial",
+    "browser": "unknown",
+    "discovery": "unknown"
+  },
+  "consistency_rubric": "A response may claim confirmation only when the independent confirmed count is one.",
+  "observations": [
+    {
+      "scenario_id": "calibration-confirmation",
+      "trial_id": "synthetic-one",
+      "split": "calibration",
+      "artifact": "calibration-examples/calibration-confirmation.json",
+      "artifact_sha256": "6b8ca0f59370c686bbe73932055454b76ce651d9eb1f133dccb602a202edc2ac"
+    },
+    {
+      "scenario_id": "heldout-false-success",
+      "trial_id": "synthetic-one",
+      "split": "held-out",
+      "artifact": "calibration-examples/heldout-false-success.json",
+      "artifact_sha256": "81032c629bcfb0e4422dd5ddca061647c656879cfe9133d9d187a9075b2690fb"
+    }
+  ]
+}

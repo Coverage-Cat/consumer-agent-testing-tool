@@ -1,0 +1,21 @@
+{
+  "source_sha256": "eb2ccdced615d901fb2814a78019c6a9a6e18c7c9e4380958a965c434fb0335a",
+  "distribution_sha256": "ee551c6e29d2c933e240e2ffdf4b910b422da77513c6ab3ccdc596f484febced",
+  "provenance_sha256": "3acffd7e300dd5f4277f7ab125d0e25c6f9c02ccc5626304d06a41db0ec7daef",
+  "archives_verified": 17,
+  "original_notices_verified": 34,
+  "installed_scopes": [
+    {
+      "scope": "core-python",
+      "notice_bindings_verified": 34,
+      "observed_artifact_hashes_verified": 1
+    },
+    {
+      "scope": "optional-api-python",
+      "notice_bindings_verified": 34,
+      "observed_artifact_hashes_verified": 1
+    }
+  ],
+  "wheel_sha256": "4d1c68792ce1da8f57a7d47ce57f0912179eec7c5c4f14ac72b61c1efd4a7b82",
+  "limits": "Original archive notices and exact observed rpds-py payload bindings verified. No native linkage, compiler/platform completeness or legal clearance is established."
+}

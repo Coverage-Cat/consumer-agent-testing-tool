@@ -1,0 +1,25 @@
+{
+  "source_sha256": "4a723403e7e80112105e1ff62c29144d68ed9c0c97642c2a896c8e3aa8d5178a",
+  "synthetic": true,
+  "cases": [
+    {
+      "case": "missing-response",
+      "run": ".cache/model-timing-2026-10-14/r-721458799e114e0bbdce01b8599ae809",
+      "actual_model_seconds": 0.0,
+      "required_model_seconds": null
+    },
+    {
+      "case": "duplicate-response",
+      "run": ".cache/model-timing-2026-10-14/r-9dcf8c901b4c4c8bace0545599a199d3",
+      "actual_model_seconds": 3.0,
+      "required_model_seconds": null
+    },
+    {
+      "case": "cross-clock-response",
+      "run": ".cache/model-timing-2026-10-14/r-456a90e91db44d3c99101ce1b168d874",
+      "actual_model_seconds": 1.0,
+      "required_model_seconds": null
+    }
+  ],
+  "finding": "Missing, duplicated or cross-clock model response evidence is currently reported as measured model latency."
+}

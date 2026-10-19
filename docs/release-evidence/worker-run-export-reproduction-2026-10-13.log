@@ -1,0 +1,15 @@
+{
+  "worker_status": "completed",
+  "collection": "complete",
+  "cleanup": "confirmed",
+  "exported_names": [
+    "exit.json",
+    "runs/r-76da5b431b0a449eae1b762214d9fbcf/events.jsonl",
+    "runs/r-76da5b431b0a449eae1b762214d9fbcf/report.html",
+    "stderr.log",
+    "stdout.log"
+  ],
+  "manifest_in_export": false,
+  "event_artifact_links_missing": 2,
+  "scope": "Actual Surface Lab evidence writer with a synthetic static assertion; no inference"
+}

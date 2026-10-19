@@ -1,0 +1,31 @@
+# Readiness manifest for `check --suite muse-guidelines --manifest readiness.yaml` (guidelines section 5).
+# Developer declarations about the submission: the check verifies that each is present and quotes the
+# guideline it rests on. Their truth stays with Meta's reviewers; a clean check is no admission.
+version: 1
+kind: muse-readiness
+connector: cedar-stays
+documentation:  # 5.4: public documentation covering every listed topic.
+  url: https://docs.example.com/cedar-stays/mcp
+  covers: [setup-instructions, inputs-and-outputs, read-write-classifications, sensitive-designations,
+           permissions, side-effects, status-handling, errors, rate-limits]
+authentication:  # 3.1: offer a read-only scope set where possible.
+  method: oauth
+  scopes: [stays:read, stays:write]
+  read_only_scopes: [stays:read]
+  credentials_environment: test
+test_account:  # 5.5: never credentials here; the submission form has its own secure channel.
+  sign_in_instructions: Sign in with the reviewer account named in the submission form.
+  required_permissions: stays:read and stays:write
+  representative_test_data: Rooms at the Cedar Stays test property with availability every night of 2026.
+  limits: Bookings on the test property are never charged and reset nightly.
+  accessible_throughout_review: true
+transactions:  # 5.5: how reviewers test checkout without real charges.
+  has_transaction_tools: true
+  tools: [create_booking]
+  no_charge_test_path: The test property's card on file is a processor test card; nothing is captured.
+classes:  # 5.6: the class each tool's documentation declares.
+  search_rooms: read
+  get_quote: read
+  create_booking: sensitive-write
+  get_booking: read
+  cancel_booking: sensitive-write

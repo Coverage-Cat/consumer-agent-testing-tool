@@ -1,0 +1,11 @@
+{
+  "url": "http://127.0.0.1:8765/portal",
+  "origins": ["http://127.0.0.1:8765"],
+  "rules": [
+    {"id": "portal", "origin": "http://127.0.0.1:8765", "path": "/portal", "methods": ["GET"], "effect": "read"},
+    {"id": "mutation", "origin": "http://127.0.0.1:8765", "path": "/mutation", "methods": ["GET"], "effect": "write"}
+  ],
+  "snapshot_max_chars": 20000,
+  "history_snapshots": 2,
+  "dialogs": "agent"
+}

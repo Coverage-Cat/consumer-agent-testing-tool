@@ -1,0 +1,14 @@
+# Connector fixture config (FixtureConfig) for subprocess tests: OAuth with DCR and one CIMD
+# client. Users and passwords come from --login-env, never from this file.
+auth: oauth
+variant: good
+access_token_seconds: 600
+cimd_documents:
+  https://client.example.com/catt/oauth-client.json:
+    client_id: https://client.example.com/catt/oauth-client.json
+    client_name: Consumer Agent Testing Tool (CIMD test client)
+    redirect_uris: [http://127.0.0.1:47321/callback]
+    grant_types: [authorization_code, refresh_token]
+    response_types: [code]
+    token_endpoint_auth_method: none
+    scope: stays:read stays:write

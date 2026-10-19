@@ -1,0 +1,30 @@
+# Scripted calls for scheduled-confirmation.yaml (--driver scripted): a smoke run without a model, through the
+# same host pipeline and scheduler. Each {idle: true} step is the agent stopping (one model turn): the scheduler
+# moves the fixture clock, and the service's through /__oracle/clock, to the next scheduled run and resumes the
+# agent; the step's result is that resume message. They assume the fixture's slow-confirm variant and reference
+# earlier results by JSON pointer (/results/<step>/...), so they also assume its result shapes.
+- {tool: search_rooms, arguments: {check_in: "2026-12-04", check_out: "2026-12-06", adults: 2}}
+- tool: get_quote
+  arguments:
+    room_id: {$ref: /results/0/result/structuredContent/rooms/0/room_id}
+    check_in: "2026-12-04"
+    check_out: "2026-12-06"
+    adults: 2
+- tool: create_booking
+  arguments:
+    quote_id: {$ref: /results/1/result/structuredContent/quote_id}
+    guest_name: Taylor Example
+    idempotency_key: scheduled-smoke-1
+# The user is present until here. The stop lets the scheduled task run at 09:15, in the background.
+- {idle: true, text: "Booked; it is pending confirmation, so I will keep checking."}
+- tool: get_booking
+  arguments: {booking_id: {$ref: /results/2/result/structuredContent/booking_id}}
+- {idle: true, text: "Your Cedar Stays booking is confirmed."}
+# 09:30: the second run re-reads the unchanged booking (a wasted poll) and stops the task.
+- tool: get_booking
+  arguments: {booking_id: {$ref: /results/2/result/structuredContent/booking_id}}
+- {tool: cancel_scheduled_task, arguments: {task_id: confirmation-check}}
+- answer:
+    - "Your Cedar Stays booking "
+    - {$ref: /results/2/result/structuredContent/booking_id}
+    - " is confirmed; I stopped checking."

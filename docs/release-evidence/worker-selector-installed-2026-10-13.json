@@ -1,0 +1,65 @@
+{
+  "status": "passed",
+  "scope": "installed local worker exports and main CLI static placement",
+  "source_sha256": "86affaba666ecb94f021371e734f0b6e1fa95042f3b0cfcc2b3abb9177984b21",
+  "distribution_record_sha256": "7d7ec3fb71e8be618b8d7ccb4fd90ff1e66dee22b5d76482066a8518d6ecf767",
+  "workers": [
+    {
+      "group": "worker-evidence",
+      "journal": ".cache/d-forptvvg/p/worker-evidence/runs/worker-348026fe7bbf4a51b2a0d3121dc011d7/worker.json",
+      "sha256": "64dff52ae7f255db51a469904bfb45734fa125a7e47e69135af2ebb6fbde8874",
+      "status": "expired-cleaned",
+      "collection": "complete",
+      "cleanup": "confirmed",
+      "manifests": [
+        {
+          "path": ".cache/d-forptvvg/p/worker-evidence/runs/worker-348026fe7bbf4a51b2a0d3121dc011d7/evidence/runs/r-502b5e4152de48609e5192f87d574222/manifest.json",
+          "sha256": "b681ba2f16d2b258f3f44dac5d5d6db94732b9d11465270d6d7aa0a2db079e3c"
+        }
+      ]
+    },
+    {
+      "group": "worker-evidence",
+      "journal": ".cache/d-forptvvg/p/worker-evidence/runs/worker-69489c770a63482395b4b106b70a5bdb/worker.json",
+      "sha256": "11c6030ec1bf509237beab0a0b0844d7dd8738cdbe3289448a79d70af42df18a",
+      "status": "failed",
+      "collection": "complete",
+      "cleanup": "confirmed",
+      "manifests": [
+        {
+          "path": ".cache/d-forptvvg/p/worker-evidence/runs/worker-69489c770a63482395b4b106b70a5bdb/evidence/runs/r-c391356bf4a54cd4b29016132c77ae28/manifest.json",
+          "sha256": "cc606680cce316f85d519709f7d065f817a7c171cdc9da74bc9fe612d33e9e2a"
+        }
+      ]
+    },
+    {
+      "group": "worker-evidence",
+      "journal": ".cache/d-forptvvg/p/worker-evidence/runs/worker-6bec519ba3e54d91ac52e5a3f8c3f752/worker.json",
+      "sha256": "5c631d8530b1d5ba5e1d4202490a83059a99b773b7bc0f32e6cf5181d2250dc9",
+      "status": "completed",
+      "collection": "complete",
+      "cleanup": "confirmed",
+      "manifests": [
+        {
+          "path": ".cache/d-forptvvg/p/worker-evidence/runs/worker-6bec519ba3e54d91ac52e5a3f8c3f752/evidence/runs/r-3468b4fd364e48a5b5d1d44fdf93bd81/manifest.json",
+          "sha256": "767d2c85193ace296798dd4e6f0493fdc992fb80be8ba52c2d9236cd3fd8b3ef"
+        }
+      ]
+    },
+    {
+      "group": "worker-selector",
+      "journal": ".cache/d-forptvvg/p/worker-selector/runs/worker-7b657c2cef1c4c078a4250a425e9e1db/worker.json",
+      "sha256": "7a0f69905370667802d5e118ca281deba58077edc7a158043234d9b65c45d344",
+      "status": "completed",
+      "collection": "complete",
+      "cleanup": "confirmed",
+      "manifests": [
+        {
+          "path": ".cache/d-forptvvg/p/worker-selector/runs/worker-7b657c2cef1c4c078a4250a425e9e1db/evidence/runs/r-435e7de62ec74b1d8ba9be6563fb135f/manifest.json",
+          "sha256": "b36ee186abe167ddd4e9b763e1ff7bd6c16e5d304b0e8acba2f703c020083e8e"
+        }
+      ]
+    }
+  ],
+  "limits": "No cloud provisioning, paid inference or installed Docker behavior claim."
+}

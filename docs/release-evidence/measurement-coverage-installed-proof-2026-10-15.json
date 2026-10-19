@@ -1,0 +1,668 @@
+{
+  "source_sha256": "53f7c3b8921a5e25495910de9f8101dd4be10a39faa5a69924522a46411d4c59",
+  "interpreter": ".cache/d-94l2wyjd/api",
+  "installed_code_matches_source": {
+    ".cache/d-94l2wyjd/api/lib/python3.14/site-packages/surface_lab/evidence.py": "edd816b53df7036c75d79f5f7cfcc708b2d8170b0aa0a3899b9ae874084ac850",
+    ".cache/d-94l2wyjd/api/lib/python3.14/site-packages/surface_lab/measurements.py": "c0d415f075dd937cb17165d0f5e47346922ad2ce65886d2233e9a7df6a4db99c",
+    ".cache/d-94l2wyjd/api/lib/python3.14/site-packages/surface_lab/metrics.py": "5160f1f22bdca5445b95e2f4c9a5a79077f4fc0b6f179f7526dd09bc0e5dda76",
+    ".cache/d-94l2wyjd/api/lib/python3.14/site-packages/surface_lab/providers.py": "38a981fed74a908dba945013dda1e6c510392adfacc84a7fc283289e0937172b",
+    ".cache/d-94l2wyjd/api/lib/python3.14/site-packages/surface_lab/usage_metrics.py": "b711404f80103fcda1144bc2f57e8af311d7d8ba57627705d538d7fa6a520ed0"
+  },
+  "cases": [
+    {
+      "case": "adapter-default",
+      "run": ".cache/measurement-followups-2026-10-15/installed-proof/r-cf661dc531ec4b1c95ac76df140cd618",
+      "manifest_sha256": "1e5910d96dc8184722fc1d82ab335317ee7f73013347023782693f83501afa35",
+      "export": ".cache/measurement-followups-2026-10-15/installed-proof/export-adapter-default",
+      "export_manifest_sha256": "ce23868ada7247dabde17188d4046f0e5904d53bd8773c6159938b97e374f0a0",
+      "token_usage": null,
+      "observed_token_usage": {
+        "input_tokens": 0,
+        "output_tokens": 3
+      },
+      "usage_observations": {
+        "schema_version": 1,
+        "requests": 1,
+        "observation_gaps": 0,
+        "required_fields": [
+          "input_tokens",
+          "output_tokens",
+          "total_tokens"
+        ],
+        "provenance_gaps": 0,
+        "fields": {
+          "input_tokens": {
+            "observed_requests": 1,
+            "invalid_requests": 0,
+            "missing_requests": 0,
+            "observed_total": 0,
+            "complete": true
+          },
+          "output_tokens": {
+            "observed_requests": 1,
+            "invalid_requests": 0,
+            "missing_requests": 0,
+            "observed_total": 3,
+            "complete": true
+          },
+          "total_tokens": {
+            "observed_requests": 0,
+            "invalid_requests": 0,
+            "missing_requests": 1,
+            "observed_total": null,
+            "complete": false
+          },
+          "input_tokens_cache_write": {
+            "observed_requests": 0,
+            "invalid_requests": 0,
+            "missing_requests": 1,
+            "observed_total": null,
+            "complete": false
+          },
+          "input_tokens_cache_read": {
+            "observed_requests": 0,
+            "invalid_requests": 0,
+            "missing_requests": 1,
+            "observed_total": null,
+            "complete": false
+          },
+          "reasoning_tokens": {
+            "observed_requests": 0,
+            "invalid_requests": 0,
+            "missing_requests": 1,
+            "observed_total": null,
+            "complete": false
+          }
+        },
+        "basis": "Explicit Inspect-adapter token fields across recorded model requests; missing responses, usage, or explicit-field provenance are not zero. Coverage does not establish provider billing or hidden provider work."
+      }
+    },
+    {
+      "case": "explicit-zero",
+      "run": ".cache/measurement-followups-2026-10-15/installed-proof/r-a4df39ad17bc4645bd4c1ac7cbb33e58",
+      "manifest_sha256": "174851eb197de232f22c1c29e1901920b9c9f1b5737ebb2f7fa6412265972b71",
+      "export": ".cache/measurement-followups-2026-10-15/installed-proof/export-explicit-zero",
+      "export_manifest_sha256": "2fc6b0623d023672c4419e377ff40912e1f9dba50ff0e03175aa93680fe5d3db",
+      "token_usage": {
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "total_tokens": 0
+      },
+      "observed_token_usage": {
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "total_tokens": 0
+      },
+      "usage_observations": {
+        "schema_version": 1,
+        "requests": 1,
+        "observation_gaps": 0,
+        "required_fields": [
+          "input_tokens",
+          "output_tokens",
+          "total_tokens"
+        ],
+        "provenance_gaps": 0,
+        "fields": {
+          "input_tokens": {
+            "observed_requests": 1,
+            "invalid_requests": 0,
+            "missing_requests": 0,
+            "observed_total": 0,
+            "complete": true
+          },
+          "output_tokens": {
+            "observed_requests": 1,
+            "invalid_requests": 0,
+            "missing_requests": 0,
+            "observed_total": 0,
+            "complete": true
+          },
+          "total_tokens": {
+            "observed_requests": 1,
+            "invalid_requests": 0,
+            "missing_requests": 0,
+            "observed_total": 0,
+            "complete": true
+          },
+          "input_tokens_cache_write": {
+            "observed_requests": 0,
+            "invalid_requests": 0,
+            "missing_requests": 1,
+            "observed_total": null,
+            "complete": false
+          },
+          "input_tokens_cache_read": {
+            "observed_requests": 0,
+            "invalid_requests": 0,
+            "missing_requests": 1,
+            "observed_total": null,
+            "complete": false
+          },
+          "reasoning_tokens": {
+            "observed_requests": 0,
+            "invalid_requests": 0,
+            "missing_requests": 1,
+            "observed_total": null,
+            "complete": false
+          }
+        },
+        "basis": "Explicit Inspect-adapter token fields across recorded model requests; missing responses, usage, or explicit-field provenance are not zero. Coverage does not establish provider billing or hidden provider work."
+      }
+    },
+    {
+      "case": "failed-trial-with-usage",
+      "run": ".cache/measurement-followups-2026-10-15/installed-proof/r-2b05c77b14bc4175b834bfd12522841d",
+      "manifest_sha256": "e15e1f6dc69ea6b1d7dab0ae434b754626ffc173d057be212f9a30b570e14e50",
+      "export": ".cache/measurement-followups-2026-10-15/installed-proof/export-failed-trial-with-usage",
+      "export_manifest_sha256": "aab0c7e1bfaf5e653f73ee4cdfb37a61a11aafe06dd305d8038024d29d529e71",
+      "token_usage": {
+        "input_tokens": 10,
+        "output_tokens": 2,
+        "total_tokens": 12
+      },
+      "observed_token_usage": {
+        "input_tokens": 10,
+        "output_tokens": 2,
+        "total_tokens": 12
+      },
+      "usage_observations": {
+        "schema_version": 1,
+        "requests": 1,
+        "observation_gaps": 0,
+        "required_fields": [
+          "input_tokens",
+          "output_tokens",
+          "total_tokens"
+        ],
+        "provenance_gaps": 0,
+        "fields": {
+          "input_tokens": {
+            "observed_requests": 1,
+            "invalid_requests": 0,
+            "missing_requests": 0,
+            "observed_total": 10,
+            "complete": true
+          },
+          "output_tokens": {
+            "observed_requests": 1,
+            "invalid_requests": 0,
+            "missing_requests": 0,
+            "observed_total": 2,
+            "complete": true
+          },
+          "total_tokens": {
+            "observed_requests": 1,
+            "invalid_requests": 0,
+            "missing_requests": 0,
+            "observed_total": 12,
+            "complete": true
+          },
+          "input_tokens_cache_write": {
+            "observed_requests": 0,
+            "invalid_requests": 0,
+            "missing_requests": 1,
+            "observed_total": null,
+            "complete": false
+          },
+          "input_tokens_cache_read": {
+            "observed_requests": 0,
+            "invalid_requests": 0,
+            "missing_requests": 1,
+            "observed_total": null,
+            "complete": false
+          },
+          "reasoning_tokens": {
+            "observed_requests": 0,
+            "invalid_requests": 0,
+            "missing_requests": 1,
+            "observed_total": null,
+            "complete": false
+          }
+        },
+        "basis": "Explicit Inspect-adapter token fields across recorded model requests; missing responses, usage, or explicit-field provenance are not zero. Coverage does not establish provider billing or hidden provider work."
+      }
+    },
+    {
+      "case": "missing-response",
+      "run": ".cache/measurement-followups-2026-10-15/installed-proof/r-c8813986f21a4f1d9b75e4fc576f695d",
+      "manifest_sha256": "24fc1e157a94265f0ca34ec14e85e4829f56974f34f9532491eb43b866560314",
+      "export": ".cache/measurement-followups-2026-10-15/installed-proof/export-missing-response",
+      "export_manifest_sha256": "d3e3f0a18c3be21216e32b8473ca46565bcf826d65dc20c2ed5d4155d0f1c969",
+      "token_usage": null,
+      "observed_token_usage": {
+        "input_tokens": 10,
+        "output_tokens": 2,
+        "total_tokens": 12
+      },
+      "usage_observations": {
+        "schema_version": 1,
+        "requests": 2,
+        "observation_gaps": 1,
+        "required_fields": [
+          "input_tokens",
+          "output_tokens",
+          "total_tokens"
+        ],
+        "provenance_gaps": 0,
+        "fields": {
+          "input_tokens": {
+            "observed_requests": 1,
+            "invalid_requests": 0,
+            "missing_requests": 1,
+            "observed_total": 10,
+            "complete": false
+          },
+          "output_tokens": {
+            "observed_requests": 1,
+            "invalid_requests": 0,
+            "missing_requests": 1,
+            "observed_total": 2,
+            "complete": false
+          },
+          "total_tokens": {
+            "observed_requests": 1,
+            "invalid_requests": 0,
+            "missing_requests": 1,
+            "observed_total": 12,
+            "complete": false
+          },
+          "input_tokens_cache_write": {
+            "observed_requests": 0,
+            "invalid_requests": 0,
+            "missing_requests": 2,
+            "observed_total": null,
+            "complete": false
+          },
+          "input_tokens_cache_read": {
+            "observed_requests": 0,
+            "invalid_requests": 0,
+            "missing_requests": 2,
+            "observed_total": null,
+            "complete": false
+          },
+          "reasoning_tokens": {
+            "observed_requests": 0,
+            "invalid_requests": 0,
+            "missing_requests": 2,
+            "observed_total": null,
+            "complete": false
+          }
+        },
+        "basis": "Explicit Inspect-adapter token fields across recorded model requests; missing responses, usage, or explicit-field provenance are not zero. Coverage does not establish provider billing or hidden provider work."
+      }
+    }
+  ],
+  "complete_trial_summary": {
+    "task_success": {
+      "numerator": 0,
+      "denominator": 1,
+      "rate": 0.0,
+      "wilson_95": [
+        0,
+        0.7934506856227626
+      ]
+    },
+    "attempts": 2,
+    "valid_completed": 1,
+    "blocked": 0,
+    "infrastructure": 1,
+    "unauthorized_effect_count": null,
+    "duplicate_effect_count": null,
+    "effect_observation_coverage": {
+      "unauthorized": 0,
+      "duplicates": 0,
+      "attempts": 2
+    },
+    "invariant_observations": {
+      "backend.unauthorized_effect_count": {
+        "expected": 0,
+        "required": 2,
+        "observed": 0,
+        "actual": null,
+        "violations": 0
+      },
+      "backend.duplicate_effect_count": {
+        "expected": 0,
+        "required": 2,
+        "observed": 0,
+        "actual": null,
+        "violations": 0
+      }
+    },
+    "effect_count_basis": "Maximum typed observed count per trial across current metrics and retained independent observations; summed across trials, not across continuation attempts",
+    "exposure_rate": null,
+    "selection_rate_given_exposure": null,
+    "argument_validity": {
+      "numerator": 0,
+      "denominator": 0,
+      "rate": null,
+      "wilson_95": null
+    },
+    "observed_argument_validity": {
+      "numerator": 0,
+      "denominator": 0,
+      "rate": null,
+      "wilson_95": null
+    },
+    "argument_observations": {
+      "valid": 0,
+      "invalid": 0,
+      "unknown": 0,
+      "proposals": 0,
+      "observation_gaps": 0
+    },
+    "argument_trial_coverage": {
+      "observed": 2,
+      "complete": 2,
+      "unmeasured": 0
+    },
+    "recovery_success": null,
+    "observation_loss": {
+      "output_bytes_lost": 0,
+      "semantic_loss": null
+    },
+    "latency_seconds": {
+      "model_seconds": 0.000448459,
+      "tool_seconds": null,
+      "browser_seconds": null,
+      "approval_wait_seconds": null,
+      "total_seconds": 0.011629541
+    },
+    "observed_latency_seconds": {
+      "model_seconds": 0.000448459,
+      "tool_seconds": null,
+      "browser_seconds": null,
+      "approval_wait_seconds": null,
+      "total_seconds": 0.011629541
+    },
+    "latency_coverage": {
+      "model_seconds": {
+        "observed_trials": 2,
+        "unmeasured_trials": 0,
+        "partially_measured_trials": 0
+      },
+      "tool_seconds": {
+        "observed_trials": 0,
+        "unmeasured_trials": 2,
+        "partially_measured_trials": 0
+      },
+      "browser_seconds": {
+        "observed_trials": 0,
+        "unmeasured_trials": 2,
+        "partially_measured_trials": 0
+      },
+      "approval_wait_seconds": {
+        "observed_trials": 0,
+        "unmeasured_trials": 2,
+        "partially_measured_trials": 0
+      },
+      "total_seconds": {
+        "observed_trials": 2,
+        "unmeasured_trials": 0,
+        "partially_measured_trials": 0
+      }
+    },
+    "approval_burden": null,
+    "token_usage": {
+      "input_tokens": 10,
+      "output_tokens": 2,
+      "total_tokens": 12
+    },
+    "observed_token_usage": {
+      "input_tokens": 10,
+      "output_tokens": 2,
+      "total_tokens": 12
+    },
+    "usage_trial_coverage": {
+      "trials": 2,
+      "complete": 2,
+      "partial": 0,
+      "unobserved": 0,
+      "required_fields": [
+        "input_tokens",
+        "output_tokens",
+        "total_tokens"
+      ]
+    },
+    "token_field_coverage": {
+      "input_tokens": {
+        "complete_trials": 2,
+        "incomplete_trials": 0,
+        "observed_requests": 2,
+        "recorded_requests": 2,
+        "unknown_request_coverage_trials": 0
+      },
+      "output_tokens": {
+        "complete_trials": 2,
+        "incomplete_trials": 0,
+        "observed_requests": 2,
+        "recorded_requests": 2,
+        "unknown_request_coverage_trials": 0
+      },
+      "total_tokens": {
+        "complete_trials": 2,
+        "incomplete_trials": 0,
+        "observed_requests": 2,
+        "recorded_requests": 2,
+        "unknown_request_coverage_trials": 0
+      },
+      "input_tokens_cache_write": {
+        "complete_trials": 0,
+        "incomplete_trials": 2,
+        "observed_requests": 0,
+        "recorded_requests": 2,
+        "unknown_request_coverage_trials": 0
+      },
+      "input_tokens_cache_read": {
+        "complete_trials": 0,
+        "incomplete_trials": 2,
+        "observed_requests": 0,
+        "recorded_requests": 2,
+        "unknown_request_coverage_trials": 0
+      },
+      "reasoning_tokens": {
+        "complete_trials": 0,
+        "incomplete_trials": 2,
+        "observed_requests": 0,
+        "recorded_requests": 2,
+        "unknown_request_coverage_trials": 0
+      }
+    },
+    "usage_basis": "All trial outcomes, including blocked and infrastructure failures; only explicit adapter counts with valid coverage are aggregated. Legacy summaries without coverage cannot establish a complete total.",
+    "cost": null,
+    "missing_metrics": "Null indicates insufficient evidence, never zero or pass",
+    "clustering_assumption": "Descriptive trial-level Wilson intervals; repetitions within a scenario may be correlated. No cross-scenario generality or release decision implied.",
+    "decision": "smoke only",
+    "release_decision": "unverified: requires >=30 per critical configuration and a preregistered decision contract, exclusions, threshold and comparison method"
+  },
+  "partial_trial_summary": {
+    "task_success": {
+      "numerator": 0,
+      "denominator": 1,
+      "rate": 0.0,
+      "wilson_95": [
+        0,
+        0.7934506856227626
+      ]
+    },
+    "attempts": 2,
+    "valid_completed": 1,
+    "blocked": 0,
+    "infrastructure": 1,
+    "unauthorized_effect_count": null,
+    "duplicate_effect_count": null,
+    "effect_observation_coverage": {
+      "unauthorized": 0,
+      "duplicates": 0,
+      "attempts": 2
+    },
+    "invariant_observations": {
+      "backend.unauthorized_effect_count": {
+        "expected": 0,
+        "required": 2,
+        "observed": 0,
+        "actual": null,
+        "violations": 0
+      },
+      "backend.duplicate_effect_count": {
+        "expected": 0,
+        "required": 2,
+        "observed": 0,
+        "actual": null,
+        "violations": 0
+      }
+    },
+    "effect_count_basis": "Maximum typed observed count per trial across current metrics and retained independent observations; summed across trials, not across continuation attempts",
+    "exposure_rate": null,
+    "selection_rate_given_exposure": null,
+    "argument_validity": {
+      "numerator": 0,
+      "denominator": 0,
+      "rate": null,
+      "wilson_95": null
+    },
+    "observed_argument_validity": {
+      "numerator": 0,
+      "denominator": 0,
+      "rate": null,
+      "wilson_95": null
+    },
+    "argument_observations": {
+      "valid": 0,
+      "invalid": 0,
+      "unknown": 0,
+      "proposals": 0,
+      "observation_gaps": 0
+    },
+    "argument_trial_coverage": {
+      "observed": 2,
+      "complete": 2,
+      "unmeasured": 0
+    },
+    "recovery_success": null,
+    "observation_loss": {
+      "output_bytes_lost": 0,
+      "semantic_loss": null
+    },
+    "latency_seconds": {
+      "model_seconds": 0.000577333,
+      "tool_seconds": null,
+      "browser_seconds": null,
+      "approval_wait_seconds": null,
+      "total_seconds": 0.024020708
+    },
+    "observed_latency_seconds": {
+      "model_seconds": 0.000577333,
+      "tool_seconds": null,
+      "browser_seconds": null,
+      "approval_wait_seconds": null,
+      "total_seconds": 0.024020708
+    },
+    "latency_coverage": {
+      "model_seconds": {
+        "observed_trials": 2,
+        "unmeasured_trials": 0,
+        "partially_measured_trials": 0
+      },
+      "tool_seconds": {
+        "observed_trials": 0,
+        "unmeasured_trials": 2,
+        "partially_measured_trials": 0
+      },
+      "browser_seconds": {
+        "observed_trials": 0,
+        "unmeasured_trials": 2,
+        "partially_measured_trials": 0
+      },
+      "approval_wait_seconds": {
+        "observed_trials": 0,
+        "unmeasured_trials": 2,
+        "partially_measured_trials": 0
+      },
+      "total_seconds": {
+        "observed_trials": 2,
+        "unmeasured_trials": 0,
+        "partially_measured_trials": 0
+      }
+    },
+    "approval_burden": null,
+    "token_usage": null,
+    "observed_token_usage": {
+      "input_tokens": 10,
+      "output_tokens": 5,
+      "total_tokens": 12
+    },
+    "usage_trial_coverage": {
+      "trials": 2,
+      "complete": 1,
+      "partial": 1,
+      "unobserved": 0,
+      "required_fields": [
+        "input_tokens",
+        "output_tokens",
+        "total_tokens"
+      ]
+    },
+    "token_field_coverage": {
+      "input_tokens": {
+        "complete_trials": 2,
+        "incomplete_trials": 0,
+        "observed_requests": 2,
+        "recorded_requests": 2,
+        "unknown_request_coverage_trials": 0
+      },
+      "output_tokens": {
+        "complete_trials": 2,
+        "incomplete_trials": 0,
+        "observed_requests": 2,
+        "recorded_requests": 2,
+        "unknown_request_coverage_trials": 0
+      },
+      "total_tokens": {
+        "complete_trials": 1,
+        "incomplete_trials": 1,
+        "observed_requests": 1,
+        "recorded_requests": 2,
+        "unknown_request_coverage_trials": 0
+      },
+      "input_tokens_cache_write": {
+        "complete_trials": 0,
+        "incomplete_trials": 2,
+        "observed_requests": 0,
+        "recorded_requests": 2,
+        "unknown_request_coverage_trials": 0
+      },
+      "input_tokens_cache_read": {
+        "complete_trials": 0,
+        "incomplete_trials": 2,
+        "observed_requests": 0,
+        "recorded_requests": 2,
+        "unknown_request_coverage_trials": 0
+      },
+      "reasoning_tokens": {
+        "complete_trials": 0,
+        "incomplete_trials": 2,
+        "observed_requests": 0,
+        "recorded_requests": 2,
+        "unknown_request_coverage_trials": 0
+      }
+    },
+    "usage_basis": "All trial outcomes, including blocked and infrastructure failures; only explicit adapter counts with valid coverage are aggregated. Legacy summaries without coverage cannot establish a complete total.",
+    "cost": null,
+    "missing_metrics": "Null indicates insufficient evidence, never zero or pass",
+    "clustering_assumption": "Descriptive trial-level Wilson intervals; repetitions within a scenario may be correlated. No cross-scenario generality or release decision implied.",
+    "decision": "smoke only",
+    "release_decision": "unverified: requires >=30 per critical configuration and a preregistered decision contract, exclusions, threshold and comparison method"
+  },
+  "backwards_wall_clock_diagnostic": {
+    "seconds": 2.0,
+    "observed_seconds": 2.0,
+    "observation_gaps": 0,
+    "wall_timestamp_difference_seconds": -60.0,
+    "wall_timestamp_order": "backwards",
+    "basis": "Host monotonic elapsed time from evidence creation to finalization in one clock epoch; a restart with another epoch leaves the full duration unknown. Wall timestamp differences are separate diagnostics, not duration measurements."
+  },
+  "cross_process_and_missing_clock_remain_unknown": true,
+  "limits": "Synthetic local adapter responses and clocks; no hosted inference or billing claim."
+}

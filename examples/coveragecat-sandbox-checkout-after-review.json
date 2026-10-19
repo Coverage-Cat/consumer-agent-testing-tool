@@ -1,0 +1,8 @@
+{
+  "sandbox_document_review_poll": {
+    "continue_after_wait": true
+  },
+  "sandbox_payment": {
+    "authorize_mock_payment_setup": true
+  }
+}

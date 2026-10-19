@@ -1,0 +1,25 @@
+{
+  "sandbox_review": {
+    "confirm_submission": true,
+    "confirm_estimates": true
+  },
+  "sandbox_selection": {
+    "carrier": "Monoline",
+    "coverage_limit": "$2M",
+    "annual_price": 389,
+    "auto_limits_meet_requirement": true,
+    "credit_consent": {
+      "answer": "Yes",
+      "collected_from_user": true
+    },
+    "um_uim_election": "decline",
+    "intake": {
+      "carrier_specific": {
+        "monoline_umbrella": {
+          "has_course_of_construction_policy": false,
+          "has_farming_exposure": false
+        }
+      }
+    }
+  }
+}

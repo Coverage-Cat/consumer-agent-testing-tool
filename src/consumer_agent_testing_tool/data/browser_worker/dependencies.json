@@ -1,0 +1,118 @@
+{
+  "schema_version": 1,
+  "base_image": "mcr.microsoft.com/playwright@sha256:a0f4498920a5dbac63196d9140ed738ef00470f27e2e74029abd8850b7bd5717",
+  "platform": "linux/arm64",
+  "playwright_version": "1.63.0",
+  "packages": [
+    {
+      "file": "libmnl0_1.0.5-2build1_arm64.deb",
+      "package": "libmnl0",
+      "version": "1.0.5-2build1",
+      "architecture": "arm64",
+      "url": "http://azure.ports.ubuntu.com/ubuntu-ports/pool/main/libm/libmnl/libmnl0_1.0.5-2build1_arm64.deb",
+      "bytes": 12372,
+      "apt_checksum": "MD5Sum:b76a0db2252b1d8aa4d4f48598a11f4c",
+      "sha256": "9442f15a4bbc6148e527045adaf85c86ae3ffe159176d6a5f3b471b49150e470"
+    },
+    {
+      "file": "libxtables12_1.8.10-3ubuntu2_arm64.deb",
+      "package": "libxtables12",
+      "version": "1.8.10-3ubuntu2",
+      "architecture": "arm64",
+      "url": "http://azure.ports.ubuntu.com/ubuntu-ports/pool/main/i/iptables/libxtables12_1.8.10-3ubuntu2_arm64.deb",
+      "bytes": 35914,
+      "apt_checksum": "MD5Sum:1bc645e1f215c92a808d464c15a110fb",
+      "sha256": "72cd6add0f8eaaa45f44dd5c0903df083ab3847091d0633b4e46e8f80443718a"
+    },
+    {
+      "file": "libip4tc2_1.8.10-3ubuntu2_arm64.deb",
+      "package": "libip4tc2",
+      "version": "1.8.10-3ubuntu2",
+      "architecture": "arm64",
+      "url": "http://azure.ports.ubuntu.com/ubuntu-ports/pool/main/i/iptables/libip4tc2_1.8.10-3ubuntu2_arm64.deb",
+      "bytes": 23352,
+      "apt_checksum": "MD5Sum:3a109df1ef1eb813f591e992530f0b6d",
+      "sha256": "e692da5dffee228ed346474a6e9e21511acbb7329bc304b4ae6dbbc25b2831a2"
+    },
+    {
+      "file": "libip6tc2_1.8.10-3ubuntu2_arm64.deb",
+      "package": "libip6tc2",
+      "version": "1.8.10-3ubuntu2",
+      "architecture": "arm64",
+      "url": "http://azure.ports.ubuntu.com/ubuntu-ports/pool/main/i/iptables/libip6tc2_1.8.10-3ubuntu2_arm64.deb",
+      "bytes": 23728,
+      "apt_checksum": "MD5Sum:7ed6b6100cf928ebe61f92125ade2666",
+      "sha256": "4438956b281410ee6d58ce59d1f9588e30f4abf7167e110fdb4f26a99fa5dee7"
+    },
+    {
+      "file": "libnfnetlink0_1.0.2-2build1_arm64.deb",
+      "package": "libnfnetlink0",
+      "version": "1.0.2-2build1",
+      "architecture": "arm64",
+      "url": "http://azure.ports.ubuntu.com/ubuntu-ports/pool/main/libn/libnfnetlink/libnfnetlink0_1.0.2-2build1_arm64.deb",
+      "bytes": 14720,
+      "apt_checksum": "MD5Sum:91156aa2d16138b6d918c0924818c6fa",
+      "sha256": "c7c64d90793ce4d7df262aad50d99eb45ca848fa9421f1bccb22665c350bdb2f"
+    },
+    {
+      "file": "libnetfilter-conntrack3_1.0.9-6build1_arm64.deb",
+      "package": "libnetfilter-conntrack3",
+      "version": "1.0.9-6build1",
+      "architecture": "arm64",
+      "url": "http://azure.ports.ubuntu.com/ubuntu-ports/pool/main/libn/libnetfilter-conntrack/libnetfilter-conntrack3_1.0.9-6build1_arm64.deb",
+      "bytes": 45596,
+      "apt_checksum": "MD5Sum:0216120f2f79f359f1c3717e7bcca485",
+      "sha256": "7b152f919dbd3ffd9ca3ac95d96fdac0cdd139656eb284a0abbc46fce6063301"
+    },
+    {
+      "file": "libnftnl11_1.2.6-2build1_arm64.deb",
+      "package": "libnftnl11",
+      "version": "1.2.6-2build1",
+      "architecture": "arm64",
+      "url": "http://azure.ports.ubuntu.com/ubuntu-ports/pool/main/libn/libnftnl/libnftnl11_1.2.6-2build1_arm64.deb",
+      "bytes": 66210,
+      "apt_checksum": "MD5Sum:359b2aa419cc52f43370a0eccabadbf5",
+      "sha256": "678792e1aa102892b594e0ee13ee93b763011674bddba800a3974a68a83c6ed1"
+    },
+    {
+      "file": "iptables_1.8.10-3ubuntu2_arm64.deb",
+      "package": "iptables",
+      "version": "1.8.10-3ubuntu2",
+      "architecture": "arm64",
+      "url": "http://azure.ports.ubuntu.com/ubuntu-ports/pool/main/i/iptables/iptables_1.8.10-3ubuntu2_arm64.deb",
+      "bytes": 387762,
+      "apt_checksum": "MD5Sum:491ef435d5232d858ebe75eadd9e37a6",
+      "sha256": "cbaacdb34f19a9b29f569205cdbf1e5851f63fde60777c5cf539a2b46c0c2fc7"
+    },
+    {
+      "file": "libjansson4_2.14-2build2_arm64.deb",
+      "package": "libjansson4",
+      "version": "2.14-2build2",
+      "architecture": "arm64",
+      "url": "http://azure.ports.ubuntu.com/ubuntu-ports/pool/main/j/jansson/libjansson4_2.14-2build2_arm64.deb",
+      "bytes": 34362,
+      "apt_checksum": "MD5Sum:21e498b997519772354972c688f63c06",
+      "sha256": "a9d513eae76f4efb1c7370413bd21634fcfc0955e103d26af95f298af6c90abd"
+    },
+    {
+      "file": "libnftables1_1.0.9-1ubuntu0.1_arm64.deb",
+      "package": "libnftables1",
+      "version": "1.0.9-1ubuntu0.1",
+      "architecture": "arm64",
+      "url": "http://azure.ports.ubuntu.com/ubuntu-ports/pool/main/n/nftables/libnftables1_1.0.9-1ubuntu0.1_arm64.deb",
+      "bytes": 352358,
+      "apt_checksum": "MD5Sum:876e08c8b4e90b3aadaea1246a35f3d4",
+      "sha256": "69f16c2f161ddfd196a00d7dbcf52a25821a5eadcca07a8ddd03f05dede148d0"
+    },
+    {
+      "file": "nftables_1.0.9-1ubuntu0.1_arm64.deb",
+      "package": "nftables",
+      "version": "1.0.9-1ubuntu0.1",
+      "architecture": "arm64",
+      "url": "http://azure.ports.ubuntu.com/ubuntu-ports/pool/main/n/nftables/nftables_1.0.9-1ubuntu0.1_arm64.deb",
+      "bytes": 70040,
+      "apt_checksum": "MD5Sum:898ade6c7e8b497c4addc30b8cd22134",
+      "sha256": "8b26cbe6e1155e1507128b0c5183713226d10570462216cf2f41c27f3028de3b"
+    }
+  ]
+}

@@ -1,0 +1,169 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Reservations</title>
+<main>
+  <h1>Reservations</h1>
+  <p id="restored" role="status"></p>
+  <button id="load">Load afternoon availability</button>
+  <p id="slot" role="status"></p>
+  <label>Contact <input id="contact" autocomplete="off"></label>
+  <button id="draft" disabled>Create nonbinding draft</button>
+  <section aria-label="Reservation">
+    <p id="state" role="status">No draft created</p>
+    <p id="operation" role="status"></p>
+    <button id="refresh" disabled>Refresh reservation</button>
+    <button id="confirm" disabled>Confirm reservation</button>
+    <button id="cancel" disabled>Cancel reservation</button>
+    <button id="recover" disabled>Reconcile last operation</button>
+    <button id="stop" disabled>Stop pending operation</button>
+  </section>
+  <p id="error" role="alert"></p>
+</main>
+<script>
+const element = id => document.getElementById(id);
+let reservation = null, slot = null, pendingKey = null, pendingOperation = null, pendingState = null;
+let attempt = 0;
+const finishedKeys = new Set();
+let draftKey = crypto.randomUUID(), restored = false;
+const storageKey = 'consumer-agent-testing-tool-reservation-v1';
+function persist() {
+  localStorage.setItem(storageKey, JSON.stringify({version: 1, reservation, slot, pendingKey,
+    pendingOperation, pendingState, attempt, finishedKeys: [...finishedKeys], draftKey,
+    contact: element('contact').value}));
+}
+element('contact').oninput = persist;
+async function request(path, method = 'GET', body = undefined) {
+  persist(); // Preserve the key and submitted state before crossing the network boundary.
+  const response = await fetch(path, {method, credentials: 'same-origin',
+    headers: body ? {'Content-Type': 'application/json'} : {},
+    body: body ? JSON.stringify(body) : undefined});
+  const result = await response.json();
+  if (!response.ok) {
+    const error = Error(result.error || `Request failed (${response.status})`);
+    error.status = response.status;
+    throw error;
+  }
+  return result;
+}
+function display(result, outcome = true) {
+  if (result.status) {
+    pendingState = result.status;
+    element('operation').textContent = `Operation ${result.idempotency_key || pendingKey}: ${result.status}` +
+      (result.error ? ` — ${result.error}` : '');
+    if (['cancelled', 'failed'].includes(result.status) && !finishedKeys.has(pendingKey)) {
+      finishedKeys.add(pendingKey);
+      attempt += 1; // An explicitly requested new action gets a fresh idempotency key.
+    }
+    if (result.status === 'completed' && result.result) display(result.result);
+    controls();
+    return;
+  }
+  if (outcome) {
+    pendingState = 'completed';
+    element('operation').textContent = pendingKey ? `Operation ${pendingKey}: completed` : '';
+  }
+  reservation = result;
+  element('state').textContent =
+    `Reservation ${result.id}: ${result.state}, $${(result.amount_minor / 100).toFixed(2)} ${result.currency}, revision ${result.revision}`;
+  element('refresh').disabled = false;
+  controls();
+}
+function controls() {
+  const busy = ['submitted', 'pending'].includes(pendingState);
+  element('draft').disabled = restored || busy || !slot?.available || !!reservation;
+  element('confirm').disabled = restored || !reservation || reservation.state !== 'draft' || busy;
+  element('cancel').disabled = restored || !reservation || reservation.state !== 'confirmed' || busy;
+  element('stop').disabled = pendingState !== 'pending';
+  persist();
+}
+function run(action) {
+  element('error').textContent = '';
+  Promise.resolve().then(action).catch(error => {
+    // These fixture errors reject before mutation. A missing transport response
+    // leaves the operation unresolved until the caller reconciles it.
+    if ([400, 401, 403, 404, 409, 415].includes(error.status) && pendingState === 'submitted') {
+      pendingState = 'rejected';
+      controls();
+    }
+    element('error').textContent = error.message + '. Refresh state or reconcile before another request.';
+  });
+}
+element('load').onclick = () => run(async () => {
+  slot = await request('/slots/afternoon');
+  element('slot').textContent = `Afternoon: $${(slot.amount_minor / 100).toFixed(2)} ${slot.currency}; ${slot.available ? 'available' : 'unavailable'}`;
+  if (!reservation && !pendingKey) restored = false;
+  controls();
+});
+element('draft').onclick = () => run(async () => {
+  const contact = element('contact').value.trim();
+  if (!contact) throw Error('Contact is required');
+  pendingKey = draftKey;
+  pendingOperation = 'reservations.create';
+  pendingState = 'submitted';
+  controls();
+  element('recover').disabled = false;
+  display(await request('/reservations', 'POST', {
+    slot_id: slot.id, contact, idempotency_key: draftKey}));
+  element('draft').disabled = true;
+});
+element('refresh').onclick = () => run(async () => {
+  if (['submitted', 'pending'].includes(pendingState)) throw Error('Reconcile the outstanding operation first');
+  const current = await request('/reservations/' + encodeURIComponent(reservation.id));
+  restored = false;
+  element('restored').textContent = '';
+  display(current, false);
+});
+for (const operation of ['confirm', 'cancel']) {
+  element(operation).onclick = () => run(async () => {
+    pendingKey = `${operation}-${reservation.id}-${reservation.revision}` + (attempt ? `-attempt-${attempt}` : '');
+    pendingOperation = `reservations.${operation}`;
+    pendingState = 'submitted';
+    element('operation').textContent = `Operation ${pendingKey}: submitted`;
+    controls();
+    element('recover').disabled = false;
+    display(await request(`/reservations/${encodeURIComponent(reservation.id)}/${operation}`, 'POST', {
+      expected_revision: reservation.revision, amount_minor: reservation.amount_minor,
+      currency: reservation.currency, idempotency_key: pendingKey}));
+  });
+}
+element('recover').onclick = () => run(async () => {
+  let outcomes;
+  try { outcomes = await request('/operations/' + encodeURIComponent(pendingKey)); }
+  catch (error) {
+    if (error.status === 404) {
+      pendingState = 'not_found';
+      element('operation').textContent = `Operation ${pendingKey}: outcome unknown`;
+      controls();
+    }
+    throw error;
+  }
+  const outcome = outcomes.find(item => item.operation === pendingOperation);
+  if (!outcome) throw Error('No matching operation was recorded');
+  restored = false;
+  element('restored').textContent = '';
+  display(outcome.result);
+});
+element('stop').onclick = () => run(async () => display(
+  await request('/operations/' + encodeURIComponent(pendingKey) + '/cancel', 'POST', {
+    operation: pendingOperation})));
+try {
+  const saved = JSON.parse(localStorage.getItem(storageKey) || 'null');
+  if (saved) {
+    if (saved.version !== 1) throw Error('Unsupported saved reservation state');
+    ({reservation, slot, pendingKey, pendingOperation, pendingState, attempt, draftKey} = saved);
+    for (const key of saved.finishedKeys) finishedKeys.add(key);
+    element('contact').value = saved.contact;
+    restored = true;
+    element('restored').textContent = 'Restored browser context. Refresh or reconcile before another transaction.';
+    if (slot) element('slot').textContent =
+      `Afternoon (previous observation): $${(slot.amount_minor / 100).toFixed(2)} ${slot.currency}`;
+    if (reservation) display(reservation, false);
+    element('recover').disabled = !pendingKey;
+    if (pendingKey) element('operation').textContent = `Operation ${pendingKey}: ${pendingState}`;
+    controls();
+  }
+} catch {
+  element('restored').textContent = 'Saved browser context could not be restored.';
+  restored = true;
+}
+</script>

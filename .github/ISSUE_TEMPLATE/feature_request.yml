@@ -1,0 +1,22 @@
+name: Feature request
+description: Propose an improvement or a new supported workflow.
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem or use case
+      description: What are you trying to test that the current tool cannot express?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed behavior and alternatives
+      description: Include the service-side outcome that would demonstrate success.
+    validations:
+      required: true
+  - type: textarea
+    id: boundaries
+    attributes:
+      label: Security and scope
+      description: Note any new permissions, private data, external services, or model costs.

@@ -1,0 +1,533 @@
+# Full synthetic protocol rehearsal. This does not exercise a Stripe payment form.
+# See README for the two reply fixtures and the required document-review pause.
+version: 1
+id: coveragecat-sandbox-checkout
+goal: Exercise synthetic consumer umbrella submission, offer selection, bind follow-up, declarations and
+  mocked payment-method setup. Use only the sandbox. Payment completion is a synthetic tool callback,
+  not a Stripe form test, premium collection or active insurance.
+endpoint: https://www.coveragecat.com/api/consumer/mcp
+allowed_origins:
+- https://www.coveragecat.com
+browser_origins: []
+test_only: true
+treatment: baseline
+fixture:
+  shopper:
+    full_name: Taylor Sandbox Example
+    email: taylor.consumer-agent-testing-tool-sandbox@example.com
+    phone_number: '+12065550100'
+    birthday: '1990-04-01'
+    marital_status: single
+    license_state: WA
+    license_number: WA1234567
+    address:
+      street: 123 Main St
+      city: Seattle
+      state: WA
+      zip: '98101'
+    net_worth_numeric: 1500000
+    desired_coverage_limit: 2000000
+    required_coverage_e_limit: 300000
+    vehicle_count: 2
+    current_auto_coverages: 500k/500k
+  attachments:
+  - type: declarations
+    filename: synthetic-home-declarations.pdf
+    content: JVBERi0xLjQKMSAwIG9iago8PCAvVHlwZSAvQ2F0YWxvZyAvUGFnZXMgMiAwIFIgPj4KZW5kb2JqCjIgMCBvYmoKPDwgL1R5cGUgL1BhZ2VzIC9LaWRzIFszIDAgUl0gL0NvdW50IDEgPj4KZW5kb2JqCjMgMCBvYmoKPDwgL1R5cGUgL1BhZ2UgL1BhcmVudCAyIDAgUiAvTWVkaWFCb3ggWzAgMCA2MTIgMjAwXSAvUmVzb3VyY2VzIDw8IC9Gb250IDw8IC9GMSA0IDAgUiA+PiA+PiAvQ29udGVudHMgNSAwIFIgPj4KZW5kb2JqCjQgMCBvYmoKPDwgL1R5cGUgL0ZvbnQgL1N1YnR5cGUgL1R5cGUxIC9CYXNlRm9udCAvSGVsdmV0aWNhID4+CmVuZG9iago1IDAgb2JqCjw8IC9MZW5ndGggNTcgPj4Kc3RyZWFtCkJUIC9GMSAxNiBUZiA0MCAxNTAgVGQgKFNZTlRIRVRJQyBURVNUIE9OTFkgLSBIT01FKSBUaiBFVAplbmRzdHJlYW0KZW5kb2JqCnhyZWYKMCA2CjAwMDAwMDAwMDAgNjU1MzUgZiAKMDAwMDAwMDAwOSAwMDAwMCBuIAowMDAwMDAwMDU4IDAwMDAwIG4gCjAwMDAwMDAxMTUgMDAwMDAgbiAKMDAwMDAwMDI0MSAwMDAwMCBuIAowMDAwMDAwMzExIDAwMDAwIG4gCnRyYWlsZXIKPDwgL1NpemUgNiAvUm9vdCAxIDAgUiA+PgpzdGFydHhyZWYKNDE4CiUlRU9GCg==
+  - type: auto_declarations
+    filename: synthetic-auto-declarations.pdf
+    content: JVBERi0xLjQKMSAwIG9iago8PCAvVHlwZSAvQ2F0YWxvZyAvUGFnZXMgMiAwIFIgPj4KZW5kb2JqCjIgMCBvYmoKPDwgL1R5cGUgL1BhZ2VzIC9LaWRzIFszIDAgUl0gL0NvdW50IDEgPj4KZW5kb2JqCjMgMCBvYmoKPDwgL1R5cGUgL1BhZ2UgL1BhcmVudCAyIDAgUiAvTWVkaWFCb3ggWzAgMCA2MTIgMjAwXSAvUmVzb3VyY2VzIDw8IC9Gb250IDw8IC9GMSA0IDAgUiA+PiA+PiAvQ29udGVudHMgNSAwIFIgPj4KZW5kb2JqCjQgMCBvYmoKPDwgL1R5cGUgL0ZvbnQgL1N1YnR5cGUgL1R5cGUxIC9CYXNlRm9udCAvSGVsdmV0aWNhID4+CmVuZG9iago1IDAgb2JqCjw8IC9MZW5ndGggNTcgPj4Kc3RyZWFtCkJUIC9GMSAxNiBUZiA0MCAxNTAgVGQgKFNZTlRIRVRJQyBURVNUIE9OTFkgLSBBVVRPKSBUaiBFVAplbmRzdHJlYW0KZW5kb2JqCnhyZWYKMCA2CjAwMDAwMDAwMDAgNjU1MzUgZiAKMDAwMDAwMDAwOSAwMDAwMCBuIAowMDAwMDAwMDU4IDAwMDAwIG4gCjAwMDAwMDAxMTUgMDAwMDAgbiAKMDAwMDAwMDI0MSAwMDAwMCBuIAowMDAwMDAwMzExIDAwMDAwIG4gCnRyYWlsZXIKPDwgL1NpemUgNiAvUm9vdCAxIDAgUiA+PgpzdGFydHhyZWYKNDE4CiUlRU9GCg==
+  mock_payment_method_id: pm_sandbox_consumer_agent_testing_tool
+tools:
+  umbrella_consumer_prefill:
+    effect: write
+    host_arguments:
+      sandbox: true
+      credit_consent_pending: true
+      intake:
+        $ref: /fixture/shopper
+    capture:
+      intake_access: /structuredContent/intake_access_token
+  consumer_intake_issues:
+    effect: read
+    host_arguments:
+      uid:
+        $ref: /steps/prefill/result/structuredContent/uid
+      intake_access_token:
+        $ref: /secrets/intake_access
+    capture:
+      intake_access: /structuredContent/intake_access_token
+  consumer_intake_patch:
+    effect: write
+    host_arguments:
+      uid:
+        $ref: /steps/prefill/result/structuredContent/uid
+      intake_access_token:
+        $ref: /secrets/intake_access
+      confirm_submission:
+        $ref: /steps/review/result/reply/confirm_submission
+    capture:
+      intake_access: /structuredContent/intake_access_token
+    reconcile:
+      tool: consumer_intake_issues
+      path: /structuredContent/status
+      expected: quoted
+  umbrella_consumer_select:
+    effect: write
+    host_arguments:
+      uid:
+        $ref: /steps/prefill/result/structuredContent/uid
+      intake_access_token:
+        $ref: /secrets/intake_access
+      selection_token:
+        $ref: /steps/submit/result/structuredContent/offers/0/selection_token
+      selection_confirmed: true
+      credit_consent:
+        $ref: /steps/choice/result/reply/credit_consent
+      um_uim_election:
+        $ref: /steps/choice/result/reply/um_uim_election
+      intake:
+        $ref: /steps/choice/result/reply/intake
+    capture:
+      intake_access: /structuredContent/intake_access_token
+  umbrella_consumer_bind:
+    effect: write
+    host_arguments:
+      uid:
+        $ref: /steps/prefill/result/structuredContent/uid
+      intake_access_token:
+        $ref: /secrets/intake_access
+    capture:
+      intake_access: /structuredContent/intake_access_token
+  umbrella_consumer_attach:
+    effect: write
+    host_arguments:
+      uid:
+        $ref: /steps/prefill/result/structuredContent/uid
+      intake_access_token:
+        $ref: /secrets/intake_access
+      attachments:
+        $ref: /fixture/attachments
+    capture:
+      intake_access: /structuredContent/intake_access_token
+  umbrella_consumer_payment:
+    effect: write
+    host_arguments:
+      uid:
+        $ref: /steps/prefill/result/structuredContent/uid
+      intake_access_token:
+        $ref: /secrets/intake_access
+    capture:
+      intake_access: /structuredContent/intake_access_token
+    arguments_schema:
+      oneOf:
+      - type: object
+        properties:
+          payment_collection_requested:
+            const: true
+        required:
+        - payment_collection_requested
+        additionalProperties: false
+      - type: object
+        properties:
+          setup_intent_id:
+            type: string
+            pattern: ^seti_sandbox_
+          payment_method_id:
+            const: pm_sandbox_consumer_agent_testing_tool
+        required:
+        - setup_intent_id
+        - payment_method_id
+        additionalProperties: false
+steps:
+- id: prefill
+  kind: tool
+  description: Create a synthetic sandbox draft; do not submit an application.
+  tool: umbrella_consumer_prefill
+  expose:
+    sandbox: /structuredContent/sandbox
+  checks:
+  - id: sandbox-created
+    layer: service
+    path: /prefill/result/structuredContent/sandbox
+    expected: true
+- id: followup
+  kind: tool
+  description: Verify the same draft remains in the sandbox and is not submitted.
+  after:
+  - prefill
+  tool: consumer_intake_issues
+  expose:
+    sandbox: /structuredContent/sandbox
+    status: /structuredContent/status
+    application_submitted: /structuredContent/application_submitted
+  checks:
+  - id: sandbox-retained
+    layer: service
+    path: /followup/result/structuredContent/sandbox
+    expected: true
+  - id: same-draft
+    layer: service
+    path: /followup/result/structuredContent/uid
+    expected:
+      $ref: /steps/prefill/result/structuredContent/uid
+  - id: not-submitted
+    layer: service
+    path: /followup/result/structuredContent/application_submitted
+    expected: false
+  - id: review-ready
+    layer: service
+    path: /followup/result/structuredContent/status
+    expected: ready_for_submission
+- id: review
+  kind: user
+  description: Supply the synthetic review fixture confirming all estimates and submission. This is not
+    real shopper authorization.
+  after:
+  - followup
+  reply_key: sandbox_review
+  checks:
+  - id: review-confirm_submission
+    layer: expectation
+    path: /review/result/reply/confirm_submission
+    expected: true
+  - id: review-confirm_estimates
+    layer: expectation
+    path: /review/result/reply/confirm_estimates
+    expected: true
+- id: submit
+  kind: tool
+  description: Submit the reviewed synthetic application and require a quoted sandbox result.
+  after:
+  - review
+  tool: consumer_intake_patch
+  checks:
+  - id: submit-sandbox
+    layer: service
+    path: /submit/result/structuredContent/sandbox
+    expected: true
+  - id: submit-same-intake
+    layer: service
+    path: /submit/result/structuredContent/uid
+    expected:
+      $ref: /steps/prefill/result/structuredContent/uid
+  - id: submit-status
+    layer: service
+    path: /submit/result/structuredContent/status
+    expected: quoted
+  - id: application-submitted
+    layer: service
+    path: /submit/result/structuredContent/application_submitted
+    expected: true
+  - id: offered-carrier
+    layer: service
+    path: /submit/result/structuredContent/offers/0/carrier
+    expected: Monoline
+  - id: offered-limit
+    layer: service
+    path: /submit/result/structuredContent/offers/0/coverage_limit
+    expected: $2M
+  - id: offered-price
+    layer: service
+    path: /submit/result/structuredContent/offers/0/annual_price
+    expected: 389
+  expose:
+    status: /structuredContent/status
+    carrier: /structuredContent/offers/0/carrier
+    annual_price: /structuredContent/offers/0/annual_price
+    coverage_limit: /structuredContent/offers/0/coverage_limit
+- id: choice
+  kind: user
+  description: Use the explicit synthetic Monoline selection, credit-consent and underwriting answers
+    from the test reply fixture.
+  after:
+  - submit
+  reply_key: sandbox_selection
+  checks:
+  - id: choice-carrier
+    layer: expectation
+    path: /choice/result/reply/carrier
+    expected: Monoline
+  - id: choice-coverage_limit
+    layer: expectation
+    path: /choice/result/reply/coverage_limit
+    expected: $2M
+  - id: choice-annual_price
+    layer: expectation
+    path: /choice/result/reply/annual_price
+    expected: 389
+  - id: choice-auto_limits_meet_requirement
+    layer: expectation
+    path: /choice/result/reply/auto_limits_meet_requirement
+    expected: true
+  - id: choice-credit_consent-answer
+    layer: expectation
+    path: /choice/result/reply/credit_consent/answer
+    expected: 'Yes'
+  - id: choice-credit_consent-collected_from_user
+    layer: expectation
+    path: /choice/result/reply/credit_consent/collected_from_user
+    expected: true
+  - id: choice-um_uim_election
+    layer: expectation
+    path: /choice/result/reply/um_uim_election
+    expected: decline
+  - id: choice-intake-carrier_specific-monoline_umbrella-has_course_of_construction_policy
+    layer: expectation
+    path: /choice/result/reply/intake/carrier_specific/monoline_umbrella/has_course_of_construction_policy
+    expected: false
+  - id: choice-intake-carrier_specific-monoline_umbrella-has_farming_exposure
+    layer: expectation
+    path: /choice/result/reply/intake/carrier_specific/monoline_umbrella/has_farming_exposure
+    expected: false
+- id: select
+  kind: tool
+  description: Select only the checked synthetic Monoline offer with the fixture election and consent.
+  after:
+  - choice
+  tool: umbrella_consumer_select
+  checks:
+  - id: select-sandbox
+    layer: service
+    path: /select/result/structuredContent/sandbox
+    expected: true
+  - id: select-same-intake
+    layer: service
+    path: /select/result/structuredContent/uid
+    expected:
+      $ref: /steps/prefill/result/structuredContent/uid
+  - id: select-status
+    layer: service
+    path: /select/result/structuredContent/status
+    expected: ready_to_finalize
+  - id: selected-carrier
+    layer: service
+    path: /select/result/structuredContent/selected_offer/carrier
+    expected: Monoline
+- id: bind
+  kind: tool
+  description: Enter sandbox bind follow-up and require both declarations types.
+  after:
+  - select
+  tool: umbrella_consumer_bind
+  checks:
+  - id: bind-sandbox
+    layer: service
+    path: /bind/result/structuredContent/sandbox
+    expected: true
+  - id: bind-same-intake
+    layer: service
+    path: /bind/result/structuredContent/uid
+    expected:
+      $ref: /steps/prefill/result/structuredContent/uid
+  - id: bind-status
+    layer: service
+    path: /bind/result/structuredContent/status
+    expected: documents_needed
+  - id: required-documents
+    layer: service
+    path: /bind/result/structuredContent/required_upload_types
+    expected:
+    - auto_declarations
+    - declarations
+- id: attach
+  kind: tool
+  description: Upload the two generated PDFs labelled SYNTHETIC TEST ONLY.
+  after:
+  - bind
+  tool: umbrella_consumer_attach
+  checks:
+  - id: attach-sandbox
+    layer: service
+    path: /attach/result/structuredContent/sandbox
+    expected: true
+  - id: attach-same-intake
+    layer: service
+    path: /attach/result/structuredContent/uid
+    expected:
+      $ref: /steps/prefill/result/structuredContent/uid
+  - id: attach-status
+    layer: service
+    path: /attach/result/structuredContent/status
+    expected: ok
+  - id: two-uploads
+    layer: service
+    path: /attach/result/structuredContent/uploaded_count
+    expected: 2
+  - id: upload-records
+    layer: service
+    path: /attach/result/structuredContent/uploaded
+    expected:
+    - filename: synthetic-home-declarations.pdf
+      type: declarations
+    - filename: synthetic-auto-declarations.pdf
+      type: auto_declarations
+- id: documents
+  kind: tool
+  description: Read the sandbox declarations-processing checkpoint.
+  after:
+  - attach
+  tool: consumer_intake_issues
+  checks:
+  - id: documents-sandbox
+    layer: service
+    path: /documents/result/structuredContent/sandbox
+    expected: true
+  - id: documents-same-intake
+    layer: service
+    path: /documents/result/structuredContent/uid
+    expected:
+      $ref: /steps/prefill/result/structuredContent/uid
+  - id: documents-status
+    layer: service
+    path: /documents/result/structuredContent/status
+    expected: documents_pending_review
+  - id: poll-interval
+    layer: service
+    path: /documents/result/structuredContent/poll_after_seconds
+    expected: 60
+- id: review_wait
+  kind: user
+  description: Wait at least 60 seconds after the declarations status, then resume with the after-review
+    reply fixture. The host does not enforce elapsed time.
+  after:
+  - documents
+  reply_key: sandbox_document_review_poll
+  checks:
+  - id: review_wait-continue_after_wait
+    layer: expectation
+    path: /review_wait/result/reply/continue_after_wait
+    expected: true
+- id: checkout
+  kind: tool
+  description: Poll the same sandbox intake after the requested interval and require payment_needed.
+  after:
+  - review_wait
+  tool: consumer_intake_issues
+  checks:
+  - id: checkout-sandbox
+    layer: service
+    path: /checkout/result/structuredContent/sandbox
+    expected: true
+  - id: checkout-same-intake
+    layer: service
+    path: /checkout/result/structuredContent/uid
+    expected:
+      $ref: /steps/prefill/result/structuredContent/uid
+  - id: checkout-status
+    layer: service
+    path: /checkout/result/structuredContent/status
+    expected: payment_needed
+  - id: payment-required
+    layer: service
+    path: /checkout/result/structuredContent/payment_status/state
+    expected: payment_method_required
+- id: prepare
+  kind: tool
+  description: Request synthetic payment collection; do not open Stripe or the non-routable fallback URL.
+  after:
+  - checkout
+  tool: umbrella_consumer_payment
+  checks:
+  - id: prepare-sandbox
+    layer: service
+    path: /prepare/result/structuredContent/sandbox
+    expected: true
+  - id: prepare-same-intake
+    layer: service
+    path: /prepare/result/structuredContent/uid
+    expected:
+      $ref: /steps/prefill/result/structuredContent/uid
+  - id: prepare-status
+    layer: service
+    path: /prepare/result/structuredContent/status
+    expected: payment_collection_ready
+  - id: test-payment-environment
+    layer: service
+    path: /prepare/result/structuredContent/payment_setup/environment
+    expected: test
+  - id: payment-collection-ready
+    layer: service
+    path: /prepare/result/structuredContent/payment_status/state
+    expected: payment_collection_ready
+  - id: billing-name
+    layer: service
+    path: /prepare/result/_meta/payment_ui/setup/billing_details/name
+    expected:
+      $ref: /fixture/shopper/full_name
+  - id: billing-email
+    layer: service
+    path: /prepare/result/_meta/payment_ui/setup/billing_details/email
+    expected:
+      $ref: /fixture/shopper/email
+  - id: billing-line1
+    layer: service
+    path: /prepare/result/_meta/payment_ui/setup/billing_details/address/line1
+    expected:
+      $ref: /fixture/shopper/address/street
+  - id: billing-city
+    layer: service
+    path: /prepare/result/_meta/payment_ui/setup/billing_details/address/city
+    expected:
+      $ref: /fixture/shopper/address/city
+  - id: billing-state
+    layer: service
+    path: /prepare/result/_meta/payment_ui/setup/billing_details/address/state
+    expected:
+      $ref: /fixture/shopper/address/state
+  - id: billing-postal_code
+    layer: service
+    path: /prepare/result/_meta/payment_ui/setup/billing_details/address/postal_code
+    expected:
+      $ref: /fixture/shopper/address/zip
+  arguments:
+    payment_collection_requested: true
+- id: payment_approval
+  kind: user
+  description: Confirm the synthetic payment-method callback fixture; no card details, charge, or actual
+    Stripe setup.
+  after:
+  - prepare
+  reply_key: sandbox_payment
+  checks:
+  - id: payment_approval-authorize_mock_payment_setup
+    layer: expectation
+    path: /payment_approval/result/reply/authorize_mock_payment_setup
+    expected: true
+- id: save_payment
+  kind: tool
+  description: Submit the mocked sandbox SetupIntent/payment-method pair and require server confirmation.
+  after:
+  - payment_approval
+  tool: umbrella_consumer_payment
+  checks:
+  - id: save_payment-sandbox
+    layer: service
+    path: /save_payment/result/structuredContent/sandbox
+    expected: true
+  - id: save_payment-same-intake
+    layer: service
+    path: /save_payment/result/structuredContent/uid
+    expected:
+      $ref: /steps/prefill/result/structuredContent/uid
+  - id: save_payment-status
+    layer: service
+    path: /save_payment/result/structuredContent/status
+    expected: waiting_on_carrier
+  - id: payment-method-on-file
+    layer: service
+    path: /save_payment/result/structuredContent/payment_status/state
+    expected: payment_method_on_file
+  - id: no-charge-confirmation
+    layer: service
+    path: /save_payment/result/structuredContent/payment_status/timing
+    expected: charge_not_confirmed_by_this_response
+  arguments:
+    setup_intent_id:
+      $ref: /steps/prepare/result/structuredContent/payment_setup/setup_intent_id
+    payment_method_id:
+      $ref: /fixture/mock_payment_method_id
+  expose:
+    status: /structuredContent/status
+    sandbox: /structuredContent/sandbox
+    payment_state: /structuredContent/payment_status/state

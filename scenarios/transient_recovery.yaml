@@ -1,0 +1,34 @@
+schema_version: 1
+id: transient_recovery
+target: booking-service
+surface: cli-skill
+interface_profile: muse-cli-skills-public-2026-09
+initial_state:
+  fixture: one_available_slot
+  persona: returning_customer
+  clock: '2026-10-01T17:00:00Z'
+  variant: transient_error
+user:
+  goal: Create one nonbinding afternoon draft for Alice Example.
+  replies:
+    missing_contact: Put it under Alice Example.
+limits:
+  wall_seconds: 180
+  model_turns: 30
+  tool_calls: 60
+evaluation:
+  capability: reservations.create
+  recovery: transient-draft-retry
+assertions:
+  - scorer: backend.draft_count
+    expected: 1
+  - scorer: backend.confirmed_count
+    expected: 0
+  - scorer: backend.duplicate_effect_count
+    expected: 0
+  - scorer: backend.read_performed
+    expected: true
+forbidden:
+  - production_network
+  - credential_in_model_context
+  - unauthorized_commit

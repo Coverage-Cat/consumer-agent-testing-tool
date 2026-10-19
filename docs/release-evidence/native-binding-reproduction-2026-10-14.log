@@ -1,0 +1,188 @@
+FF                                                                       [100%]
+=================================== FAILURES ===================================
+__ test_review_gate_checks_scope_and_linked_evidence[omitted-known-component] __
+
+tmp_path = PosixPath('~/Development/consumer-agent-testing/.cache/native-binding/reproduction/test_review_gate_checks_scope_0')
+fault = 'omitted-known-component'
+
+    @pytest.mark.parametrize("fault", [
+        None, "gap", "unreviewed", "missing-scope", "missing-evidence", "changed-document", "changed-inventory",
+        "empty-artifacts", "bad-artifact-hash", "omitted-known-component", "omitted-known-payload",
+        "changed-known-payload", "changed-package", "dropped-upstream-doc", "changed-observation",
+        "missing-observation", "unbound-observation", "changed-sealed-observation",
+    ])
+    def test_review_gate_checks_scope_and_linked_evidence(tmp_path, fault):
+        # Synthetic reviewed fixture tests the checker; it is not actual runtime evidence.
+        document = tmp_path / "review.txt"
+        document.write_text("Synthetic reviewer evidence fixture")
+        reference = {"path": document.name, "sha256": file_digest(document)}
+        scopes = ["core-python", "optional-api-python", "node-protocol", "node-browser", "node-api",
+                  "browser-runtime", "host-runtime", "worker-images"]
+        inventory = {"schema_version": 1, "status": "reviewed", "observed_groups": scopes, "gaps": [],
+                     "components": {scope: {"scope": scope,
+                         "artifacts": {"binary": {"kind": "binary", "bytes": 64, "sha256": "b" * 64}},
+                         "dependency_coverage": {"status": "reviewed", "evidence": [reference]},
+                         "notice_coverage": {"status": "reviewed", "evidence": [reference]}}
+                         for scope in scopes}}
+        inventory["components"]["core-python"]["package"] = {"name": "synthetic", "version": "1"}
+        inventory["components"]["core-python"]["upstream_documents"] = [reference]
+        inventory["components"]["core-python"]["artifacts"]["other-binary"] = {
+            "kind": "binary", "bytes": 32, "sha256": "c" * 64}
+        observation = copy.deepcopy(inventory)
+        observation["status"] = "unverified"
+        observation["gaps"] = [{"reason": "Synthetic observation needs review"}]
+        observation["observed_groups"] = scopes[:6]
+        observation["components"] = {name: value for name, value in observation["components"].items()
+                                     if name in observation["observed_groups"]}
+        for component in observation["components"].values():
+            for field in ("dependency_coverage", "notice_coverage"):
+                component[field] = {"status": "unverified", "reason": "Synthetic unreviewed fixture"}
+        directory = tmp_path / "third_party"
+        directory.mkdir()
+        observed_path = directory / "native-runtime.json"
+        observed_path.write_text(json.dumps(observation))
+        with zipfile.ZipFile(directory / "notices.zip", "w") as archive:
+            archive.write(observed_path, "native-runtime.json")
+        observed_reference = {"path": "third_party/native-runtime.json", "sha256": file_digest(observed_path)}
+        if fault == "gap":
+            inventory["gaps"] = [{"reason": "Unreviewed dependency"}]
+        elif fault == "unreviewed":
+            inventory["components"]["node-api"]["dependency_coverage"]["status"] = "unverified"
+        elif fault == "missing-scope":
+            inventory["observed_groups"].remove("worker-images")
+        elif fault == "missing-evidence":
+            inventory["components"]["node-api"]["notice_coverage"]["evidence"] = []
+        elif fault == "empty-artifacts":
+            inventory["components"]["host-runtime"]["artifacts"] = {}
+        elif fault == "bad-artifact-hash":
+            inventory["components"]["node-api"]["artifacts"]["binary"]["sha256"] = "not-a-digest"
+        elif fault == "omitted-known-component":
+            del inventory["components"]["core-python"]
+        elif fault == "omitted-known-payload":
+            del inventory["components"]["core-python"]["artifacts"]["other-binary"]
+        elif fault == "changed-known-payload":
+            inventory["components"]["core-python"]["artifacts"]["binary"]["sha256"] = "d" * 64
+        elif fault == "changed-package":
+            inventory["components"]["core-python"]["package"]["version"] = "2"
+        elif fault == "dropped-upstream-doc":
+            inventory["components"]["core-python"]["upstream_documents"] = []
+        path = tmp_path / "inventory.json"
+        path.write_text(json.dumps(inventory))
+        evidence = {"inventory": {"path": path.name, "sha256": file_digest(path)},
+                    "observation": observed_reference}
+        if fault == "changed-inventory":
+            path.write_text("{}")
+        elif fault == "changed-document":
+            document.write_text("Changed after review")
+        elif fault == "changed-observation":
+            observed_path.write_text("{}")
+        elif fault == "missing-observation":
+            evidence.pop("observation")
+        elif fault == "unbound-observation":
+            alternative = tmp_path / "unbound.json"
+            alternative.write_bytes(observed_path.read_bytes())
+            evidence["observation"] = {"path": alternative.name, "sha256": file_digest(alternative)}
+        elif fault == "changed-sealed-observation":
+            observation["components"]["core-python"]["package"]["version"] = "unsealed"
+            observed_path.write_text(json.dumps(observation))
+            evidence["observation"]["sha256"] = file_digest(observed_path)
+>       assert native_inventory_review(tmp_path, evidence) is (fault is None)
+E       AssertionError: assert True is ('omitted-known-component' is None)
+E        +  where True = native_inventory_review(PosixPath('~/Development/consumer-agent-testing/.cache/native-binding/reproduction/test_review_gate_checks_scope_0'), {'inventory': {'path': 'inventory.json', 'sha256': 'c46f26ab9c43235c36967d960ea52b8d99bd8e32d2de9c3daa71e3f852b8f317'}...ath': 'third_party/native-runtime.json', 'sha256': '3665cced29579ae1e09e81d0da85b42c5f3b7053f4c4faadc00e1e1c7ab430ef'}})
+
+tests/test_native_inventory.py:196: AssertionError
+___ test_review_gate_checks_scope_and_linked_evidence[omitted-known-payload] ___
+
+tmp_path = PosixPath('~/Development/consumer-agent-testing/.cache/native-binding/reproduction/test_review_gate_checks_scope_1')
+fault = 'omitted-known-payload'
+
+    @pytest.mark.parametrize("fault", [
+        None, "gap", "unreviewed", "missing-scope", "missing-evidence", "changed-document", "changed-inventory",
+        "empty-artifacts", "bad-artifact-hash", "omitted-known-component", "omitted-known-payload",
+        "changed-known-payload", "changed-package", "dropped-upstream-doc", "changed-observation",
+        "missing-observation", "unbound-observation", "changed-sealed-observation",
+    ])
+    def test_review_gate_checks_scope_and_linked_evidence(tmp_path, fault):
+        # Synthetic reviewed fixture tests the checker; it is not actual runtime evidence.
+        document = tmp_path / "review.txt"
+        document.write_text("Synthetic reviewer evidence fixture")
+        reference = {"path": document.name, "sha256": file_digest(document)}
+        scopes = ["core-python", "optional-api-python", "node-protocol", "node-browser", "node-api",
+                  "browser-runtime", "host-runtime", "worker-images"]
+        inventory = {"schema_version": 1, "status": "reviewed", "observed_groups": scopes, "gaps": [],
+                     "components": {scope: {"scope": scope,
+                         "artifacts": {"binary": {"kind": "binary", "bytes": 64, "sha256": "b" * 64}},
+                         "dependency_coverage": {"status": "reviewed", "evidence": [reference]},
+                         "notice_coverage": {"status": "reviewed", "evidence": [reference]}}
+                         for scope in scopes}}
+        inventory["components"]["core-python"]["package"] = {"name": "synthetic", "version": "1"}
+        inventory["components"]["core-python"]["upstream_documents"] = [reference]
+        inventory["components"]["core-python"]["artifacts"]["other-binary"] = {
+            "kind": "binary", "bytes": 32, "sha256": "c" * 64}
+        observation = copy.deepcopy(inventory)
+        observation["status"] = "unverified"
+        observation["gaps"] = [{"reason": "Synthetic observation needs review"}]
+        observation["observed_groups"] = scopes[:6]
+        observation["components"] = {name: value for name, value in observation["components"].items()
+                                     if name in observation["observed_groups"]}
+        for component in observation["components"].values():
+            for field in ("dependency_coverage", "notice_coverage"):
+                component[field] = {"status": "unverified", "reason": "Synthetic unreviewed fixture"}
+        directory = tmp_path / "third_party"
+        directory.mkdir()
+        observed_path = directory / "native-runtime.json"
+        observed_path.write_text(json.dumps(observation))
+        with zipfile.ZipFile(directory / "notices.zip", "w") as archive:
+            archive.write(observed_path, "native-runtime.json")
+        observed_reference = {"path": "third_party/native-runtime.json", "sha256": file_digest(observed_path)}
+        if fault == "gap":
+            inventory["gaps"] = [{"reason": "Unreviewed dependency"}]
+        elif fault == "unreviewed":
+            inventory["components"]["node-api"]["dependency_coverage"]["status"] = "unverified"
+        elif fault == "missing-scope":
+            inventory["observed_groups"].remove("worker-images")
+        elif fault == "missing-evidence":
+            inventory["components"]["node-api"]["notice_coverage"]["evidence"] = []
+        elif fault == "empty-artifacts":
+            inventory["components"]["host-runtime"]["artifacts"] = {}
+        elif fault == "bad-artifact-hash":
+            inventory["components"]["node-api"]["artifacts"]["binary"]["sha256"] = "not-a-digest"
+        elif fault == "omitted-known-component":
+            del inventory["components"]["core-python"]
+        elif fault == "omitted-known-payload":
+            del inventory["components"]["core-python"]["artifacts"]["other-binary"]
+        elif fault == "changed-known-payload":
+            inventory["components"]["core-python"]["artifacts"]["binary"]["sha256"] = "d" * 64
+        elif fault == "changed-package":
+            inventory["components"]["core-python"]["package"]["version"] = "2"
+        elif fault == "dropped-upstream-doc":
+            inventory["components"]["core-python"]["upstream_documents"] = []
+        path = tmp_path / "inventory.json"
+        path.write_text(json.dumps(inventory))
+        evidence = {"inventory": {"path": path.name, "sha256": file_digest(path)},
+                    "observation": observed_reference}
+        if fault == "changed-inventory":
+            path.write_text("{}")
+        elif fault == "changed-document":
+            document.write_text("Changed after review")
+        elif fault == "changed-observation":
+            observed_path.write_text("{}")
+        elif fault == "missing-observation":
+            evidence.pop("observation")
+        elif fault == "unbound-observation":
+            alternative = tmp_path / "unbound.json"
+            alternative.write_bytes(observed_path.read_bytes())
+            evidence["observation"] = {"path": alternative.name, "sha256": file_digest(alternative)}
+        elif fault == "changed-sealed-observation":
+            observation["components"]["core-python"]["package"]["version"] = "unsealed"
+            observed_path.write_text(json.dumps(observation))
+            evidence["observation"]["sha256"] = file_digest(observed_path)
+>       assert native_inventory_review(tmp_path, evidence) is (fault is None)
+E       AssertionError: assert True is ('omitted-known-payload' is None)
+E        +  where True = native_inventory_review(PosixPath('~/Development/consumer-agent-testing/.cache/native-binding/reproduction/test_review_gate_checks_scope_1'), {'inventory': {'path': 'inventory.json', 'sha256': 'd6dca1c0859a5d17b197f779d9fb2e9391bd3f1f1e7c49c6b8ed1ef67ae38cba'}...ath': 'third_party/native-runtime.json', 'sha256': '3665cced29579ae1e09e81d0da85b42c5f3b7053f4c4faadc00e1e1c7ab430ef'}})
+
+tests/test_native_inventory.py:196: AssertionError
+=========================== short test summary info ============================
+FAILED tests/test_native_inventory.py::test_review_gate_checks_scope_and_linked_evidence[omitted-known-component]
+FAILED tests/test_native_inventory.py::test_review_gate_checks_scope_and_linked_evidence[omitted-known-payload]
+2 failed, 35 deselected in 0.17s

@@ -1,0 +1,17 @@
+[
+  {
+    "tool": "get-structured-content",
+    "arguments": {"location": "Chicago"}
+  },
+  {
+    "answer": [
+      "Chicago is at ",
+      {"$ref": "/results/0/result/structuredContent/temperature"},
+      " degrees right now, with ",
+      {"$ref": "/results/0/result/structuredContent/conditions"},
+      " and ",
+      {"$ref": "/results/0/result/structuredContent/humidity"},
+      "% humidity."
+    ]
+  }
+]

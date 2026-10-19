@@ -1,0 +1,10 @@
+{
+  "kind": "synthetic-reproduction",
+  "source_sha256": "087a4616aa1e06c0eb8043f973fc63cf533f14892ef6d8b4bb27214db91d9a4f",
+  "existing_project_notice": true,
+  "matching_supplemental_notice": true,
+  "copied_notice_count": 1,
+  "supplemental_notice_omitted": true,
+  "package_gaps": [],
+  "work": ".cache/native-review-2026-10-14/supplement-repro-8tf80o_5"
+}

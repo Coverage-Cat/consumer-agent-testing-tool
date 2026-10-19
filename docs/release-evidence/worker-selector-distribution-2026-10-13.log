@@ -1,0 +1,27 @@
+tool-versions: passed
+export-core: passed
+export-build: passed
+export-api: passed
+Locked Python wheels: 135 packages, at most 104,983,967 compressed bytes before cache reuse. No weights.
+create-build: passed
+install-build: passed
+create-core: passed
+install-core: passed
+create-api: passed
+install-api: passed
+install-node-protocol: passed
+install-node-browser: passed
+install-node-api: passed
+inventory: passed
+build: passed
+install-wheel: passed
+install-wheel-api: passed
+init: passed
+static-inspect: passed
+static-check: passed
+contract-check: passed
+report: passed
+export: passed
+packaged-workflows: passed
+packaged-api-tools: passed
+Verification record: dist/verification.json

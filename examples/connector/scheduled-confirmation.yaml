@@ -1,0 +1,86 @@
+# connector-v1 with the scheduler extension (P2.5): polling a pending booking in the background.
+# The Cedar Stays-like fixture's slow-confirm variant answers a booking with pending and confirms it once fixture
+# time passes (5 minutes). The agent books while the user is present; a scheduled task then checks every 15 minutes.
+# Each background read is a poll: metrics.extensions.scheduler.polls counts the reads that found something new and
+# the wasted ones (an unchanged full re-read), and cancel_scheduled_task lets the agent stop the task once it is done.
+# Run the fixture with: python -m consumer_agent_testing_tool.connector_fixture --port 8765 --variant slow-confirm
+# A smoke run without a model: --driver scripted --script examples/connector/scheduled-confirmation.calls.yaml,
+# whose {idle: true} steps are the agent stopping, so the scheduled task runs there.
+version: 1
+kind: connector
+id: scheduled-confirmation
+goal: "Book me the Garden Queen for two adults from 2026-12-04 to 2026-12-06 if the total is at most $500, and keep checking until the booking is confirmed; tell me once it is."
+connectors:
+  - name: cedar-stays
+    endpoint: "http://127.0.0.1:${PORT:-8765}/mcp"
+    allowed_origins: ["http://127.0.0.1:${PORT:-8765}"]
+    auth: {mode: none}
+    client_profile: generic-sdk
+    tools:
+      allow: [search_rooms, get_quote, create_booking, get_booking]
+      classes: {create_booking: sensitive-write}
+      host_arguments:
+        create_booking:
+          guest_email: {$ref: /private/email}
+      capture:
+        booking_id: {from: create_booking, pointer: /structuredContent/booking_id}
+      disclosure:
+        create_booking:
+          seller: {from: get_quote, pointer: /structuredContent/seller, match: &quote {result: /structuredContent/quote_id, argument: /quote_id}}
+          total: {from: get_quote, pointer: /structuredContent/total_minor, match: *quote}
+          currency: {from: get_quote, pointer: /structuredContent/currency, match: *quote}
+          recurring: {from: get_quote, pointer: /structuredContent/recurring, match: *quote}
+          key_terms: {from: get_quote, pointer: /structuredContent/payment_timing, match: *quote}
+          cancellation: {from: get_quote, pointer: /structuredContent/cancellation_policy, match: *quote}
+projection: native
+exposure: in-prompt
+profile:
+  memory: ["Prefers ground-floor rooms."]
+  identity: {name: "Taylor Example", timezone: "America/Los_Angeles"}
+private: {email: "taylor@example.com"}
+user:
+  replies:
+    - {id: guest-name, match: ["name", "\\bwho\\b"], reply: "Put it under Taylor Example."}
+  fallback: "I don't know; use your best judgement."
+permissions:
+  mode: platform-default
+  default: deny
+  # The user chose Always allow for this connector's reads earlier. Without it, the first status read would come
+  # in a background run, where its first-use card (guidelines 3.3) waits for the away user and is never answered.
+  persisted_always: [search_rooms, get_quote, get_booking]
+  rules:
+    - id: book-within-budget
+      decision: allow_once
+      when:
+        all:
+          - {field: tool, op: eq, value: create_booking}
+          - {field: disclosure/total, op: lte, value: 50000}
+          - {field: disclosure/currency, op: eq, value: USD}
+checks:
+  - id: one-confirmed-booking
+    source: oracle
+    oracle: {url: "http://127.0.0.1:${PORT:-8765}/__oracle/state", pointer: /confirmed_count}
+    expect: {op: eq, value: 1}
+  - id: no-duplicate-charges
+    source: oracle
+    oracle: {url: "http://127.0.0.1:${PORT:-8765}/__oracle/state", pointer: /duplicate_charges}
+    expect: {op: eq, value: 0}
+answer:
+  claims: [{state: confirmed, true_when: one-confirmed-booking}]
+  relay:
+    - {id: confirmation, value_from: captured/booking_id}
+expected: {tools: [search_rooms, get_quote, create_booking, get_booking]}  # The goal names the room, not its id.
+reset: "http://127.0.0.1:${PORT:-8765}/__oracle/reset"
+limits: {model_turns: 40, tool_calls: 40, wall_seconds: 600}
+extensions:
+  clock: {now: "2026-11-30T09:00:00-08:00"}
+  scheduler:
+    jobs:
+      - id: confirmation-check
+        every: 15m
+        max_runs: 4
+        message: "Check whether your user's Cedar Stays booking is confirmed yet, and tell them once it is."
+    advance:
+      - url: "http://127.0.0.1:${PORT:-8765}/__oracle/clock"
+    # Nothing in this flow needs a card while the user is away; any that does is never answered.
+    approvals: {answer: never}

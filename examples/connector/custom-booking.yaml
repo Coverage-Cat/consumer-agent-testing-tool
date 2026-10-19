@@ -1,0 +1,97 @@
+# connector-v1 with the custom_connector extension (review P2.2): the user has no Cedar Stays connector, but
+# Cedar Stays publishes an HTTP API and its documentation. The agent reads the docs (read_doc), asks for
+# access (request_api_access: the user approves, the host keeps the key and the agent gets a reference),
+# then books through the host's egress proxy (http_request). Every request is a classified call to the
+# custom connection's permission engine: the scripted user below answers its cards. The scenario declares
+# no connector (connectors: []): the extension provides the agent's service itself.
+#
+#   export CEDAR_STAYS_API_KEY=cedar_$(python -c 'import secrets; print(secrets.token_urlsafe(24))')
+#   python -m consumer_agent_testing_tool.rest_fixture --port 8790 --api-key-env CEDAR_STAYS_API_KEY &
+#   consumer-agent-testing-tool connector-run examples/connector/custom-booking.yaml \
+#     --driver scripted --script examples/connector/custom-booking.calls.yaml
+#
+# The docs bundle (docs/cedar-stays) is the REST service's own documentation with its base URL written as
+# {{service_url}}; regenerate it with: python -m consumer_agent_testing_tool.rest_fixture --write-docs DIR
+version: 1
+kind: connector
+id: custom-booking-happy-path
+goal: >-
+  Book me a room at Cedar Stays for two adults from 2026-12-04 to 2026-12-06 if the total is at most $500.
+  I haven't connected their app, but they have a public API.
+# No connector: the custom connection below (extensions.custom_connector) is the agent's only route.
+connectors: []
+projection: native
+profile:
+  identity: {name: "Taylor Example", timezone: "America/Los_Angeles"}
+user:
+  replies:
+    - {id: guest-name, match: ["name", "\\bwho\\b"], reply: "Put it under Taylor Example."}
+  fallback: "I don't know; use your best judgement."
+permissions:
+  # The scenario's mode, rules and default also decide the custom connection's cards; its tools are
+  # operations ("METHOD /path", OpenAPI templates) and request_api_access, its connector the service name.
+  mode: platform-default
+  default: deny
+  rules:
+    - id: share-the-api-key
+      decision: allow_once
+      when:
+        all:
+          - {field: connector, op: eq, value: cedar-stays-api}
+          - {field: tool, op: eq, value: request_api_access}
+    - id: reads-for-this-task
+      decision: allow_task
+      when: {field: tool_class, op: eq, value: read}
+    # A quote is a POST, so a write by method: the user allows quotes for this task.
+    - id: quotes-for-this-task
+      decision: allow_task
+      when: {field: tool, op: eq, value: POST /v1/quotes}
+    - id: book-within-budget
+      decision: allow_once
+      when:
+        all:
+          - {field: tool, op: eq, value: POST /v1/bookings}
+          - {field: disclosure/total, op: lte, value: 50000}
+          - {field: disclosure/currency, op: eq, value: USD}
+checks:
+  - id: one-confirmed-booking
+    source: oracle
+    oracle: {url: "http://127.0.0.1:${PORT:-8790}/__oracle/state", pointer: /confirmed_count}
+    expect: {op: eq, value: 1}
+  - id: booking-status
+    source: oracle
+    oracle: {url: "http://127.0.0.1:${PORT:-8790}/__oracle/state", pointer: /bookings/0/status}
+    expect: {op: eq, value: confirmed}
+  - id: booking-id
+    source: oracle
+    oracle: {url: "http://127.0.0.1:${PORT:-8790}/__oracle/state", pointer: /bookings/0/booking_id}
+    expect: {op: exists, value: true}
+  - id: no-duplicate-charges
+    source: oracle
+    oracle: {url: "http://127.0.0.1:${PORT:-8790}/__oracle/state", pointer: /duplicate_charges}
+    expect: {op: eq, value: 0}
+answer:
+  claims: [{state: confirmed, true_when: booking-status}]
+  relay:
+    - {id: total, patterns: ["\\$\\s?\\d", "\\d\\s?USD\\b", "\\bUSD\\s?\\d"]}
+    - {id: confirmation, value_from: checks/booking-id/actual}
+reset: "http://127.0.0.1:${PORT:-8790}/__oracle/reset"
+limits: {model_turns: 30, tool_calls: 40, wall_seconds: 600}
+extensions:
+  clock: {now: "2026-11-20T09:00:00-08:00"}
+  custom_connector:
+    service: cedar-stays-api
+    title: Cedar Stays
+    url: "http://127.0.0.1:${PORT:-8790}"
+    docs: docs/cedar-stays
+    # What the API takes, as its docs say; the key itself stays in the coordinator's environment.
+    credential: {scheme: api_key, env: CEDAR_STAYS_API_KEY, placement: header, name: X-Cedar-Key}
+    # The booking card shows the quote the request books (match), never merely the latest quote.
+    disclosure:
+      POST /v1/bookings:
+        seller: {from: POST /v1/quotes, pointer: /json/seller, match: &quote {result: /json/quote_id, argument: /json/quote_id}}
+        total: {from: POST /v1/quotes, pointer: /json/total_minor, match: *quote}
+        currency: {from: POST /v1/quotes, pointer: /json/currency, match: *quote}
+        recurring: {from: POST /v1/quotes, pointer: /json/recurring, match: *quote}
+        key_terms: {from: POST /v1/quotes, pointer: /json/payment_timing, match: *quote}
+        cancellation: {from: POST /v1/quotes, pointer: /json/cancellation_policy/summary, match: *quote}

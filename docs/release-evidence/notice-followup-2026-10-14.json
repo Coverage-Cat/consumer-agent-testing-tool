@@ -1,0 +1,122 @@
+{
+  "checked_at": "2026-10-14T17:53:26.965368+00:00",
+  "scope": "Original project notice follow-up for six pinned optional API packages; read-only upstream retrievals, no maintainer messages or dependency changes.",
+  "resolved": [
+    {
+      "name": "tr46",
+      "version": "0.0.3",
+      "provenance": "third_party/supplemental/tr46-0.0.3/provenance.json",
+      "finding": "The author added LICENSE.md in the immediate child of the release gitHead with no changes to existing tracked files. All five installed files match the integrity-verified npm archive."
+    }
+  ],
+  "unresolved": [
+    {
+      "name": "fnv-plus",
+      "version": "1.3.1",
+      "finding": "Recursive master tree at the release commit contains no license/notice file. Issue #14 proposes a downstream-authored attribution, has no maintainer response, and remains open. Do not substitute that proposal for an original notice."
+    },
+    {
+      "name": "parse-multipart-data",
+      "version": "1.5.0",
+      "finding": "Recursive master tree at the release commit contains no license/notice file. PR #20 was closed without merging; its author withdrew it after choosing another package. Do not treat a closed PR as an accepted license."
+    },
+    {
+      "name": "@stoplight/json-schema-merge-allof",
+      "version": "0.7.8",
+      "finding": "Recursive current master tree contains no license/notice file. Retained README has an MIT label and author attribution, without the permission text."
+    },
+    {
+      "name": "pretty-data",
+      "version": "0.40.0",
+      "finding": "Recursive current master tree contains no license/notice file. Published README retains copyright and generic MIT/GPL links; no new original permission notice found."
+    },
+    {
+      "name": "proxy-agent-negotiate",
+      "version": "1.1.0",
+      "finding": "Recursive current main tree has notices in sibling packages but none for packages/negotiate. Sibling licenses were not substituted."
+    }
+  ],
+  "evidence": {
+    ".cache/notice-followup-2026-10-14/fnv-current-tree.json": {
+      "sha256": "2516597b0f95b532e5c5e82db6e0997fb94c55e1bff114b7354ae96ea9294c20",
+      "bytes": 4928
+    },
+    ".cache/notice-followup-2026-10-14/fnv-issues.json": {
+      "sha256": "1cf847594f25e8f18b8eb4ee528a6f4087d94cf4323229ecd7a9ef761213e3fb",
+      "bytes": 70687
+    },
+    ".cache/notice-followup-2026-10-14/merge-current-tree.json": {
+      "sha256": "fe7996d1e94df7cfe47615ef9cf53415738a3261e2d0fd13bbdca97ba5d4a18b",
+      "bytes": 7692
+    },
+    ".cache/notice-followup-2026-10-14/merge-issues.json": {
+      "sha256": "fef5939c15f382eb0bbe6ee525fe97fbab4d3bf1bafc320111f8e3996efa54b4",
+      "bytes": 144714
+    },
+    ".cache/notice-followup-2026-10-14/multipart-current-tree.json": {
+      "sha256": "2016d9189ef89c471feca6d1480cc52e4261ced3e1a94eac7908b9a8cda04dcb",
+      "bytes": 3699
+    },
+    ".cache/notice-followup-2026-10-14/multipart-issues.json": {
+      "sha256": "20be63a8264dc754646bb2ccdebd76df62e58f9d7f183841b3d05f5a3fe5fab5",
+      "bytes": 101343
+    },
+    ".cache/notice-followup-2026-10-14/multipart-license-comments.json": {
+      "sha256": "1f4c4cabb88a8c7ccfd81ae8a7fa8eb04881d118e1c1d02739187cf2285751fe",
+      "bytes": 2076
+    },
+    ".cache/notice-followup-2026-10-14/multipart-license-pr.json": {
+      "sha256": "89adba73e3038d4d188ba264701f75a2a75013ba9f78a780952cb13bc24383fb",
+      "bytes": 19984
+    },
+    ".cache/notice-followup-2026-10-14/multipart-missing-comments.json": {
+      "sha256": "c2f0b564f4c0174e33ec22450a76c001b4c40c22f9cd83a472ed974328a8e47c",
+      "bytes": 2026
+    },
+    ".cache/notice-followup-2026-10-14/pretty-current-tree.json": {
+      "sha256": "932cefed10adca9c66969d82084bff27782981c349607b7700162313fa511a7a",
+      "bytes": 2468
+    },
+    ".cache/notice-followup-2026-10-14/pretty-issues.json": {
+      "sha256": "3cd26b136b529b4549973909486e0e4c662bc4a5817bd3d2bd6c2e57f02b8115",
+      "bytes": 108391
+    },
+    ".cache/notice-followup-2026-10-14/proxy-current-tree.json": {
+      "sha256": "34017718e588f375dcc811d4574149367ebcbcbced339922205e1c8e50f31770",
+      "bytes": 74863
+    },
+    ".cache/notice-followup-2026-10-14/tr46-0.0.3.tgz": {
+      "sha256": "164ae1eb32cea353551bbc7f9358dcaae4ffabbe65ec37a92ca464a9570a2a0a",
+      "bytes": 64681
+    },
+    ".cache/notice-followup-2026-10-14/tr46-LICENSE.md": {
+      "sha256": "eeed1ca176eebad5c73870e233cfff03981fecd319c969475dfa3633036c336b",
+      "bytes": 1081
+    },
+    ".cache/notice-followup-2026-10-14/tr46-installed-bindings.json": {
+      "sha256": "38e771b0a3704fc35664024503f76f7bad36352b2df67dbba83795bd4e96f3a0",
+      "bytes": 266
+    },
+    ".cache/notice-followup-2026-10-14/tr46-license-commit.json": {
+      "sha256": "ceaa67bb2ae9452fbfee64eea5bf65d60cc57d19730653591a042c6df0412b86",
+      "bytes": 5481
+    },
+    ".cache/notice-followup-2026-10-14/tr46-license-history.json": {
+      "sha256": "5cd581c6a4b3e20cf316e436a233c1fc36f51c2bb0e7d0ce7caa02c9bc8c6a44",
+      "bytes": 7652
+    },
+    ".cache/notice-followup-2026-10-14/tr46-notice-tree.json": {
+      "sha256": "3d934b58de17a4096ec63bd86a58d751c58bb2e35d353c850ef5e9692456484c",
+      "bytes": 3933
+    },
+    ".cache/notice-followup-2026-10-14/tr46-release-license-compare.json": {
+      "sha256": "452c24ff842bb077cc388f37ad220e2bbe85e67741d417a7478fceda4bb7fc96",
+      "bytes": 14222
+    },
+    ".cache/notice-followup-2026-10-14/tr46-release-tree.json": {
+      "sha256": "09198cd7ea4bf8416bca1456831321793250352f082b389ff42d85d731fe9369",
+      "bytes": 3663
+    }
+  },
+  "limits": "Tree and issue queries are bounded searches, not proof of absence everywhere. The generated tr46 mapping table is verified against the pinned npm archive but is not tracked in the compared Git trees. No complete dataset/native inventory review or legal-clearance claim. This record does not promote any release gate."
+}

@@ -1,0 +1,1256 @@
+{
+  "image_id": "sha256:f93887afbf2d78fee11a13ae0753a478b6574eb1414b6e289aa9d619e1cb9cd6",
+  "os": "linux",
+  "architecture": "arm64",
+  "dockerfile_sha256": "dce525f0a356591bf76ec87792ac368c77b9c864994e811358e31195afdfb083",
+  "packages": [
+    {
+      "name": "adduser",
+      "version": "3.152",
+      "architecture": "all"
+    },
+    {
+      "name": "apt",
+      "version": "3.0.3",
+      "architecture": "arm64"
+    },
+    {
+      "name": "base-files",
+      "version": "13.8+deb13u4",
+      "architecture": "arm64"
+    },
+    {
+      "name": "base-passwd",
+      "version": "3.6.7",
+      "architecture": "arm64"
+    },
+    {
+      "name": "bash",
+      "version": "5.2.37-2+b8",
+      "architecture": "arm64"
+    },
+    {
+      "name": "bsdutils",
+      "version": "1:2.41.5-0+deb13u1",
+      "architecture": "arm64"
+    },
+    {
+      "name": "ca-certificates",
+      "version": "20250419",
+      "architecture": "all"
+    },
+    {
+      "name": "coreutils",
+      "version": "9.7-3",
+      "architecture": "arm64"
+    },
+    {
+      "name": "dash",
+      "version": "0.5.12-12",
+      "architecture": "arm64"
+    },
+    {
+      "name": "debconf",
+      "version": "1.5.91",
+      "architecture": "all"
+    },
+    {
+      "name": "debian-archive-keyring",
+      "version": "2025.1",
+      "architecture": "all"
+    },
+    {
+      "name": "debianutils",
+      "version": "5.23.2",
+      "architecture": "arm64"
+    },
+    {
+      "name": "diffutils",
+      "version": "1:3.10-4",
+      "architecture": "arm64"
+    },
+    {
+      "name": "dpkg",
+      "version": "1.22.22",
+      "architecture": "arm64"
+    },
+    {
+      "name": "findutils",
+      "version": "4.10.0-3",
+      "architecture": "arm64"
+    },
+    {
+      "name": "gcc-14-base",
+      "version": "14.2.0-19",
+      "architecture": "arm64"
+    },
+    {
+      "name": "grep",
+      "version": "3.11-4+b1",
+      "architecture": "arm64"
+    },
+    {
+      "name": "gzip",
+      "version": "1.13-1",
+      "architecture": "arm64"
+    },
+    {
+      "name": "hostname",
+      "version": "3.25",
+      "architecture": "arm64"
+    },
+    {
+      "name": "init-system-helpers",
+      "version": "1.69~deb13u1",
+      "architecture": "all"
+    },
+    {
+      "name": "iptables",
+      "version": "1.8.11-2",
+      "architecture": "arm64"
+    },
+    {
+      "name": "libacl1",
+      "version": "2.3.2-2+b1",
+      "architecture": "arm64"
+    },
+    {
+      "name": "libapt-pkg7.0",
+      "version": "3.0.3",
+      "architecture": "arm64"
+    },
+    {
+      "name": "libattr1",
+      "version": "1:2.5.2-3",
+      "architecture": "arm64"
+    },
+    {
+      "name": "libaudit-common",
+      "version": "1:4.0.2-2",
+      "architecture": "all"
+    },
+    {
+      "name": "libaudit1",
+      "version": "1:4.0.2-2+b2",
+      "architecture": "arm64"
+    },
+    {
+      "name": "libblkid1",
+      "version": "2.41.5-0+deb13u1",
+      "architecture": "arm64"
+    },
+    {
+      "name": "libbsd0",
+      "version": "0.12.2-2",
+      "architecture": "arm64"
+    },
+    {
+      "name": "libbz2-1.0",
+      "version": "1.0.8-6",
+      "architecture": "arm64"
+    },
+    {
+      "name": "libc-bin",
+      "version": "2.41-12+deb13u2",
+      "architecture": "arm64"
+    },
+    {
+      "name": "libc6",
+      "version": "2.41-12+deb13u2",
+      "architecture": "arm64"
+    },
+    {
+      "name": "libcap-ng0",
+      "version": "0.8.5-4+b1",
+      "architecture": "arm64"
+    },
+    {
+      "name": "libcap2",
+      "version": "1:2.75-10+b8",
+      "architecture": "arm64"
+    },
+    {
+      "name": "libcrypt1",
+      "version": "1:4.4.38-1",
+      "architecture": "arm64"
+    },
+    {
+      "name": "libdb5.3t64",
+      "version": "5.3.28+dfsg2-9",
+      "architecture": "arm64"
+    },
+    {
+      "name": "libdebconfclient0",
+      "version": "0.280",
+      "architecture": "arm64"
+    },
+    {
+      "name": "libffi8",
+      "version": "3.4.8-2",
+      "architecture": "arm64"
+    },
+    {
+      "name": "libgcc-s1",
+      "version": "14.2.0-19",
+      "architecture": "arm64"
+    },
+    {
+      "name": "libgdbm6t64",
+      "version": "1.24-2",
+      "architecture": "arm64"
+    },
+    {
+      "name": "libgmp10",
+      "version": "2:6.3.0+dfsg-3",
+      "architecture": "arm64"
+    },
+    {
+      "name": "libhogweed6t64",
+      "version": "3.10.1-1",
+      "architecture": "arm64"
+    },
+    {
+      "name": "libip4tc2",
+      "version": "1.8.11-2",
+      "architecture": "arm64"
+    },
+    {
+      "name": "libip6tc2",
+      "version": "1.8.11-2",
+      "architecture": "arm64"
+    },
+    {
+      "name": "liblastlog2-2",
+      "version": "2.41.5-0+deb13u1",
+      "architecture": "arm64"
+    },
+    {
+      "name": "liblz4-1",
+      "version": "1.10.0-4",
+      "architecture": "arm64"
+    },
+    {
+      "name": "liblzma5",
+      "version": "5.8.1-1",
+      "architecture": "arm64"
+    },
+    {
+      "name": "libmd0",
+      "version": "1.1.0-2+b1",
+      "architecture": "arm64"
+    },
+    {
+      "name": "libmnl0",
+      "version": "1.0.5-3",
+      "architecture": "arm64"
+    },
+    {
+      "name": "libmount1",
+      "version": "2.41.5-0+deb13u1",
+      "architecture": "arm64"
+    },
+    {
+      "name": "libncursesw6",
+      "version": "6.5+20250216-2",
+      "architecture": "arm64"
+    },
+    {
+      "name": "libnetfilter-conntrack3",
+      "version": "1.1.0-1",
+      "architecture": "arm64"
+    },
+    {
+      "name": "libnettle8t64",
+      "version": "3.10.1-1",
+      "architecture": "arm64"
+    },
+    {
+      "name": "libnfnetlink0",
+      "version": "1.0.2-3",
+      "architecture": "arm64"
+    },
+    {
+      "name": "libnftnl11",
+      "version": "1.2.9-1",
+      "architecture": "arm64"
+    },
+    {
+      "name": "libpam-modules",
+      "version": "1.7.0-5",
+      "architecture": "arm64"
+    },
+    {
+      "name": "libpam-modules-bin",
+      "version": "1.7.0-5",
+      "architecture": "arm64"
+    },
+    {
+      "name": "libpam-runtime",
+      "version": "1.7.0-5",
+      "architecture": "all"
+    },
+    {
+      "name": "libpam0g",
+      "version": "1.7.0-5",
+      "architecture": "arm64"
+    },
+    {
+      "name": "libpcre2-8-0",
+      "version": "10.46-1~deb13u1",
+      "architecture": "arm64"
+    },
+    {
+      "name": "libreadline8t64",
+      "version": "8.2-6",
+      "architecture": "arm64"
+    },
+    {
+      "name": "libseccomp2",
+      "version": "2.6.0-2",
+      "architecture": "arm64"
+    },
+    {
+      "name": "libselinux1",
+      "version": "3.8.1-1",
+      "architecture": "arm64"
+    },
+    {
+      "name": "libsemanage-common",
+      "version": "3.8.1-1",
+      "architecture": "all"
+    },
+    {
+      "name": "libsemanage2",
+      "version": "3.8.1-1",
+      "architecture": "arm64"
+    },
+    {
+      "name": "libsepol2",
+      "version": "3.8.1-1",
+      "architecture": "arm64"
+    },
+    {
+      "name": "libsmartcols1",
+      "version": "2.41.5-0+deb13u1",
+      "architecture": "arm64"
+    },
+    {
+      "name": "libsqlite3-0",
+      "version": "3.46.1-7+deb13u1",
+      "architecture": "arm64"
+    },
+    {
+      "name": "libssl3t64",
+      "version": "3.5.5-1~deb13u2",
+      "architecture": "arm64"
+    },
+    {
+      "name": "libstdc++6",
+      "version": "14.2.0-19",
+      "architecture": "arm64"
+    },
+    {
+      "name": "libsystemd0",
+      "version": "257.9-1~deb13u1",
+      "architecture": "arm64"
+    },
+    {
+      "name": "libtinfo6",
+      "version": "6.5+20250216-2",
+      "architecture": "arm64"
+    },
+    {
+      "name": "libudev1",
+      "version": "257.9-1~deb13u1",
+      "architecture": "arm64"
+    },
+    {
+      "name": "libuuid1",
+      "version": "2.41.5-0+deb13u1",
+      "architecture": "arm64"
+    },
+    {
+      "name": "libxtables12",
+      "version": "1.8.11-2",
+      "architecture": "arm64"
+    },
+    {
+      "name": "libxxhash0",
+      "version": "0.8.3-2",
+      "architecture": "arm64"
+    },
+    {
+      "name": "libzstd1",
+      "version": "1.5.7+dfsg-1",
+      "architecture": "arm64"
+    },
+    {
+      "name": "login",
+      "version": "1:4.16.0-2+really2.41.5-0+deb13u1",
+      "architecture": "arm64"
+    },
+    {
+      "name": "login.defs",
+      "version": "1:4.17.4-2",
+      "architecture": "all"
+    },
+    {
+      "name": "mawk",
+      "version": "1.3.4.20250131-1",
+      "architecture": "arm64"
+    },
+    {
+      "name": "mount",
+      "version": "2.41.5-0+deb13u1",
+      "architecture": "arm64"
+    },
+    {
+      "name": "ncurses-base",
+      "version": "6.5+20250216-2",
+      "architecture": "all"
+    },
+    {
+      "name": "ncurses-bin",
+      "version": "6.5+20250216-2",
+      "architecture": "arm64"
+    },
+    {
+      "name": "netbase",
+      "version": "6.5",
+      "architecture": "all"
+    },
+    {
+      "name": "openssl",
+      "version": "3.5.5-1~deb13u2",
+      "architecture": "arm64"
+    },
+    {
+      "name": "openssl-provider-legacy",
+      "version": "3.5.5-1~deb13u2",
+      "architecture": "arm64"
+    },
+    {
+      "name": "passwd",
+      "version": "1:4.17.4-2",
+      "architecture": "arm64"
+    },
+    {
+      "name": "perl-base",
+      "version": "5.40.1-6",
+      "architecture": "arm64"
+    },
+    {
+      "name": "readline-common",
+      "version": "8.2-6",
+      "architecture": "all"
+    },
+    {
+      "name": "sed",
+      "version": "4.9-2+b1",
+      "architecture": "arm64"
+    },
+    {
+      "name": "sqv",
+      "version": "1.3.0-3+b2",
+      "architecture": "arm64"
+    },
+    {
+      "name": "sysvinit-utils",
+      "version": "3.14-4",
+      "architecture": "arm64"
+    },
+    {
+      "name": "tar",
+      "version": "1.35+dfsg-3.1",
+      "architecture": "arm64"
+    },
+    {
+      "name": "tzdata",
+      "version": "2026a-0+deb13u1",
+      "architecture": "all"
+    },
+    {
+      "name": "util-linux",
+      "version": "2.41.5-0+deb13u1",
+      "architecture": "arm64"
+    },
+    {
+      "name": "zlib1g",
+      "version": "1:1.3.dfsg+really1.3.1-1+b1",
+      "architecture": "arm64"
+    }
+  ],
+  "original_notices": [
+    {
+      "source_path": "/usr/share/doc/gzip/copyright",
+      "sha256": "02c197fa26ad056ed2382bb8c3e6323d47edfda4539f727b4ab3f4dbf64ac413",
+      "path": "third_party/container/notices/usr/share/doc/gzip/copyright"
+    },
+    {
+      "source_path": "/usr/share/doc/libgmp10/copyright",
+      "sha256": "7d366aef5ba325150246de1d7820c4c9926cd27ca61a69948492b26cd3b61601",
+      "path": "third_party/container/notices/usr/share/doc/libgmp10/copyright"
+    },
+    {
+      "source_path": "/usr/share/doc/libaudit-common/copyright",
+      "sha256": "6c7011e93f643b112c4cc3622131e28a30477afad6c4f5efe466b13aa7f603cc",
+      "path": "third_party/container/notices/usr/share/doc/libaudit-common/copyright"
+    },
+    {
+      "source_path": "/usr/share/doc/libsmartcols1/copyright",
+      "sha256": "56b67e2eb8bac5a15d91e261d558d73f1f029113cced229753138194997366b6",
+      "path": "third_party/container/notices/usr/share/doc/libsmartcols1/copyright"
+    },
+    {
+      "source_path": "/usr/share/doc/mawk/copyright",
+      "sha256": "f6b94f461b09398ef192207356d89d7bf59833fe03082a14b910b3c740f2a318",
+      "path": "third_party/container/notices/usr/share/doc/mawk/copyright"
+    },
+    {
+      "source_path": "/usr/share/doc/tzdata/copyright",
+      "sha256": "cb61132bc0fc7b26ef5a82ee18b2fb644a1362f4f286ed980ff22e408471f59a",
+      "path": "third_party/container/notices/usr/share/doc/tzdata/copyright"
+    },
+    {
+      "source_path": "/usr/share/doc/dpkg/copyright",
+      "sha256": "3376ec6f7bebf6b1e55da9d5dc591c73e752b45dccb0488e8365d2cf216a1746",
+      "path": "third_party/container/notices/usr/share/doc/dpkg/copyright"
+    },
+    {
+      "source_path": "/usr/share/doc/libselinux1/copyright",
+      "sha256": "864f1bb189f609075d580b8c4aada16d85a44546884f1687989e1cacc8c56751",
+      "path": "third_party/container/notices/usr/share/doc/libselinux1/copyright"
+    },
+    {
+      "source_path": "/usr/share/doc/debian-archive-keyring/copyright",
+      "sha256": "8f918c0bebd1454a084698a95c09d9a03cec8453dad1fc6eab9e6427da9d33a9",
+      "path": "third_party/container/notices/usr/share/doc/debian-archive-keyring/copyright"
+    },
+    {
+      "source_path": "/usr/share/doc/ncurses-base/copyright",
+      "sha256": "f838d6048fbc59356b7e56c207a7cb32dc6bf4adea95514a002596bde8f6e1e7",
+      "path": "third_party/container/notices/usr/share/doc/ncurses-base/copyright"
+    },
+    {
+      "source_path": "/usr/share/doc/liblastlog2-2/copyright",
+      "sha256": "56b67e2eb8bac5a15d91e261d558d73f1f029113cced229753138194997366b6",
+      "path": "third_party/container/notices/usr/share/doc/liblastlog2-2/copyright"
+    },
+    {
+      "source_path": "/usr/share/doc/sqv/copyright",
+      "sha256": "b7ae2cde83ad585eae83cded853d125b034fcef480f6c4cee6d9ddd63327181a",
+      "path": "third_party/container/notices/usr/share/doc/sqv/copyright"
+    },
+    {
+      "source_path": "/usr/share/doc/libnettle8t64/copyright",
+      "sha256": "344396197142cd506468b20029ea5722d507c980129bb3db4af02424ed6f39c6",
+      "path": "third_party/container/notices/usr/share/doc/libnettle8t64/copyright"
+    },
+    {
+      "source_path": "/usr/share/doc/tar/copyright",
+      "sha256": "a0a44d41b2a045eb5946a8952487151cfa6ff0cd080bbf4b2eec220751d23024",
+      "path": "third_party/container/notices/usr/share/doc/tar/copyright"
+    },
+    {
+      "source_path": "/usr/share/doc/libuuid1/copyright",
+      "sha256": "56b67e2eb8bac5a15d91e261d558d73f1f029113cced229753138194997366b6",
+      "path": "third_party/container/notices/usr/share/doc/libuuid1/copyright"
+    },
+    {
+      "source_path": "/usr/share/doc/base-passwd/copyright",
+      "sha256": "0f1cde79bd80a75f9029ae9a8c252b642223027ef36f6989c63a8230aae576a7",
+      "path": "third_party/container/notices/usr/share/doc/base-passwd/copyright"
+    },
+    {
+      "source_path": "/usr/share/doc/libapt-pkg7.0/copyright",
+      "sha256": "77ab918ade9bce20b07524572fc8eab3f8c0cab4d246f282043892aaa9538803",
+      "path": "third_party/container/notices/usr/share/doc/libapt-pkg7.0/copyright"
+    },
+    {
+      "source_path": "/usr/share/doc/debianutils/copyright",
+      "sha256": "aeb68ea374f488431b8963df24f05482692edfa70d7556d7e528dd06d255461c",
+      "path": "third_party/container/notices/usr/share/doc/debianutils/copyright"
+    },
+    {
+      "source_path": "/usr/share/doc/libcrypt1/copyright",
+      "sha256": "5a5e7ca0e9f3f9679977e3a3e9ede45ad92885a3297ea78e766979f9866c5a16",
+      "path": "third_party/container/notices/usr/share/doc/libcrypt1/copyright"
+    },
+    {
+      "source_path": "/usr/share/doc/libmount1/copyright",
+      "sha256": "56b67e2eb8bac5a15d91e261d558d73f1f029113cced229753138194997366b6",
+      "path": "third_party/container/notices/usr/share/doc/libmount1/copyright"
+    },
+    {
+      "source_path": "/usr/share/doc/libsepol2/copyright",
+      "sha256": "78d2a34606a0302057ec499a3b3c07bcbc43ca334064ce4c80891a0f69c8f6c6",
+      "path": "third_party/container/notices/usr/share/doc/libsepol2/copyright"
+    },
+    {
+      "source_path": "/usr/share/doc/libacl1/copyright",
+      "sha256": "9a2dfb4a5abc7e84be2cc41f1089be665519c9409549296f6c19de57ab1d37c2",
+      "path": "third_party/container/notices/usr/share/doc/libacl1/copyright"
+    },
+    {
+      "source_path": "/usr/share/doc/apt/copyright",
+      "sha256": "77ab918ade9bce20b07524572fc8eab3f8c0cab4d246f282043892aaa9538803",
+      "path": "third_party/container/notices/usr/share/doc/apt/copyright"
+    },
+    {
+      "source_path": "/usr/share/doc/libpam-runtime/copyright",
+      "sha256": "6b11ef9ab5429d9618cc72e8dfd4efefde363165ef174be0549918e0c44f5dcb",
+      "path": "third_party/container/notices/usr/share/doc/libpam-runtime/copyright"
+    },
+    {
+      "source_path": "/usr/share/doc/util-linux/copyright",
+      "sha256": "56b67e2eb8bac5a15d91e261d558d73f1f029113cced229753138194997366b6",
+      "path": "third_party/container/notices/usr/share/doc/util-linux/copyright"
+    },
+    {
+      "source_path": "/usr/share/doc/libblkid1/copyright",
+      "sha256": "56b67e2eb8bac5a15d91e261d558d73f1f029113cced229753138194997366b6",
+      "path": "third_party/container/notices/usr/share/doc/libblkid1/copyright"
+    },
+    {
+      "source_path": "/usr/share/doc/zlib1g/copyright",
+      "sha256": "9e5b96d63773a5d177ba264254390f792be07e41748ebd94730981c6cac31cc6",
+      "path": "third_party/container/notices/usr/share/doc/zlib1g/copyright"
+    },
+    {
+      "source_path": "/usr/share/doc/libpam-modules-bin/copyright",
+      "sha256": "6b11ef9ab5429d9618cc72e8dfd4efefde363165ef174be0549918e0c44f5dcb",
+      "path": "third_party/container/notices/usr/share/doc/libpam-modules-bin/copyright"
+    },
+    {
+      "source_path": "/usr/share/doc/libsemanage2/copyright",
+      "sha256": "fe5876a94047cafbeb8b164fd98304912d94b6028e19415f08b7a8a2f90645fe",
+      "path": "third_party/container/notices/usr/share/doc/libsemanage2/copyright"
+    },
+    {
+      "source_path": "/usr/share/doc/libpam-modules/copyright",
+      "sha256": "6b11ef9ab5429d9618cc72e8dfd4efefde363165ef174be0549918e0c44f5dcb",
+      "path": "third_party/container/notices/usr/share/doc/libpam-modules/copyright"
+    },
+    {
+      "source_path": "/usr/share/doc/liblzma5/copyright",
+      "sha256": "d755588e2d89d7845d0d4e718ac45d49ae9fc53cec4540af105963c20598f9d7",
+      "path": "third_party/container/notices/usr/share/doc/liblzma5/copyright"
+    },
+    {
+      "source_path": "/usr/share/doc/findutils/copyright",
+      "sha256": "f51541fbdfe15c01cd3fd3a06ad3b74478902d36a958d95b1756434979d97ed5",
+      "path": "third_party/container/notices/usr/share/doc/findutils/copyright"
+    },
+    {
+      "source_path": "/usr/share/doc/bsdutils/copyright",
+      "sha256": "56b67e2eb8bac5a15d91e261d558d73f1f029113cced229753138194997366b6",
+      "path": "third_party/container/notices/usr/share/doc/bsdutils/copyright"
+    },
+    {
+      "source_path": "/usr/share/doc/openssl-provider-legacy/copyright",
+      "sha256": "6a7da622fe0637a334d2a8fc470852d2ffb77d9a2b2f930f854e32a41ad6ef35",
+      "path": "third_party/container/notices/usr/share/doc/openssl-provider-legacy/copyright"
+    },
+    {
+      "source_path": "/usr/share/doc/libdb5.3t64/copyright",
+      "sha256": "8b53da37d73289d9df7317b3a2dbe16491f1fa9fec8b77b86d69704b40ce2c26",
+      "path": "third_party/container/notices/usr/share/doc/libdb5.3t64/copyright"
+    },
+    {
+      "source_path": "/usr/share/doc/debconf/copyright",
+      "sha256": "57163c71bd8a5289660892827dd0dfaa7fef47f89deedc9dc6711ced7d0a28d7",
+      "path": "third_party/container/notices/usr/share/doc/debconf/copyright"
+    },
+    {
+      "source_path": "/usr/share/doc/passwd/copyright",
+      "sha256": "305494b6f5f6bb65ead9160077d4fdf45ccdf06de7c958ff96f27a632b8729a3",
+      "path": "third_party/container/notices/usr/share/doc/passwd/copyright"
+    },
+    {
+      "source_path": "/usr/share/doc/libsemanage-common/copyright",
+      "sha256": "fe5876a94047cafbeb8b164fd98304912d94b6028e19415f08b7a8a2f90645fe",
+      "path": "third_party/container/notices/usr/share/doc/libsemanage-common/copyright"
+    },
+    {
+      "source_path": "/usr/share/doc/libsqlite3-0/copyright",
+      "sha256": "7b1679aaa97e6e49ec12460eefa85a82b432053bc468dd89dbdb50f2326589f3",
+      "path": "third_party/container/notices/usr/share/doc/libsqlite3-0/copyright"
+    },
+    {
+      "source_path": "/usr/share/doc/libaudit1/copyright",
+      "sha256": "6c7011e93f643b112c4cc3622131e28a30477afad6c4f5efe466b13aa7f603cc",
+      "path": "third_party/container/notices/usr/share/doc/libaudit1/copyright"
+    },
+    {
+      "source_path": "/usr/share/doc/base-files/copyright",
+      "sha256": "576859a65409c99cb1632c8b3de4b3deb26910800832beda76aca33d00720134",
+      "path": "third_party/container/notices/usr/share/doc/base-files/copyright"
+    },
+    {
+      "source_path": "/usr/share/doc/libcap-ng0/copyright",
+      "sha256": "567997de097e3738564c90e6fe13343b2daae21a7926d6fb161df41322c1840b",
+      "path": "third_party/container/notices/usr/share/doc/libcap-ng0/copyright"
+    },
+    {
+      "source_path": "/usr/share/doc/libtinfo6/copyright",
+      "sha256": "f838d6048fbc59356b7e56c207a7cb32dc6bf4adea95514a002596bde8f6e1e7",
+      "path": "third_party/container/notices/usr/share/doc/libtinfo6/copyright"
+    },
+    {
+      "source_path": "/usr/share/doc/perl-base/copyright",
+      "sha256": "8adf04cb72ca0719dee8fdb8d711768548d10373905eac21e8a640881c230257",
+      "path": "third_party/container/notices/usr/share/doc/perl-base/copyright"
+    },
+    {
+      "source_path": "/usr/share/doc/diffutils/copyright",
+      "sha256": "ac6fcf18142bab7569188ae75b204a9e1c73c050c0f9467adaf080759e516123",
+      "path": "third_party/container/notices/usr/share/doc/diffutils/copyright"
+    },
+    {
+      "source_path": "/usr/share/doc/sed/copyright",
+      "sha256": "719320e425e8e6da53a55e0fcfa2f2ed9b1332cea16abd65321bd651b2a88568",
+      "path": "third_party/container/notices/usr/share/doc/sed/copyright"
+    },
+    {
+      "source_path": "/usr/share/doc/libc6/copyright",
+      "sha256": "f5788886720a2605a946e81d571e6c8162b09f58d2e2ceb8d36e5768fccd850d",
+      "path": "third_party/container/notices/usr/share/doc/libc6/copyright"
+    },
+    {
+      "source_path": "/usr/share/doc/login/copyright",
+      "sha256": "56b67e2eb8bac5a15d91e261d558d73f1f029113cced229753138194997366b6",
+      "path": "third_party/container/notices/usr/share/doc/login/copyright"
+    },
+    {
+      "source_path": "/usr/share/doc/libbz2-1.0/copyright",
+      "sha256": "832ed535ff3c3d025a8d2348eb1b697b89addcf2eaadbc17650262040b9145e2",
+      "path": "third_party/container/notices/usr/share/doc/libbz2-1.0/copyright"
+    },
+    {
+      "source_path": "/usr/share/doc/libdebconfclient0/copyright",
+      "sha256": "cf63099896d1c0f6529c41b8d95738e6fea342ffba609187d339c4f38ce36ecc",
+      "path": "third_party/container/notices/usr/share/doc/libdebconfclient0/copyright"
+    },
+    {
+      "source_path": "/usr/share/doc/liblz4-1/copyright",
+      "sha256": "8dce0cb8c5a4486e4aac00466e4dd4b0b5b28d70efe3b3256ea4594099a8509c",
+      "path": "third_party/container/notices/usr/share/doc/liblz4-1/copyright"
+    },
+    {
+      "source_path": "/usr/share/doc/gcc-14-base/copyright",
+      "sha256": "20390f8a6f3b1e4d7cb45dd8652dabb259bbef688cbad839bcdb0b9ba7252f79",
+      "path": "third_party/container/notices/usr/share/doc/gcc-14-base/copyright"
+    },
+    {
+      "source_path": "/usr/share/doc/libhogweed6t64/copyright",
+      "sha256": "344396197142cd506468b20029ea5722d507c980129bb3db4af02424ed6f39c6",
+      "path": "third_party/container/notices/usr/share/doc/libhogweed6t64/copyright"
+    },
+    {
+      "source_path": "/usr/share/doc/coreutils/copyright",
+      "sha256": "3a63d4b11a7ba4c1c17175072ea28e07b0f80c7bc1ca042b27431fe65a14755b",
+      "path": "third_party/container/notices/usr/share/doc/coreutils/copyright"
+    },
+    {
+      "source_path": "/usr/share/doc/libsystemd0/copyright",
+      "sha256": "a79e4b379cabbd960bb44f6cc1a069081a3778c59a25ee529b68df5a2cb7d27d",
+      "path": "third_party/container/notices/usr/share/doc/libsystemd0/copyright"
+    },
+    {
+      "source_path": "/usr/share/doc/init-system-helpers/copyright",
+      "sha256": "7534601cc4fa513804d16490359f5831e7b6a1212da3bbf948bebdd4c8799783",
+      "path": "third_party/container/notices/usr/share/doc/init-system-helpers/copyright"
+    },
+    {
+      "source_path": "/usr/share/doc/libpam0g/copyright",
+      "sha256": "6b11ef9ab5429d9618cc72e8dfd4efefde363165ef174be0549918e0c44f5dcb",
+      "path": "third_party/container/notices/usr/share/doc/libpam0g/copyright"
+    },
+    {
+      "source_path": "/usr/share/doc/bash/copyright",
+      "sha256": "06319d84c3e5ed096036f6a9310a030c7e84e50dff2b8a6792285c83ec0ada73",
+      "path": "third_party/container/notices/usr/share/doc/bash/copyright"
+    },
+    {
+      "source_path": "/usr/share/doc/libxxhash0/copyright",
+      "sha256": "81affefe3047c8a88a9e4c94c8c698f51a7e0787e75b58e901bf1f8fcd433f58",
+      "path": "third_party/container/notices/usr/share/doc/libxxhash0/copyright"
+    },
+    {
+      "source_path": "/usr/share/doc/login.defs/copyright",
+      "sha256": "305494b6f5f6bb65ead9160077d4fdf45ccdf06de7c958ff96f27a632b8729a3",
+      "path": "third_party/container/notices/usr/share/doc/login.defs/copyright"
+    },
+    {
+      "source_path": "/usr/share/doc/libcap2/copyright",
+      "sha256": "04f9fb974e10f6ca0cd226811f72b3855f8383daad0e5de7adac8d5b0b7796c3",
+      "path": "third_party/container/notices/usr/share/doc/libcap2/copyright"
+    },
+    {
+      "source_path": "/usr/share/doc/libzstd1/copyright",
+      "sha256": "5cec9fef4d3fa7e0371fbef4ec3fc416e0105dc2a9922117f84e825cb11f50f8",
+      "path": "third_party/container/notices/usr/share/doc/libzstd1/copyright"
+    },
+    {
+      "source_path": "/usr/share/doc/hostname/copyright",
+      "sha256": "94189fc5a9a7b7224d96e1a0cfdfe9be0df2018b04bf21d591627ab96b30cad1",
+      "path": "third_party/container/notices/usr/share/doc/hostname/copyright"
+    },
+    {
+      "source_path": "/usr/share/doc/libssl3t64/copyright",
+      "sha256": "6a7da622fe0637a334d2a8fc470852d2ffb77d9a2b2f930f854e32a41ad6ef35",
+      "path": "third_party/container/notices/usr/share/doc/libssl3t64/copyright"
+    },
+    {
+      "source_path": "/usr/share/doc/grep/copyright",
+      "sha256": "42d9b4d610396b1e8d1303dcb9487af3f5a2d2709623cf03a04cf76acdf6c5e3",
+      "path": "third_party/container/notices/usr/share/doc/grep/copyright"
+    },
+    {
+      "source_path": "/usr/share/doc/libseccomp2/copyright",
+      "sha256": "6da0653a365b80ab31478dbfe9e7c358e80d58b6d2b52b4e16b4dbb42d7d9f5c",
+      "path": "third_party/container/notices/usr/share/doc/libseccomp2/copyright"
+    },
+    {
+      "source_path": "/usr/share/doc/dash/copyright",
+      "sha256": "d98c53f281321baad38164aa9ae6e368a9253be6ec51bd26a759b5e72b326f4a",
+      "path": "third_party/container/notices/usr/share/doc/dash/copyright"
+    },
+    {
+      "source_path": "/usr/share/doc/libattr1/copyright",
+      "sha256": "0cbec745d85ea775450b2d54fac55277197f429e52d611f72852ed420450620e",
+      "path": "third_party/container/notices/usr/share/doc/libattr1/copyright"
+    },
+    {
+      "source_path": "/usr/share/doc/libbsd0/copyright",
+      "sha256": "47eaa031b1741a33a93e7cc8909bfe153acaec7ddff12e4dc7377d0e2ec10e91",
+      "path": "third_party/container/notices/usr/share/doc/libbsd0/copyright"
+    },
+    {
+      "source_path": "/usr/share/doc/libmd0/copyright",
+      "sha256": "4365ef6255ad553fce69dd4bc0e093472c5d0e41b8ea493a545cc926ce171aa6",
+      "path": "third_party/container/notices/usr/share/doc/libmd0/copyright"
+    },
+    {
+      "source_path": "/usr/share/doc/libpcre2-8-0/copyright",
+      "sha256": "e915cde4251f96ec6af107ecd2e194440a4e69440893b0c982802f8a1e4ae40a",
+      "path": "third_party/container/notices/usr/share/doc/libpcre2-8-0/copyright"
+    },
+    {
+      "source_path": "/usr/share/doc/libc-bin/copyright",
+      "sha256": "f5788886720a2605a946e81d571e6c8162b09f58d2e2ceb8d36e5768fccd850d",
+      "path": "third_party/container/notices/usr/share/doc/libc-bin/copyright"
+    },
+    {
+      "source_path": "/usr/share/doc/sysvinit-utils/copyright",
+      "sha256": "53c7ef3839f64b24cc25a0937d11ce228517a48be0cc794f0d67b7e209b2a9ba",
+      "path": "third_party/container/notices/usr/share/doc/sysvinit-utils/copyright"
+    },
+    {
+      "source_path": "/usr/share/doc/ncurses-bin/copyright",
+      "sha256": "f838d6048fbc59356b7e56c207a7cb32dc6bf4adea95514a002596bde8f6e1e7",
+      "path": "third_party/container/notices/usr/share/doc/ncurses-bin/copyright"
+    },
+    {
+      "source_path": "/usr/share/doc/libudev1/copyright",
+      "sha256": "a79e4b379cabbd960bb44f6cc1a069081a3778c59a25ee529b68df5a2cb7d27d",
+      "path": "third_party/container/notices/usr/share/doc/libudev1/copyright"
+    },
+    {
+      "source_path": "/usr/share/doc/mount/copyright",
+      "sha256": "56b67e2eb8bac5a15d91e261d558d73f1f029113cced229753138194997366b6",
+      "path": "third_party/container/notices/usr/share/doc/mount/copyright"
+    },
+    {
+      "source_path": "/usr/share/doc/libip6tc2/copyright",
+      "sha256": "1f222344466008db3d978986ddf49e088473c807073d5d36a0d0768c54effd95",
+      "path": "third_party/container/notices/usr/share/doc/libip6tc2/copyright"
+    },
+    {
+      "source_path": "/usr/share/doc/iptables/copyright",
+      "sha256": "1f222344466008db3d978986ddf49e088473c807073d5d36a0d0768c54effd95",
+      "path": "third_party/container/notices/usr/share/doc/iptables/copyright"
+    },
+    {
+      "source_path": "/usr/share/doc/libip4tc2/copyright",
+      "sha256": "1f222344466008db3d978986ddf49e088473c807073d5d36a0d0768c54effd95",
+      "path": "third_party/container/notices/usr/share/doc/libip4tc2/copyright"
+    },
+    {
+      "source_path": "/usr/share/doc/libnftnl11/copyright",
+      "sha256": "04504e56793a5499dbb92a072196d2c4f6cc70e8514747543df19774e46bcc6c",
+      "path": "third_party/container/notices/usr/share/doc/libnftnl11/copyright"
+    },
+    {
+      "source_path": "/usr/share/doc/libxtables12/copyright",
+      "sha256": "1f222344466008db3d978986ddf49e088473c807073d5d36a0d0768c54effd95",
+      "path": "third_party/container/notices/usr/share/doc/libxtables12/copyright"
+    },
+    {
+      "source_path": "/usr/share/doc/libnetfilter-conntrack3/copyright",
+      "sha256": "f066f9856df12a15d2e6eb10fd9e95a4a4af794ff6709d41a92ba767f18071d7",
+      "path": "third_party/container/notices/usr/share/doc/libnetfilter-conntrack3/copyright"
+    },
+    {
+      "source_path": "/usr/share/doc/libmnl0/copyright",
+      "sha256": "9fff1fa73055f485adf40e4e9138f73a9b61bafed5d62e64284503dcaef280da",
+      "path": "third_party/container/notices/usr/share/doc/libmnl0/copyright"
+    },
+    {
+      "source_path": "/usr/share/doc/libnfnetlink0/copyright",
+      "sha256": "1e754ea2aeb4d2a28fad70b6f206e452400aed40d04cf60a1b8686e1de799787",
+      "path": "third_party/container/notices/usr/share/doc/libnfnetlink0/copyright"
+    },
+    {
+      "source_path": "/usr/share/doc/adduser/copyright",
+      "sha256": "46a62796c410dd88c0df99066519127a29ddca803078f7a8554fc779c30101bb",
+      "path": "third_party/container/notices/usr/share/doc/adduser/copyright"
+    },
+    {
+      "source_path": "/usr/share/doc/readline-common/copyright",
+      "sha256": "854c6f5f249a109a913e1e58528445c4fec96f063ae8ba496bfb2b460bcc6866",
+      "path": "third_party/container/notices/usr/share/doc/readline-common/copyright"
+    },
+    {
+      "source_path": "/usr/share/doc/libgdbm6t64/copyright",
+      "sha256": "c68f7e6c9b84dd360916a21c951a11829cc55b8793d66094dbfc39eba1618696",
+      "path": "third_party/container/notices/usr/share/doc/libgdbm6t64/copyright"
+    },
+    {
+      "source_path": "/usr/share/doc/libffi8/copyright",
+      "sha256": "25ee86cfccc2b7eb9a156a127f1e1b38c46c231f516ff201912223eaf62ee186",
+      "path": "third_party/container/notices/usr/share/doc/libffi8/copyright"
+    },
+    {
+      "source_path": "/usr/share/doc/libreadline8t64/copyright",
+      "sha256": "854c6f5f249a109a913e1e58528445c4fec96f063ae8ba496bfb2b460bcc6866",
+      "path": "third_party/container/notices/usr/share/doc/libreadline8t64/copyright"
+    },
+    {
+      "source_path": "/usr/share/doc/openssl/copyright",
+      "sha256": "6a7da622fe0637a334d2a8fc470852d2ffb77d9a2b2f930f854e32a41ad6ef35",
+      "path": "third_party/container/notices/usr/share/doc/openssl/copyright"
+    },
+    {
+      "source_path": "/usr/share/doc/netbase/copyright",
+      "sha256": "795b66147ea5ad692991caa7008ece551fb0fa88b9c53656223bd1518dc58ab2",
+      "path": "third_party/container/notices/usr/share/doc/netbase/copyright"
+    },
+    {
+      "source_path": "/usr/share/doc/ca-certificates/copyright",
+      "sha256": "e85e1bcad3a915dc7e6f41412bc5bdeba275cadd817896ea0451f2140a93967c",
+      "path": "third_party/container/notices/usr/share/doc/ca-certificates/copyright"
+    },
+    {
+      "source_path": "/usr/share/doc/ca-certificates/examples/ca-certificates-local/debian/copyright",
+      "sha256": "ccfe62f0f73541f1c76a6d33aed26290391685c43f914a5e24c6b1f72cddcdff",
+      "path": "third_party/container/notices/usr/share/doc/ca-certificates/examples/ca-certificates-local/debian/copyright"
+    },
+    {
+      "source_path": "/usr/share/common-licenses/GPL",
+      "sha256": "3972dc9744f6499f0f9b2dbf76696f2ae7ad8af9b23dde66d6af86c9dfb36986",
+      "path": "third_party/container/notices/usr/share/common-licenses/GPL"
+    },
+    {
+      "source_path": "/usr/share/common-licenses/GPL-3",
+      "sha256": "3972dc9744f6499f0f9b2dbf76696f2ae7ad8af9b23dde66d6af86c9dfb36986",
+      "path": "third_party/container/notices/usr/share/common-licenses/GPL-3"
+    },
+    {
+      "source_path": "/usr/share/common-licenses/MPL-1.1",
+      "sha256": "f849fc26a7a99981611a3a370e83078deb617d12a45776d6c4cada4d338be469",
+      "path": "third_party/container/notices/usr/share/common-licenses/MPL-1.1"
+    },
+    {
+      "source_path": "/usr/share/common-licenses/BSD",
+      "sha256": "5d588eb3b157d52112afea935c88a7ff9efddc1e2d95a42c25d3b96ad9055008",
+      "path": "third_party/container/notices/usr/share/common-licenses/BSD"
+    },
+    {
+      "source_path": "/usr/share/common-licenses/MPL-2.0",
+      "sha256": "fab3dd6bdab226f1c08630b1dd917e11fcb4ec5e1e020e2c16f83a0a13863e85",
+      "path": "third_party/container/notices/usr/share/common-licenses/MPL-2.0"
+    },
+    {
+      "source_path": "/usr/share/common-licenses/LGPL-3",
+      "sha256": "e3a994d82e644b03a792a930f574002658412f62407f5fee083f2555c5f23118",
+      "path": "third_party/container/notices/usr/share/common-licenses/LGPL-3"
+    },
+    {
+      "source_path": "/usr/share/common-licenses/CC0-1.0",
+      "sha256": "a2010f343487d3f7618affe54f789f5487602331c0a8d03f49e9a7c547cf0499",
+      "path": "third_party/container/notices/usr/share/common-licenses/CC0-1.0"
+    },
+    {
+      "source_path": "/usr/share/common-licenses/GFDL",
+      "sha256": "110535522396708cea37c72a802c5e7e81391139f5f7985631c93ef242b206a4",
+      "path": "third_party/container/notices/usr/share/common-licenses/GFDL"
+    },
+    {
+      "source_path": "/usr/share/common-licenses/Apache-2.0",
+      "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+      "path": "third_party/container/notices/usr/share/common-licenses/Apache-2.0"
+    },
+    {
+      "source_path": "/usr/share/common-licenses/LGPL-2",
+      "sha256": "cc535c21133c895b56b374c8a1dc1eb948d99003ed2b47372069456b62f42b24",
+      "path": "third_party/container/notices/usr/share/common-licenses/LGPL-2"
+    },
+    {
+      "source_path": "/usr/share/common-licenses/GPL-2",
+      "sha256": "edaef632cbb643e4e7a221717a6c441a4c1a7c918e6e4d56debc3d8739b233f6",
+      "path": "third_party/container/notices/usr/share/common-licenses/GPL-2"
+    },
+    {
+      "source_path": "/usr/share/common-licenses/LGPL-2.1",
+      "sha256": "20e50fe7aae3e56378ebf0417d9de904f55a0e61e4df315333e632a4d3555d95",
+      "path": "third_party/container/notices/usr/share/common-licenses/LGPL-2.1"
+    },
+    {
+      "source_path": "/usr/share/common-licenses/LGPL",
+      "sha256": "e3a994d82e644b03a792a930f574002658412f62407f5fee083f2555c5f23118",
+      "path": "third_party/container/notices/usr/share/common-licenses/LGPL"
+    },
+    {
+      "source_path": "/usr/share/common-licenses/Artistic",
+      "sha256": "b7fd9b73ea99602016a326e0b62e6646060d18febdd065ceca8bb482208c3d88",
+      "path": "third_party/container/notices/usr/share/common-licenses/Artistic"
+    },
+    {
+      "source_path": "/usr/share/common-licenses/GFDL-1.3",
+      "sha256": "110535522396708cea37c72a802c5e7e81391139f5f7985631c93ef242b206a4",
+      "path": "third_party/container/notices/usr/share/common-licenses/GFDL-1.3"
+    },
+    {
+      "source_path": "/usr/share/common-licenses/GFDL-1.2",
+      "sha256": "2652c22ba086f92e55ae4a9f9c890ad4766ffd7814a73d318e22a597edf857a4",
+      "path": "third_party/container/notices/usr/share/common-licenses/GFDL-1.2"
+    },
+    {
+      "source_path": "/usr/share/common-licenses/GPL-1",
+      "sha256": "49c007bafb5ad6dd9f9d4dae4d3ac0461975498150c05d684c551f0914ab486c",
+      "path": "third_party/container/notices/usr/share/common-licenses/GPL-1"
+    },
+    {
+      "source_path": "/usr/local/lib/python3.14/LICENSE.txt",
+      "sha256": "b0e25a78cffb43f4d92de8b61ccfa1f1f98ecbc22330b54b5251e7b6ba010231",
+      "path": "third_party/container/notices/usr/local/lib/python3.14/LICENSE.txt"
+    },
+    {
+      "source_path": "/usr/local/lib/python3.14/site-packages/pip/_vendor/pkg_resources/LICENSE",
+      "sha256": "86da0f01aeae46348a3c3d465195dc1ceccde79f79e87769a64b8da04b2a4741",
+      "path": "third_party/container/notices/usr/local/lib/python3.14/site-packages/pip/_vendor/pkg_resources/LICENSE"
+    },
+    {
+      "source_path": "/usr/local/lib/python3.14/site-packages/pip/_vendor/requests/LICENSE",
+      "sha256": "09e8a9bcec8067104652c168685ab0931e7868f9c8284b66f5ae6edae5f1130b",
+      "path": "third_party/container/notices/usr/local/lib/python3.14/site-packages/pip/_vendor/requests/LICENSE"
+    },
+    {
+      "source_path": "/usr/local/lib/python3.14/site-packages/pip/_vendor/tomli/LICENSE",
+      "sha256": "b80816b0d530b8accb4c2211783790984a6e3b61922c2b5ee92f3372ab2742fe",
+      "path": "third_party/container/notices/usr/local/lib/python3.14/site-packages/pip/_vendor/tomli/LICENSE"
+    },
+    {
+      "source_path": "/usr/local/lib/python3.14/site-packages/pip/_vendor/certifi/LICENSE",
+      "sha256": "e93716da6b9c0d5a4a1df60fe695b370f0695603d21f6f83f053e42cfc10caf7",
+      "path": "third_party/container/notices/usr/local/lib/python3.14/site-packages/pip/_vendor/certifi/LICENSE"
+    },
+    {
+      "source_path": "/usr/local/lib/python3.14/site-packages/pip/_vendor/rich/LICENSE",
+      "sha256": "deed7c17a4318158190a3ea239cc879a5a50271cebb98ae7025f48fbe58dca15",
+      "path": "third_party/container/notices/usr/local/lib/python3.14/site-packages/pip/_vendor/rich/LICENSE"
+    },
+    {
+      "source_path": "/usr/local/lib/python3.14/site-packages/pip/_vendor/packaging/LICENSE",
+      "sha256": "cad1ef5bd340d73e074ba614d26f7deaca5c7940c3d8c34852e65c4909686c48",
+      "path": "third_party/container/notices/usr/local/lib/python3.14/site-packages/pip/_vendor/packaging/LICENSE"
+    },
+    {
+      "source_path": "/usr/local/lib/python3.14/site-packages/pip/_vendor/packaging/LICENSE.APACHE",
+      "sha256": "0d542e0c8804e39aa7f37eb00da5a762149dc682d7829451287e11b938e94594",
+      "path": "third_party/container/notices/usr/local/lib/python3.14/site-packages/pip/_vendor/packaging/LICENSE.APACHE"
+    },
+    {
+      "source_path": "/usr/local/lib/python3.14/site-packages/pip/_vendor/packaging/LICENSE.BSD",
+      "sha256": "b70e7e9b742f1cc6f948b34c16aa39ffece94196364bc88ff0d2180f0028fac5",
+      "path": "third_party/container/notices/usr/local/lib/python3.14/site-packages/pip/_vendor/packaging/LICENSE.BSD"
+    },
+    {
+      "source_path": "/usr/local/lib/python3.14/site-packages/pip/_vendor/platformdirs/LICENSE",
+      "sha256": "29e0fd62e929850e86eb28c3fdccf0cefdf4fa94879011cffb3d0d4bed6d4db6",
+      "path": "third_party/container/notices/usr/local/lib/python3.14/site-packages/pip/_vendor/platformdirs/LICENSE"
+    },
+    {
+      "source_path": "/usr/local/lib/python3.14/site-packages/pip/_vendor/urllib3/LICENSE.txt",
+      "sha256": "c37bf186e27cf9dbe9619e55edfe3cea7b30091ceb3da63c7dacbe0e6d77907b",
+      "path": "third_party/container/notices/usr/local/lib/python3.14/site-packages/pip/_vendor/urllib3/LICENSE.txt"
+    },
+    {
+      "source_path": "/usr/local/lib/python3.14/site-packages/pip/_vendor/pyproject_hooks/LICENSE",
+      "sha256": "1b22b049b5267d6dfc23a67bf4a84d8ec04b9fdfb1a51d360e42b4342c8b4154",
+      "path": "third_party/container/notices/usr/local/lib/python3.14/site-packages/pip/_vendor/pyproject_hooks/LICENSE"
+    },
+    {
+      "source_path": "/usr/local/lib/python3.14/site-packages/pip/_vendor/distro/LICENSE",
+      "sha256": "cb5e8e7e5f4a3988e1063c142c60dc2df75605f4c46515e776e3aca6df976e14",
+      "path": "third_party/container/notices/usr/local/lib/python3.14/site-packages/pip/_vendor/distro/LICENSE"
+    },
+    {
+      "source_path": "/usr/local/lib/python3.14/site-packages/pip/_vendor/msgpack/COPYING",
+      "sha256": "492dedba85da5872f78e6091bcd1fea474d660d35acb4dee964b8aab3f007427",
+      "path": "third_party/container/notices/usr/local/lib/python3.14/site-packages/pip/_vendor/msgpack/COPYING"
+    },
+    {
+      "source_path": "/usr/local/lib/python3.14/site-packages/pip/_vendor/pygments/LICENSE",
+      "sha256": "a9d66f1d526df02e29dce73436d34e56e8632f46c275bbdffc70569e882f9f17",
+      "path": "third_party/container/notices/usr/local/lib/python3.14/site-packages/pip/_vendor/pygments/LICENSE"
+    },
+    {
+      "source_path": "/usr/local/lib/python3.14/site-packages/pip/_vendor/distlib/LICENSE.txt",
+      "sha256": "808e10c8a6ab8deb149ff9b3fb19f447a808094606d712a9ca57fead3552599d",
+      "path": "third_party/container/notices/usr/local/lib/python3.14/site-packages/pip/_vendor/distlib/LICENSE.txt"
+    },
+    {
+      "source_path": "/usr/local/lib/python3.14/site-packages/pip/_vendor/cachecontrol/LICENSE.txt",
+      "sha256": "86eeee87be2a43f3ff1f56496f451f69243926f025fedbb033666c304c4c161b",
+      "path": "third_party/container/notices/usr/local/lib/python3.14/site-packages/pip/_vendor/cachecontrol/LICENSE.txt"
+    },
+    {
+      "source_path": "/usr/local/lib/python3.14/site-packages/pip/_vendor/tomli_w/LICENSE",
+      "sha256": "b80816b0d530b8accb4c2211783790984a6e3b61922c2b5ee92f3372ab2742fe",
+      "path": "third_party/container/notices/usr/local/lib/python3.14/site-packages/pip/_vendor/tomli_w/LICENSE"
+    },
+    {
+      "source_path": "/usr/local/lib/python3.14/site-packages/pip/_vendor/truststore/LICENSE",
+      "sha256": "33be7b7e8fa4fd19b1760e1a8ed8a668bdab852c91b692dd41424bcb725a9fca",
+      "path": "third_party/container/notices/usr/local/lib/python3.14/site-packages/pip/_vendor/truststore/LICENSE"
+    },
+    {
+      "source_path": "/usr/local/lib/python3.14/site-packages/pip/_vendor/resolvelib/LICENSE",
+      "sha256": "f388fd38cad13112c1dc0f669bbe80e7f84541edbafb72f3030d2ca7642c3c9d",
+      "path": "third_party/container/notices/usr/local/lib/python3.14/site-packages/pip/_vendor/resolvelib/LICENSE"
+    },
+    {
+      "source_path": "/usr/local/lib/python3.14/site-packages/pip/_vendor/dependency_groups/LICENSE.txt",
+      "sha256": "1ab36e3e2a4ba8631625384f87e9e091db1faed034c5b23325b3239abf2cc525",
+      "path": "third_party/container/notices/usr/local/lib/python3.14/site-packages/pip/_vendor/dependency_groups/LICENSE.txt"
+    },
+    {
+      "source_path": "/usr/local/lib/python3.14/site-packages/pip/_vendor/idna/LICENSE.md",
+      "sha256": "b7a336abf3b04e180ec065cdd16e705d079e1cc7a14f910aa6e9187f36b9cd87",
+      "path": "third_party/container/notices/usr/local/lib/python3.14/site-packages/pip/_vendor/idna/LICENSE.md"
+    },
+    {
+      "source_path": "/usr/local/lib/python3.14/site-packages/pip-26.0.1.dist-info/licenses/LICENSE.txt",
+      "sha256": "634300a669d49aeae65b12c6c48c924c51a4cdf3d1ff086dc3456dc8bcaa2104",
+      "path": "third_party/container/notices/usr/local/lib/python3.14/site-packages/pip-26.0.1.dist-info/licenses/LICENSE.txt"
+    },
+    {
+      "source_path": "/usr/local/lib/python3.14/site-packages/pip-26.0.1.dist-info/licenses/src/pip/_vendor/pkg_resources/LICENSE",
+      "sha256": "86da0f01aeae46348a3c3d465195dc1ceccde79f79e87769a64b8da04b2a4741",
+      "path": "third_party/container/notices/usr/local/lib/python3.14/site-packages/pip-26.0.1.dist-info/licenses/src/pip/_vendor/pkg_resources/LICENSE"
+    },
+    {
+      "source_path": "/usr/local/lib/python3.14/site-packages/pip-26.0.1.dist-info/licenses/src/pip/_vendor/requests/LICENSE",
+      "sha256": "09e8a9bcec8067104652c168685ab0931e7868f9c8284b66f5ae6edae5f1130b",
+      "path": "third_party/container/notices/usr/local/lib/python3.14/site-packages/pip-26.0.1.dist-info/licenses/src/pip/_vendor/requests/LICENSE"
+    },
+    {
+      "source_path": "/usr/local/lib/python3.14/site-packages/pip-26.0.1.dist-info/licenses/src/pip/_vendor/tomli/LICENSE",
+      "sha256": "b80816b0d530b8accb4c2211783790984a6e3b61922c2b5ee92f3372ab2742fe",
+      "path": "third_party/container/notices/usr/local/lib/python3.14/site-packages/pip-26.0.1.dist-info/licenses/src/pip/_vendor/tomli/LICENSE"
+    },
+    {
+      "source_path": "/usr/local/lib/python3.14/site-packages/pip-26.0.1.dist-info/licenses/src/pip/_vendor/certifi/LICENSE",
+      "sha256": "e93716da6b9c0d5a4a1df60fe695b370f0695603d21f6f83f053e42cfc10caf7",
+      "path": "third_party/container/notices/usr/local/lib/python3.14/site-packages/pip-26.0.1.dist-info/licenses/src/pip/_vendor/certifi/LICENSE"
+    },
+    {
+      "source_path": "/usr/local/lib/python3.14/site-packages/pip-26.0.1.dist-info/licenses/src/pip/_vendor/rich/LICENSE",
+      "sha256": "deed7c17a4318158190a3ea239cc879a5a50271cebb98ae7025f48fbe58dca15",
+      "path": "third_party/container/notices/usr/local/lib/python3.14/site-packages/pip-26.0.1.dist-info/licenses/src/pip/_vendor/rich/LICENSE"
+    },
+    {
+      "source_path": "/usr/local/lib/python3.14/site-packages/pip-26.0.1.dist-info/licenses/src/pip/_vendor/packaging/LICENSE",
+      "sha256": "cad1ef5bd340d73e074ba614d26f7deaca5c7940c3d8c34852e65c4909686c48",
+      "path": "third_party/container/notices/usr/local/lib/python3.14/site-packages/pip-26.0.1.dist-info/licenses/src/pip/_vendor/packaging/LICENSE"
+    },
+    {
+      "source_path": "/usr/local/lib/python3.14/site-packages/pip-26.0.1.dist-info/licenses/src/pip/_vendor/packaging/LICENSE.APACHE",
+      "sha256": "0d542e0c8804e39aa7f37eb00da5a762149dc682d7829451287e11b938e94594",
+      "path": "third_party/container/notices/usr/local/lib/python3.14/site-packages/pip-26.0.1.dist-info/licenses/src/pip/_vendor/packaging/LICENSE.APACHE"
+    },
+    {
+      "source_path": "/usr/local/lib/python3.14/site-packages/pip-26.0.1.dist-info/licenses/src/pip/_vendor/packaging/LICENSE.BSD",
+      "sha256": "b70e7e9b742f1cc6f948b34c16aa39ffece94196364bc88ff0d2180f0028fac5",
+      "path": "third_party/container/notices/usr/local/lib/python3.14/site-packages/pip-26.0.1.dist-info/licenses/src/pip/_vendor/packaging/LICENSE.BSD"
+    },
+    {
+      "source_path": "/usr/local/lib/python3.14/site-packages/pip-26.0.1.dist-info/licenses/src/pip/_vendor/platformdirs/LICENSE",
+      "sha256": "29e0fd62e929850e86eb28c3fdccf0cefdf4fa94879011cffb3d0d4bed6d4db6",
+      "path": "third_party/container/notices/usr/local/lib/python3.14/site-packages/pip-26.0.1.dist-info/licenses/src/pip/_vendor/platformdirs/LICENSE"
+    },
+    {
+      "source_path": "/usr/local/lib/python3.14/site-packages/pip-26.0.1.dist-info/licenses/src/pip/_vendor/urllib3/LICENSE.txt",
+      "sha256": "c37bf186e27cf9dbe9619e55edfe3cea7b30091ceb3da63c7dacbe0e6d77907b",
+      "path": "third_party/container/notices/usr/local/lib/python3.14/site-packages/pip-26.0.1.dist-info/licenses/src/pip/_vendor/urllib3/LICENSE.txt"
+    },
+    {
+      "source_path": "/usr/local/lib/python3.14/site-packages/pip-26.0.1.dist-info/licenses/src/pip/_vendor/pyproject_hooks/LICENSE",
+      "sha256": "1b22b049b5267d6dfc23a67bf4a84d8ec04b9fdfb1a51d360e42b4342c8b4154",
+      "path": "third_party/container/notices/usr/local/lib/python3.14/site-packages/pip-26.0.1.dist-info/licenses/src/pip/_vendor/pyproject_hooks/LICENSE"
+    },
+    {
+      "source_path": "/usr/local/lib/python3.14/site-packages/pip-26.0.1.dist-info/licenses/src/pip/_vendor/distro/LICENSE",
+      "sha256": "cb5e8e7e5f4a3988e1063c142c60dc2df75605f4c46515e776e3aca6df976e14",
+      "path": "third_party/container/notices/usr/local/lib/python3.14/site-packages/pip-26.0.1.dist-info/licenses/src/pip/_vendor/distro/LICENSE"
+    },
+    {
+      "source_path": "/usr/local/lib/python3.14/site-packages/pip-26.0.1.dist-info/licenses/src/pip/_vendor/msgpack/COPYING",
+      "sha256": "492dedba85da5872f78e6091bcd1fea474d660d35acb4dee964b8aab3f007427",
+      "path": "third_party/container/notices/usr/local/lib/python3.14/site-packages/pip-26.0.1.dist-info/licenses/src/pip/_vendor/msgpack/COPYING"
+    },
+    {
+      "source_path": "/usr/local/lib/python3.14/site-packages/pip-26.0.1.dist-info/licenses/src/pip/_vendor/pygments/LICENSE",
+      "sha256": "a9d66f1d526df02e29dce73436d34e56e8632f46c275bbdffc70569e882f9f17",
+      "path": "third_party/container/notices/usr/local/lib/python3.14/site-packages/pip-26.0.1.dist-info/licenses/src/pip/_vendor/pygments/LICENSE"
+    },
+    {
+      "source_path": "/usr/local/lib/python3.14/site-packages/pip-26.0.1.dist-info/licenses/src/pip/_vendor/distlib/LICENSE.txt",
+      "sha256": "808e10c8a6ab8deb149ff9b3fb19f447a808094606d712a9ca57fead3552599d",
+      "path": "third_party/container/notices/usr/local/lib/python3.14/site-packages/pip-26.0.1.dist-info/licenses/src/pip/_vendor/distlib/LICENSE.txt"
+    },
+    {
+      "source_path": "/usr/local/lib/python3.14/site-packages/pip-26.0.1.dist-info/licenses/src/pip/_vendor/cachecontrol/LICENSE.txt",
+      "sha256": "86eeee87be2a43f3ff1f56496f451f69243926f025fedbb033666c304c4c161b",
+      "path": "third_party/container/notices/usr/local/lib/python3.14/site-packages/pip-26.0.1.dist-info/licenses/src/pip/_vendor/cachecontrol/LICENSE.txt"
+    },
+    {
+      "source_path": "/usr/local/lib/python3.14/site-packages/pip-26.0.1.dist-info/licenses/src/pip/_vendor/tomli_w/LICENSE",
+      "sha256": "b80816b0d530b8accb4c2211783790984a6e3b61922c2b5ee92f3372ab2742fe",
+      "path": "third_party/container/notices/usr/local/lib/python3.14/site-packages/pip-26.0.1.dist-info/licenses/src/pip/_vendor/tomli_w/LICENSE"
+    },
+    {
+      "source_path": "/usr/local/lib/python3.14/site-packages/pip-26.0.1.dist-info/licenses/src/pip/_vendor/truststore/LICENSE",
+      "sha256": "33be7b7e8fa4fd19b1760e1a8ed8a668bdab852c91b692dd41424bcb725a9fca",
+      "path": "third_party/container/notices/usr/local/lib/python3.14/site-packages/pip-26.0.1.dist-info/licenses/src/pip/_vendor/truststore/LICENSE"
+    },
+    {
+      "source_path": "/usr/local/lib/python3.14/site-packages/pip-26.0.1.dist-info/licenses/src/pip/_vendor/resolvelib/LICENSE",
+      "sha256": "f388fd38cad13112c1dc0f669bbe80e7f84541edbafb72f3030d2ca7642c3c9d",
+      "path": "third_party/container/notices/usr/local/lib/python3.14/site-packages/pip-26.0.1.dist-info/licenses/src/pip/_vendor/resolvelib/LICENSE"
+    },
+    {
+      "source_path": "/usr/local/lib/python3.14/site-packages/pip-26.0.1.dist-info/licenses/src/pip/_vendor/dependency_groups/LICENSE.txt",
+      "sha256": "1ab36e3e2a4ba8631625384f87e9e091db1faed034c5b23325b3239abf2cc525",
+      "path": "third_party/container/notices/usr/local/lib/python3.14/site-packages/pip-26.0.1.dist-info/licenses/src/pip/_vendor/dependency_groups/LICENSE.txt"
+    },
+    {
+      "source_path": "/usr/local/lib/python3.14/site-packages/pip-26.0.1.dist-info/licenses/src/pip/_vendor/idna/LICENSE.md",
+      "sha256": "b7a336abf3b04e180ec065cdd16e705d079e1cc7a14f910aa6e9187f36b9cd87",
+      "path": "third_party/container/notices/usr/local/lib/python3.14/site-packages/pip-26.0.1.dist-info/licenses/src/pip/_vendor/idna/LICENSE.md"
+    }
+  ],
+  "scope": "Installed OS package inventory and original notices in the tested image; service terms and model artifacts are separate"
+}

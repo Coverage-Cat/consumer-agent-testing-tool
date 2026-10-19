@@ -1,0 +1,17 @@
+{
+  "status": "observed-unverified",
+  "source_sha256": "30a320de1cc5b33d3b11c0dd26b433386e2a5759dc3cbd8f5a953eb5d6209f2f",
+  "observation": {
+    "path": "third_party/native-runtime.json",
+    "sha256": "47bbf13a49b6d575980dfa0aa87fe2ab549c8646423c9f25141833bf335342e7"
+  },
+  "notices_sha256": "652524c5df8594e0444315516c6885aac890bfc9f1f2e2044b63aade8043dcd0",
+  "known_components": 57,
+  "known_artifact_paths": 138,
+  "sealed_observation_binding_verified": true,
+  "focused_run": {
+    "path": "docs/release-evidence/native-binding-final-2026-10-14.run.json",
+    "sha256": "a9ecb15afcdc49ebbb3531ec92b858e17b1e210a869342fe99d7f773c974f37d"
+  },
+  "limits": "Binding the observed payload set does not complete native dependency/notice review or qualify the release."
+}

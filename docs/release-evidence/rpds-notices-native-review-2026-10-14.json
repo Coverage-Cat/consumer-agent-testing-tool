@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "status": "partial-review",
+  "source_sha256": "eb2ccdced615d901fb2814a78019c6a9a6e18c7c9e4380958a965c434fb0335a",
+  "artifact": {
+    "path": ".cache/d-y0heuj82/venv/lib/python3.14/site-packages/rpds/rpds.cpython-314-darwin.so",
+    "sha256": "b7c4e37971b3fc53f50590380be63dc9f3409c13dd72c69e9fc437e6e8225aef"
+  },
+  "method": "Read-only otool -L and otool -l on the exact installed workspace payload; no dependency loaded or executed.",
+  "declared_dylib_identity": [
+    "@rpath/rpds.cpython-314-darwin.so"
+  ],
+  "declared_dynamic_dependencies": [
+    "/usr/lib/libiconv.2.dylib",
+    "/usr/lib/libSystem.B.dylib"
+  ],
+  "raw_records": {
+    "docs/release-evidence/rpds-notices-load-commands-2026-10-14.txt": "85c9bd99c8edf0f2f77288cf057f771400373a98ab0593089bc39dbb42c17f3d",
+    "docs/release-evidence/rpds-notices-load-libraries-2026-10-14.txt": "8e891371fe2e71f8b30c5b2b819d166a28eec87425d1273d61c65eb1662d34b5"
+  },
+  "remaining_inputs": [
+    "Evidence for the actual deployed libiconv and libSystem payloads and notices, supplied within the authorized workspace.",
+    "Build/linkage evidence distinguishing included runtime code from all-target and build-only crates in the upstream SBOM.",
+    "Compiler/runtime and unlisted vendored dependency review."
+  ],
+  "limits": [
+    "LC_ID_DYLIB is the payload own identity, not a third external dependency.",
+    "Load-command names and compatibility/current version fields do not identify the exact deployed dependency bytes or upstream release.",
+    "Recorded SDK/minimum-OS/linker fields are binary metadata, not independent build attestation.",
+    "No referenced system path was opened. Native inventory qualification remains unverified."
+  ]
+}

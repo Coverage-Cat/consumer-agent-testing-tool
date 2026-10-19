@@ -1,0 +1,11 @@
+{
+  "synthetic": true,
+  "requests": [
+    {
+      "operation": "confirm",
+      "arguments": {
+        "amount_minor": 12500
+      }
+    }
+  ]
+}

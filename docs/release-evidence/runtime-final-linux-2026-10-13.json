@@ -1,0 +1,196 @@
+{
+  "source_sha256": "f55e89f63da4ff17cce2d17897b71bff9f8773fa9e82a0eb854dbcb47c61aed3",
+  "proofs": [
+    {
+      "path": ".cache/regression-run-3pj9d5l0/tests/test_reference_worker_actual_l0/linux-proof.json",
+      "sha256": "9b928483070fa8902b312899cb2c17963416651985aa66fad5580dc8a0c201cd",
+      "image": "sha256:224184965b94965e6513b71c05d578e2880f5efea4d10c50c3f93fa2a606411a",
+      "setup_delay": 0,
+      "status": "passed",
+      "cases": [
+        {
+          "fault": "expiry",
+          "reason": "expired",
+          "runtime": {
+            "kind": "posix-process-group-lease-v1",
+            "platform": "linux",
+            "python": "3.14.4",
+            "guard_sha256": "b8a3da65d517c003ebef9ade464fdeff6a6de688ea72d15c8b5dd823637eec35",
+            "completion_grace_seconds": 0.1,
+            "isolation": "none"
+          },
+          "deadline_seconds": 5,
+          "positive_control": true,
+          "process_tree_stopped": true,
+          "evidence_collected": true,
+          "cleanup": true
+        },
+        {
+          "fault": "rpc_killed",
+          "reason": "supervisor_lost",
+          "runtime": {
+            "kind": "posix-process-group-lease-v1",
+            "platform": "linux",
+            "python": "3.14.4",
+            "guard_sha256": "b8a3da65d517c003ebef9ade464fdeff6a6de688ea72d15c8b5dd823637eec35",
+            "completion_grace_seconds": 0.1,
+            "isolation": "none"
+          },
+          "deadline_seconds": 5,
+          "positive_control": true,
+          "process_tree_stopped": true,
+          "evidence_collected": true,
+          "cleanup": true
+        },
+        {
+          "fault": "guard_killed",
+          "reason": "guard_lost",
+          "runtime": {
+            "kind": "posix-process-group-lease-v1",
+            "platform": "linux",
+            "python": "3.14.4",
+            "guard_sha256": "b8a3da65d517c003ebef9ade464fdeff6a6de688ea72d15c8b5dd823637eec35",
+            "completion_grace_seconds": 0.1,
+            "isolation": "none"
+          },
+          "deadline_seconds": 5,
+          "positive_control": true,
+          "process_tree_stopped": true,
+          "evidence_collected": true,
+          "cleanup": true
+        },
+        {
+          "fault": "async_expiry",
+          "reason": "expired",
+          "runtime": {
+            "kind": "posix-process-group-lease-v1",
+            "platform": "linux",
+            "python": "3.14.4",
+            "guard_sha256": "b8a3da65d517c003ebef9ade464fdeff6a6de688ea72d15c8b5dd823637eec35",
+            "completion_grace_seconds": 0.1,
+            "isolation": "none"
+          },
+          "deadline_seconds": 5,
+          "positive_control": true,
+          "process_tree_stopped": true,
+          "evidence_collected": true,
+          "cleanup": true
+        },
+        {
+          "fault": "async_supervisor_killed",
+          "reason": "supervisor_lost",
+          "runtime": {
+            "kind": "posix-process-group-lease-v1",
+            "platform": "linux",
+            "python": "3.14.4",
+            "guard_sha256": "b8a3da65d517c003ebef9ade464fdeff6a6de688ea72d15c8b5dd823637eec35",
+            "completion_grace_seconds": 0.1,
+            "isolation": "none"
+          },
+          "deadline_seconds": 5,
+          "positive_control": true,
+          "process_tree_stopped": true,
+          "evidence_collected": true,
+          "cleanup": true
+        }
+      ],
+      "limits": "Reference process groups only; not hostile isolation or a cloud-provider lifecycle"
+    },
+    {
+      "path": ".cache/regression-run-3pj9d5l0/tests/test_reference_worker_actual_l1/linux-proof.json",
+      "sha256": "80ce5b474716b316d5fe76a12131e25d2588a3456b710044d01308707059c31e",
+      "image": "sha256:224184965b94965e6513b71c05d578e2880f5efea4d10c50c3f93fa2a606411a",
+      "setup_delay": 1.0,
+      "status": "passed",
+      "cases": [
+        {
+          "fault": "expiry",
+          "reason": "expired",
+          "runtime": {
+            "kind": "posix-process-group-lease-v1",
+            "platform": "linux",
+            "python": "3.14.4",
+            "guard_sha256": "b8a3da65d517c003ebef9ade464fdeff6a6de688ea72d15c8b5dd823637eec35",
+            "completion_grace_seconds": 0.1,
+            "isolation": "none"
+          },
+          "deadline_seconds": 5,
+          "positive_control": true,
+          "process_tree_stopped": true,
+          "evidence_collected": true,
+          "cleanup": true
+        },
+        {
+          "fault": "rpc_killed",
+          "reason": "supervisor_lost",
+          "runtime": {
+            "kind": "posix-process-group-lease-v1",
+            "platform": "linux",
+            "python": "3.14.4",
+            "guard_sha256": "b8a3da65d517c003ebef9ade464fdeff6a6de688ea72d15c8b5dd823637eec35",
+            "completion_grace_seconds": 0.1,
+            "isolation": "none"
+          },
+          "deadline_seconds": 5,
+          "positive_control": true,
+          "process_tree_stopped": true,
+          "evidence_collected": true,
+          "cleanup": true
+        },
+        {
+          "fault": "guard_killed",
+          "reason": "guard_lost",
+          "runtime": {
+            "kind": "posix-process-group-lease-v1",
+            "platform": "linux",
+            "python": "3.14.4",
+            "guard_sha256": "b8a3da65d517c003ebef9ade464fdeff6a6de688ea72d15c8b5dd823637eec35",
+            "completion_grace_seconds": 0.1,
+            "isolation": "none"
+          },
+          "deadline_seconds": 5,
+          "positive_control": true,
+          "process_tree_stopped": true,
+          "evidence_collected": true,
+          "cleanup": true
+        },
+        {
+          "fault": "async_expiry",
+          "reason": "expired",
+          "runtime": {
+            "kind": "posix-process-group-lease-v1",
+            "platform": "linux",
+            "python": "3.14.4",
+            "guard_sha256": "b8a3da65d517c003ebef9ade464fdeff6a6de688ea72d15c8b5dd823637eec35",
+            "completion_grace_seconds": 0.1,
+            "isolation": "none"
+          },
+          "deadline_seconds": 5,
+          "positive_control": true,
+          "process_tree_stopped": true,
+          "evidence_collected": true,
+          "cleanup": true
+        },
+        {
+          "fault": "async_supervisor_killed",
+          "reason": "supervisor_lost",
+          "runtime": {
+            "kind": "posix-process-group-lease-v1",
+            "platform": "linux",
+            "python": "3.14.4",
+            "guard_sha256": "b8a3da65d517c003ebef9ade464fdeff6a6de688ea72d15c8b5dd823637eec35",
+            "completion_grace_seconds": 0.1,
+            "isolation": "none"
+          },
+          "deadline_seconds": 5,
+          "positive_control": true,
+          "process_tree_stopped": true,
+          "evidence_collected": true,
+          "cleanup": true
+        }
+      ],
+      "limits": "Reference process groups only; not hostile isolation or a cloud-provider lifecycle"
+    }
+  ],
+  "limits": "Workspace source injected into the existing Linux test image; not a fresh Linux package installation or cloud-provider qualification."
+}

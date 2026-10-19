@@ -1,0 +1,22 @@
+{
+  "name": "consumer-agent-testing-tool-api-tooling",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Optional upstream OpenAPI validators; no inference or service credentials",
+  "engines": {
+    "node": ">=24.18.0"
+  },
+  "dependencies": {
+    "@stoplight/http-spec": "7.1.0",
+    "@stoplight/prism-http": "5.16.0",
+    "@stoplight/spectral-core": "1.24.0",
+    "@stoplight/spectral-rulesets": "1.23.0",
+    "postman-collection": "file:stubs/postman-collection"
+  },
+  "overrides": {
+    "postman-collection": "$postman-collection",
+    "json-schema-faker": {
+      "json-schema-ref-parser": "npm:@apidevtools/json-schema-ref-parser@9.1.2"
+    }
+  }
+}

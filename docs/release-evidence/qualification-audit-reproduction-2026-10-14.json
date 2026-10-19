@@ -1,0 +1,13 @@
+{
+  "source_sha256": "7c5a8a53ffca16683edae4a4da65647db97847e72f481607fd214ab72f8fadea",
+  "fixture": ".cache/qualification-audit-2026-10-14/summary-only-r7tiwqlv",
+  "accepted_summary_only_gates": [
+    "local-glimmer-offline",
+    "bedrock-bearer",
+    "bedrock-iam",
+    "browser-isolation",
+    "cloud-worker-lifecycle",
+    "muse-calibration"
+  ],
+  "finding": "All six external qualification gates accepted an explicitly synthetic report with one text-completion check, no referenced observations and no tested configuration. The actual workspace ledger was not changed."
+}

@@ -1,0 +1,70 @@
+{
+  "schema_version": 1,
+  "gates": {
+    "regression": {
+      "status": "unverified",
+      "basis": "test-report",
+      "reason": "Recorded per release, not committed: the release workflow (.github/workflows/release.yml) writes release/release-gates.json and attaches it, with its evidence, to the GitHub release"
+    },
+    "distribution": {
+      "status": "unverified",
+      "basis": "fresh-install",
+      "reason": "Recorded per release, not committed: the release workflow (.github/workflows/release.yml) writes release/release-gates.json and attaches it, with its evidence, to the GitHub release"
+    },
+    "transactional-consent": {
+      "status": "unverified",
+      "basis": "test-report",
+      "reason": "Recorded per release, not committed: the release workflow (.github/workflows/release.yml) writes release/release-gates.json and attaches it, with its evidence, to the GitHub release"
+    },
+    "replay-diff": {
+      "status": "unverified",
+      "basis": "test-report",
+      "reason": "Recorded per release, not committed: the release workflow (.github/workflows/release.yml) writes release/release-gates.json and attaches it, with its evidence, to the GitHub release"
+    }
+  },
+  "release_scope": "local-consumer-v1",
+  "development_gates": {
+    "local-glimmer-offline": {
+      "status": "unverified"
+    },
+    "bedrock-bearer": {
+      "status": "unverified"
+    },
+    "bedrock-iam": {
+      "status": "unverified"
+    },
+    "browser-isolation": {
+      "status": "unverified"
+    },
+    "cloud-worker-lifecycle": {
+      "status": "unverified",
+      "reason": "Maritime adapter has local HTTP-contract and actual subprocess coverage; live named-provider lifecycle and independent resource-TTL cleanup remain unqualified."
+    },
+    "muse-calibration": {
+      "status": "unverified"
+    },
+    "calibration-analysis": {
+      "status": "passed",
+      "basis": "test-report",
+      "artifact": "docs/release-evidence/calibration-analysis.json",
+      "sha256": "b6949aa81e9cbcdd03a21c0da23583501778645ef2f36c78451c5b25d11beba4",
+      "expires_at": "2026-10-22T01:43:53.691240+00:00"
+    },
+    "native-runtime-inventory": {
+      "status": "unverified",
+      "basis": "inventory-review",
+      "reason": "Native payloads and fonts are inventoried; embedded dependencies, original notices, host runtime and worker-image coverage still require review."
+    }
+  },
+  "excluded_capabilities": {
+    "muse-calibration": "No claim of equivalence to, or calibration against, real Muse.",
+    "calibration-analysis": "Historical observation analysis is a development extension.",
+    "cloud-worker-lifecycle": "The supported runner executes locally; no cloud provisioning.",
+    "local-glimmer-offline": "No model weights or local inference server are supplied.",
+    "browser-isolation": "Native browser behavior is tested; OS isolation is not claimed.",
+    "bedrock-bearer": "Live Bedrock qualification remains deferred.",
+    "bedrock-iam": "Live Bedrock qualification remains deferred.",
+    "native-runtime-inventory": "OS, browser binaries and worker images are not distributed.",
+    "generated-openapi": "Optional Prism/generated-OpenAPI tooling is development-only."
+  }
+}

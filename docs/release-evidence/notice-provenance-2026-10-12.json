@@ -1,0 +1,286 @@
+{
+  "checked_at": "2026-10-12",
+  "scope": "Pinned optional API dependency original-notice retrieval; not legal clearance or a native-binary subcomponent inventory",
+  "resolved": [
+    {
+      "name": "dnspython",
+      "version": "2.9.0",
+      "path": "third_party/supplemental/dnspython-2.9.0/LICENSE",
+      "sha256": "c3ea3ff5654b329c19d3bc5f7481af623c3dded4a6145585499f843ad3d741cd",
+      "source_url": "https://raw.githubusercontent.com/rthalley/dnspython/e790c8f20a67ad439c7aafef2321e161c6028eee/LICENSE",
+      "checked_at": "2026-10-12",
+      "basis": "Original project LICENSE at the commit resolved from the matching release tag; published wheel and digest-verified source archive omit it"
+    },
+    {
+      "name": "fastmcp-slim",
+      "version": "4.1.0",
+      "path": "third_party/supplemental/fastmcp-slim-4.1.0/LICENSE",
+      "sha256": "43070e2d4e532684de521b885f385d0841030efa2b1a20bafb76133a5e1379c1",
+      "source_url": "https://raw.githubusercontent.com/PrefectHQ/fastmcp/51b618f7d5970d2870dc351081e16600f371291f/LICENSE",
+      "checked_at": "2026-10-12",
+      "basis": "Original project LICENSE at the commit resolved from the matching release tag; published wheel and digest-verified source archive omit it"
+    },
+    {
+      "name": "abstract-logging",
+      "version": "2.0.1",
+      "path": "third_party/supplemental/abstract-logging-2.0.1/LICENSE.txt",
+      "sha256": "af15a41ce02371f77476b7a201e036c0ae6c5d6d2a233b4e5f0fd5fca123457e",
+      "source_url": "https://jsumners.mit-license.org/license.txt",
+      "checked_at": "2026-10-12",
+      "basis": "Unmodified plain-text author notice served by the license host explicitly referenced in the pinned installed README; dated snapshot, not a historical-page or legal-clearance claim",
+      "reference": {
+        "path": "Readme.md",
+        "sha256": "e1a86711fb5055c0e66901276b7d2c843554bf5f1dab218c069c8b9d17148e81",
+        "url": "http://jsumners.mit-license.org/"
+      }
+    }
+  ],
+  "python_release_associations": [
+    {
+      "name": "dnspython",
+      "version": "2.9.0",
+      "source_archive": {
+        "url": "https://files.pythonhosted.org/packages/ef/4a/50822184bd67cc6493f0fb6a880749158fcd31ab3fa07409acfd91f9fc85/dnspython-2.9.0.tar.gz",
+        "hash": "sha256:b44dc6b18f07a8b1c56676a19fbfdb5209415b046a9cece286baafa87ff3f7f1",
+        "size": 423560,
+        "upload-time": "2026-10-09T00:07:24.352Z"
+      },
+      "upstream_commit": "e790c8f20a67ad439c7aafef2321e161c6028eee",
+      "release_tag": "v2.9.0",
+      "matching_source_member": "dnspython-2.9.0/dns/version.py",
+      "matching_source_sha256": "d1d4247e954ff9eb687d026e865054c4fb7d97e76d891609c383192c3d1e3e76",
+      "limit": "One source-file match corroborates release association; it is not a complete source equivalence or publisher-authentication proof"
+    },
+    {
+      "name": "fastmcp-slim",
+      "version": "4.1.0",
+      "source_archive": {
+        "url": "https://files.pythonhosted.org/packages/b8/88/85aafec43ec9940a360d75f2d8e9517eda01ac38b8b1610b0e9e125d61d3/fastmcp_slim-4.1.0.tar.gz",
+        "hash": "sha256:390b2b430195e0cdd0327aff80fe5dceb862b2421baf71de6d4eec92f80f99f8",
+        "size": 734647,
+        "upload-time": "2026-10-08T22:56:40.642Z"
+      },
+      "upstream_commit": "51b618f7d5970d2870dc351081e16600f371291f",
+      "release_tag": "v4.1.0",
+      "matching_source_member": "fastmcp_slim-4.1.0/fastmcp/__init__.py",
+      "matching_source_sha256": "c3989fde1aa8382006e1931abb5050c256c2e6d6dce03e1fddb66b632d331fc4",
+      "limit": "One source-file match corroborates release association; it is not a complete source equivalence or publisher-authentication proof"
+    }
+  ],
+  "unresolved": [
+    {
+      "name": "@stoplight/json-schema-merge-allof",
+      "version": "0.7.8",
+      "git_head": "7e99c7c8dcecd73349dcc74b4fbbbe6a584f4ad4",
+      "registry_integrity_matches_lock": true,
+      "root_tree_sha": "7e99c7c8dcecd73349dcc74b4fbbbe6a584f4ad4",
+      "finding": "Exact published gitHead root tree has no original license/notice file; package declaration alone does not close the notice gate",
+      "evidence": [
+        {
+          "path": ".cache/notice-source-2026-10-12/merge-allof.json",
+          "sha256": "26b6b4e9c22af57ba07a8dfd36d5049fb7e472a6ab873f63d80c9f79330a7807"
+        },
+        {
+          "path": ".cache/notice-source-2026-10-12/merge-allof-tree.json",
+          "sha256": "00ae2e5f20dad02210242968b1f1edb3c65411c78324b4ecc8b2548cf7e8bebe"
+        }
+      ]
+    },
+    {
+      "name": "fnv-plus",
+      "version": "1.3.1",
+      "git_head": "1e2ce68a07cb7dd4c3c85364f3d8d96c95919474",
+      "registry_integrity_matches_lock": true,
+      "root_tree_sha": "1e2ce68a07cb7dd4c3c85364f3d8d96c95919474",
+      "finding": "Exact published gitHead root tree has no original license/notice file; package declaration alone does not close the notice gate",
+      "evidence": [
+        {
+          "path": ".cache/notice-source-2026-10-12/fnv-plus.json",
+          "sha256": "84af9903b6fc34f969692ff26a3ccfcbbfdb4f082512f2e7aa4980acdf6222d4"
+        },
+        {
+          "path": ".cache/notice-source-2026-10-12/fnv-plus-tree.json",
+          "sha256": "be52921f67ecc54831f7d5b8fdf127926bbaff5d9fae0c02df6f3e8d9cd49c88"
+        }
+      ]
+    },
+    {
+      "name": "parse-multipart-data",
+      "version": "1.5.0",
+      "git_head": "a44c95319d09fd7d7ba51e01512567c444b90e14",
+      "registry_integrity_matches_lock": true,
+      "root_tree_sha": "a44c95319d09fd7d7ba51e01512567c444b90e14",
+      "finding": "Exact published gitHead root tree has no original license/notice file; package declaration alone does not close the notice gate",
+      "evidence": [
+        {
+          "path": ".cache/notice-source-2026-10-12/parse-multipart-data.json",
+          "sha256": "68ca3fd44769c0ed93eb1b63d923e567aa19c59a0341f2b701d61e8b4fefe69a"
+        },
+        {
+          "path": ".cache/notice-source-2026-10-12/parse-multipart-data-tree.json",
+          "sha256": "8ba2d35cd1367189ad2086bcc57982f3d32f9152bb7c0ae182a2c0bec350e694"
+        }
+      ]
+    },
+    {
+      "name": "tr46",
+      "version": "0.0.3",
+      "git_head": "a8009f9ce80ff5dbe71dd71e203afe4e4c878d28",
+      "registry_integrity_matches_lock": true,
+      "root_tree_sha": "a8009f9ce80ff5dbe71dd71e203afe4e4c878d28",
+      "finding": "Exact published gitHead root tree has no original license/notice file; package declaration alone does not close the notice gate",
+      "evidence": [
+        {
+          "path": ".cache/notice-source-2026-10-12/tr46.json",
+          "sha256": "c20d82a358f998dd564519689765373451149661ebfca1040450f0fdf180878f"
+        },
+        {
+          "path": ".cache/notice-source-2026-10-12/tr46-tree.json",
+          "sha256": "c47532f92f2f9478763b6428044a55a99c23c84895072211f3c787881ece487b"
+        }
+      ]
+    },
+    {
+      "name": "pretty-data",
+      "version": "0.40.0",
+      "registry_integrity_matches_lock": true,
+      "finding": "Published source and README declare dual MIT/GPL terms and link to generic license pages; no complete original permission notice located, and npm metadata has no gitHead",
+      "evidence": [
+        {
+          "path": ".cache/notice-source-2026-10-12/pretty-data.json",
+          "sha256": "5cfe0708794bcaa8124f0f3ff147391e27ccfdd09820a6f94c54bbe2e2df81cd"
+        }
+      ]
+    },
+    {
+      "name": "proxy-agent-negotiate",
+      "version": "1.1.0",
+      "registry_integrity_matches_lock": true,
+      "finding": "Matching release-tag package manifest confirms name/version; package-local and repository-root LICENSE requests return 404. No original notice located; no inference from sibling packages",
+      "evidence": [
+        {
+          "path": ".cache/notice-source-2026-10-12/proxy-agent-negotiate.json",
+          "sha256": "41807d237c09eff6120e33932015c4ff9c230872c2df119010db48aa4ae0731e"
+        }
+      ]
+    }
+  ],
+  "evidence": {
+    "dnspython-tag.json": {
+      "path": ".cache/notice-source-2026-10-12/dnspython-tag.json",
+      "sha256": "70733e92813676131034e3c1a545a91f372cc4a000652cdf66fdcee06500fcee"
+    },
+    "proxy-agent-negotiate-release-package.json": {
+      "path": ".cache/notice-source-2026-10-12/proxy-agent-negotiate-release-package.json",
+      "sha256": "b5ea26c6def2543cf09d0e3011cd9bf6271c8212afe51306bc9c8337a1ec32aa"
+    },
+    "parse-multipart-data-tree.json": {
+      "path": ".cache/notice-source-2026-10-12/parse-multipart-data-tree.json",
+      "sha256": "8ba2d35cd1367189ad2086bcc57982f3d32f9152bb7c0ae182a2c0bec350e694"
+    },
+    "parse-multipart-data.json": {
+      "path": ".cache/notice-source-2026-10-12/parse-multipart-data.json",
+      "sha256": "68ca3fd44769c0ed93eb1b63d923e567aa19c59a0341f2b701d61e8b4fefe69a"
+    },
+    "proxy-agent-negotiate-pinned-package.json": {
+      "path": ".cache/notice-source-2026-10-12/proxy-agent-negotiate-pinned-package.json",
+      "sha256": "22afa667fffb3ada1f7d56955ed59f396936f80c55ce09a229fe0afb3247c77a"
+    },
+    "fastmcp-init.py": {
+      "path": ".cache/notice-source-2026-10-12/fastmcp-init.py",
+      "sha256": "c3989fde1aa8382006e1931abb5050c256c2e6d6dce03e1fddb66b632d331fc4"
+    },
+    "abstract-logging-LICENSE.txt": {
+      "path": ".cache/notice-source-2026-10-12/abstract-logging-LICENSE.txt",
+      "sha256": "af15a41ce02371f77476b7a201e036c0ae6c5d6d2a233b4e5f0fd5fca123457e"
+    },
+    "fnv-plus-tree.json": {
+      "path": ".cache/notice-source-2026-10-12/fnv-plus-tree.json",
+      "sha256": "be52921f67ecc54831f7d5b8fdf127926bbaff5d9fae0c02df6f3e8d9cd49c88"
+    },
+    "fnv-plus.json": {
+      "path": ".cache/notice-source-2026-10-12/fnv-plus.json",
+      "sha256": "84af9903b6fc34f969692ff26a3ccfcbbfdb4f082512f2e7aa4980acdf6222d4"
+    },
+    "abstract-logging-notice.html": {
+      "path": ".cache/notice-source-2026-10-12/abstract-logging-notice.html",
+      "sha256": "cd7c8e2cfb4d928a68fc7e078f6a8f2a153579766a120d447ed38d0690ab782f"
+    },
+    "fastmcp-slim-pinned-LICENSE": {
+      "path": ".cache/notice-source-2026-10-12/fastmcp-slim-pinned-LICENSE",
+      "sha256": "43070e2d4e532684de521b885f385d0841030efa2b1a20bafb76133a5e1379c1"
+    },
+    "pretty-data.json": {
+      "path": ".cache/notice-source-2026-10-12/pretty-data.json",
+      "sha256": "5cfe0708794bcaa8124f0f3ff147391e27ccfdd09820a6f94c54bbe2e2df81cd"
+    },
+    "python-release-associations.json": {
+      "path": ".cache/notice-source-2026-10-12/python-release-associations.json",
+      "sha256": "c30f27c10834ec95d21a984865be0c504f3b96a61b25fbd23413de9b33d4f6df"
+    },
+    "dnspython-LICENSE": {
+      "path": ".cache/notice-source-2026-10-12/dnspython-LICENSE",
+      "sha256": "c3ea3ff5654b329c19d3bc5f7481af623c3dded4a6145585499f843ad3d741cd"
+    },
+    "dnspython-version.py": {
+      "path": ".cache/notice-source-2026-10-12/dnspython-version.py",
+      "sha256": "d1d4247e954ff9eb687d026e865054c4fb7d97e76d891609c383192c3d1e3e76"
+    },
+    "dnspython-release.json": {
+      "path": ".cache/notice-source-2026-10-12/dnspython-release.json",
+      "sha256": "6706974da80a08e752b8b9bea4a95d0bcf5159a004b83e8a54ed9fee5f35ff70"
+    },
+    "abstract-logging-tree.json": {
+      "path": ".cache/notice-source-2026-10-12/abstract-logging-tree.json",
+      "sha256": "00cbfd8abb4b68c8224ae36039928c8aacabe8dd3f8ffe00a3ededf097d83f3c"
+    },
+    "tr46.json": {
+      "path": ".cache/notice-source-2026-10-12/tr46.json",
+      "sha256": "c20d82a358f998dd564519689765373451149661ebfca1040450f0fdf180878f"
+    },
+    "fastmcp-pyproject.toml": {
+      "path": ".cache/notice-source-2026-10-12/fastmcp-pyproject.toml",
+      "sha256": "0fc3989c0c5148ba208fec9758708fd5c8fdf3a480097edc9a6e15287fd29f03"
+    },
+    "tr46-tree.json": {
+      "path": ".cache/notice-source-2026-10-12/tr46-tree.json",
+      "sha256": "c47532f92f2f9478763b6428044a55a99c23c84895072211f3c787881ece487b"
+    },
+    "proxy-agent-negotiate.json": {
+      "path": ".cache/notice-source-2026-10-12/proxy-agent-negotiate.json",
+      "sha256": "41807d237c09eff6120e33932015c4ff9c230872c2df119010db48aa4ae0731e"
+    },
+    "dnspython-2.9.0.tar.gz": {
+      "path": ".cache/notice-source-2026-10-12/dnspython-2.9.0.tar.gz",
+      "sha256": "b44dc6b18f07a8b1c56676a19fbfdb5209415b046a9cece286baafa87ff3f7f1"
+    },
+    "abstract-logging.json": {
+      "path": ".cache/notice-source-2026-10-12/abstract-logging.json",
+      "sha256": "abe9ef6d311721b8b8eb17083f8d39e22a484c0aff2c20f403e573ebda376a86"
+    },
+    "fastmcp-slim-tag.json": {
+      "path": ".cache/notice-source-2026-10-12/fastmcp-slim-tag.json",
+      "sha256": "6b799c5872e8c6436273edf091007b6645a8c489ac9cad7ad2237281e6eb8b2f"
+    },
+    "merge-allof-tree.json": {
+      "path": ".cache/notice-source-2026-10-12/merge-allof-tree.json",
+      "sha256": "00ae2e5f20dad02210242968b1f1edb3c65411c78324b4ecc8b2548cf7e8bebe"
+    },
+    "merge-allof.json": {
+      "path": ".cache/notice-source-2026-10-12/merge-allof.json",
+      "sha256": "26b6b4e9c22af57ba07a8dfd36d5049fb7e472a6ab873f63d80c9f79330a7807"
+    },
+    "dnspython-pinned-LICENSE": {
+      "path": ".cache/notice-source-2026-10-12/dnspython-pinned-LICENSE",
+      "sha256": "c3ea3ff5654b329c19d3bc5f7481af623c3dded4a6145585499f843ad3d741cd"
+    },
+    "fastmcp-slim-LICENSE": {
+      "path": ".cache/notice-source-2026-10-12/fastmcp-slim-LICENSE",
+      "sha256": "43070e2d4e532684de521b885f385d0841030efa2b1a20bafb76133a5e1379c1"
+    },
+    "fastmcp_slim-4.1.0.tar.gz": {
+      "path": ".cache/notice-source-2026-10-12/fastmcp_slim-4.1.0.tar.gz",
+      "sha256": "390b2b430195e0cdd0327aff80fe5dceb862b2421baf71de6d4eec92f80f99f8"
+    }
+  }
+}

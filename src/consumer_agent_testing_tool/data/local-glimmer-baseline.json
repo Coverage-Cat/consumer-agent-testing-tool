@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "status": "pinned setup artifacts; live inference unverified",
+  "retrieved_at": "2026-10-01",
+  "weights": {
+    "repository": "meta-models/Muse-Glimmer-30B-GGUF",
+    "revision": "70bf1b61ac09f91b24d39038091b41c582bc5d7a",
+    "file": "Muse-Glimmer-30B-KQuant-17GB-Q4_K_M.gguf",
+    "bytes": 16756683904,
+    "sha256": "4cc57c0f51040a226e5a72cc47b7613f7772950e460a665f7083de89f183f60e",
+    "url": "https://huggingface.co/meta-models/Muse-Glimmer-30B-GGUF/resolve/70bf1b61ac09f91b24d39038091b41c582bc5d7a/Muse-Glimmer-30B-KQuant-17GB-Q4_K_M.gguf"
+  },
+  "runtime": {
+    "release": "b10353",
+    "platform": "macos-arm64",
+    "bytes": 11039814,
+    "archive_sha256": "de1337374968675e57cb3c7782b91775213464c38b054e280f92b1ff2f36bed8",
+    "url": "https://github.com/ggml-org/llama.cpp/releases/download/b10353/llama-b10353-bin-macos-arm64.tar.gz"
+  },
+  "defaults": {
+    "context_tokens": 16384,
+    "slots": 1,
+    "observations": "text only",
+    "speculative_drafter": false,
+    "reasoning_strength": "low"
+  },
+  "memory": "Acceptance requires measured representative-context peak memory; file size is not working memory."
+}

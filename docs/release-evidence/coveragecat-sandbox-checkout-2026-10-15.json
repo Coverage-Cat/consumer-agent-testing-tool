@@ -1,0 +1,147 @@
+{
+  "schema_version": 1,
+  "recorded_at": "2026-10-15T22:36:09.834978+00:00",
+  "qualification": "blocked_by_service_output_schema",
+  "scenario": "examples/coveragecat-sandbox-checkout.yaml",
+  "scenario_sha256": "321219b100b0b3f45f470ea8d6538391c6aaaaa0ae01bc0306d209d9e047f79a",
+  "steps": 14,
+  "assertions": 62,
+  "endpoint": "https://www.coveragecat.com/api/consumer/mcp",
+  "normal_host_run": {
+    "path": "runs/surface-fcd0db31bf104cad8f8625cac833a359",
+    "result_sha256": "59bb7cc803dc3edd8e6021ac397ff030f7ba0909759e02653e5f8949390c32fc",
+    "status": "failed",
+    "failure_stage": "submit",
+    "detail": "Structured content does not match the tool's output schema: data/offers/0 must NOT have additional properties, data/offers/0 must NOT have additional properties, data/offers/0 must NOT have additional properties, data/offers/0 must NOT have additional properties, data/offers/0/minimum_auto_limits must be object",
+    "progress": {
+      "completed": 3,
+      "total": 14
+    },
+    "compatibility_pass": false
+  },
+  "schema_errors": [
+    {
+      "path": "/offers/0",
+      "validator": "additionalProperties",
+      "message": "Additional properties are not allowed ('choice_guidance', 'display_notes', 'minimum_requirements', 'rank' were unexpected)"
+    },
+    {
+      "path": "/offers/0/minimum_auto_limits",
+      "validator": "type",
+      "message": "'$500k CSL' is not of type 'object'"
+    }
+  ],
+  "downstream_diagnostic": {
+    "basis": "Separate diagnostic on an earlier synthetic sandbox draft, not a successful full scenario run. Raw MCP was used to inspect the invalid quote response and choose its sandbox offer. Later requests used the normal schema-validating BrowserHost.",
+    "steps": [
+      {
+        "tool": "consumer_intake_issues",
+        "transport": "raw MCP diagnostic (not a normal-host compatibility pass)",
+        "status": "quoted",
+        "sandbox": true,
+        "application_submitted": true,
+        "payment_state": null,
+        "uploaded_count": null
+      },
+      {
+        "tool": "umbrella_consumer_select",
+        "transport": "raw MCP diagnostic (not a normal-host compatibility pass)",
+        "status": "ready_to_finalize",
+        "sandbox": true,
+        "application_submitted": true,
+        "payment_state": null,
+        "uploaded_count": null
+      },
+      {
+        "tool": "umbrella_consumer_bind",
+        "transport": "workspace BrowserHost with SDK validation",
+        "status": "documents_needed",
+        "sandbox": true,
+        "application_submitted": true,
+        "payment_state": null,
+        "uploaded_count": null
+      },
+      {
+        "tool": "umbrella_consumer_attach",
+        "transport": "workspace BrowserHost with SDK validation",
+        "status": "ok",
+        "sandbox": true,
+        "application_submitted": null,
+        "payment_state": null,
+        "uploaded_count": 2
+      },
+      {
+        "tool": "consumer_intake_issues",
+        "transport": "workspace BrowserHost with SDK validation",
+        "status": "documents_pending_review",
+        "sandbox": true,
+        "application_submitted": true,
+        "payment_state": null,
+        "uploaded_count": null
+      },
+      {
+        "tool": "consumer_intake_issues",
+        "transport": "workspace BrowserHost with SDK validation",
+        "status": "payment_needed",
+        "sandbox": true,
+        "application_submitted": true,
+        "payment_state": "payment_method_required",
+        "uploaded_count": null
+      },
+      {
+        "tool": "umbrella_consumer_payment",
+        "transport": "workspace BrowserHost with SDK validation",
+        "status": "payment_collection_ready",
+        "sandbox": true,
+        "application_submitted": true,
+        "payment_state": "payment_collection_ready",
+        "uploaded_count": null
+      },
+      {
+        "tool": "umbrella_consumer_payment",
+        "transport": "workspace BrowserHost with SDK validation",
+        "status": "waiting_on_carrier",
+        "sandbox": true,
+        "application_submitted": true,
+        "payment_state": "payment_method_on_file",
+        "uploaded_count": null
+      }
+    ],
+    "final_state": "waiting_on_carrier",
+    "payment_state": "payment_method_on_file",
+    "charge_confirmation": "charge_not_confirmed_by_this_response",
+    "payment_callback": "Returned seti_sandbox_ ID paired with explicit fixture pm_sandbox_surface_lab. No Stripe API/form was used."
+  },
+  "offline_graph_checks": {
+    "basis": "Offline action-graph fixtures; no MCP/Stripe compatibility or live success claim.",
+    "checks": [
+      {
+        "case": "pause-resume-and-rotated-tokens",
+        "status": "passed",
+        "path": "runs/surface-edef7714779f42da900a3eb21de43510",
+        "checks": 62
+      },
+      {
+        "case": "non-sandbox-response",
+        "status": "passed",
+        "path": "runs/surface-0c451b69077043bcbb1dec0542dc746b"
+      },
+      {
+        "case": "missing-review-consent",
+        "status": "passed",
+        "path": "runs/surface-54630df0b079418dbd4ba841d48deccb"
+      },
+      {
+        "case": "declined-payment-fixture",
+        "status": "passed",
+        "path": "runs/surface-ef8765d16ff74361a7287d1a60662cd4"
+      }
+    ]
+  },
+  "limitations": [
+    "The full example has not passed against Coverage Cat because submission returns offers that violate the advertised outputSchema.",
+    "Synthetic billing defaults were checked in setup metadata, not rendered UI fields.",
+    "No actual Stripe SetupIntent, card entry, premium collection, or active insurance was verified.",
+    "The declaration-review pause is manual; the host does not enforce elapsed time."
+  ]
+}

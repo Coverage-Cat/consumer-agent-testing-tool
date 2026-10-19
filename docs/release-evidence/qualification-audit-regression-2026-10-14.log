@@ -1,0 +1,89 @@
+........................................................................ [  4%]
+........................................................................ [  9%]
+........................................................................ [ 14%]
+........................................................................ [ 18%]
+........................................................................ [ 23%]
+........................................................................ [ 28%]
+....F................................................................... [ 33%]
+........................................................................ [ 37%]
+........................................................................ [ 42%]
+........................................................................ [ 47%]
+........................................................................ [ 51%]
+........................................................................ [ 56%]
+........................................................................ [ 61%]
+........................................................................ [ 66%]
+........................................................................ [ 70%]
+........................................................................ [ 75%]
+........................................................................ [ 80%]
+........................................................................ [ 85%]
+........................................................................ [ 89%]
+........................................................................ [ 94%]
+........................................................................ [ 99%]
+............                                                             [100%]
+=================================== FAILURES ===================================
+_ test_embedded_worker_network_rules_redirects_and_one_use_writes[network-autoload-True] _
+
+tmp_path = PosixPath('~/Development/consumer-agent-testing/.cache/regression-run-2es6ybg7/tests/test_embedded_worker_network_r2')
+authorize = True, mode = 'network-autoload'
+
+    @LIVE
+    @pytest.mark.parametrize("authorize", [True, False])
+    @pytest.mark.parametrize("mode", ["network-app", "network-autoload"])
+    async def test_embedded_worker_network_rules_redirects_and_one_use_writes(tmp_path, authorize, mode):
+>       await run_live(tmp_path, mode, False, network=True, authorize=authorize)
+
+tests/test_embedded_worker.py:186: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+tmp_path = PosixPath('~/Development/consumer-agent-testing/.cache/regression-run-2es6ybg7/tests/test_embedded_worker_network_r2')
+mode = 'network-autoload', agent = False, network = True, authorize = True
+
+    async def run_live(tmp_path, mode, agent, *, network=False, authorize=False):
+        root = Path.cwd()
+        fixture = await asyncio.create_subprocess_exec(
+            "node", "scripts/surface_fixture.mjs", "0", mode, cwd=root,
+            stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE)
+        try:
+            line = await asyncio.wait_for(fixture.stdout.readline(), 20)
+            assert line, (await fixture.stderr.read()).decode()
+            endpoint = json.loads(line)["endpoint"]
+            origin = endpoint.removesuffix("/mcp")
+            settings = selected_worker().model_dump()
+            settings["destinations"] = {origin: "127.0.0.1"} if network else {}
+            if network:
+                settings["rules"] = [{"id": route, "origin": origin, "path": route, "methods": [method], "effect": effect}
+                    for route, method, effect in [("/asset", "GET", "read"), ("/redirect-read", "GET", "read"),
+                        ("/redirect-write", "GET", "read"), ("/mutation", "POST", "write"), ("/mutation", "GET", "write")]]
+                # Distinct method rules still need distinct IDs.
+                for index, row in enumerate(settings["rules"]):
+                    row["id"] += str(index)
+            data = scenario(endpoint=endpoint, allowed_origins=[origin],
+                            browser_origins=[origin] if network else [], browser_worker=settings).model_dump()
+            ui = data["steps"][2]["ui"]
+            ui["bridge"] = "legacy-openai" if mode == "legacy-openai" else "mcp-app"
+            if network:
+                async with httpx.AsyncClient(trust_env=False) as client:
+                    assert (await client.get(origin + "/denied-canary")).status_code == 200
+                ui["network_grants"] = [grant(origin + "/mutation")] if authorize else []
+                for selector, expected in reversed([
+                    ("#read", "asset loaded"), ("#write", "saved" if authorize else "Blocked"),
+                    ("#repeat", "Blocked"), ("#forbidden", "Blocked"), ("#redirect-write", "Blocked")]):
+                    ui["actions"][0:0] = [{"kind": "click", "selector": selector},
+                        {"kind": "expect_text", "selector": "#network", "value": expected}]
+                if mode == "network-autoload":
+                    # The first fetch starts while parsing the app, before the
+                    # host begins scripted interaction. It still needs the guard.
+                    ui["actions"].pop(0)
+            contract = SurfaceScenario.model_validate(data)
+            planner, api = agent_driver() if agent else (None, None)
+            run = SurfaceRun(root, contract, BrowserHost(root), secrets={"access": "fixture-access"}, planner=planner)
+            result = await run.run()
+            report = json.loads((run.path / "result.json").read_text())
+>           assert result == 0, report
+E           AssertionError: {'schema_version': 1, 'scenario_id': 'preferences', 'scenario_sha256': '92c67589ec91f75e4d968214ed9e7b833da60db1f8450e2177b23565bce18a1d', 'status': 'failed', ...}
+E           assert 1 == 0
+
+tests/test_embedded_worker.py:230: AssertionError
+=========================== short test summary info ============================
+FAILED tests/test_embedded_worker.py::test_embedded_worker_network_rules_redirects_and_one_use_writes[network-autoload-True]
+1 failed, 1523 passed in 1393.67s (0:23:13)

@@ -1,0 +1,80 @@
+version: 1
+id: preferences
+goal: Verify a synthetic shopper can save a preference through an embedded consumer app.
+endpoint: http://127.0.0.1:8765/mcp
+allowed_origins: [http://127.0.0.1:8765]
+browser_origins: []
+test_only: true
+treatment: baseline
+fixture:
+  name: Test Shopper
+tools:
+  status:
+    effect: read
+  prepare:
+    effect: write
+    capture:
+      access: /structuredContent/token
+  save:
+    effect: write
+    arguments_schema:
+      type: object
+      properties:
+        value: {type: string}
+      required: [value]
+      additionalProperties: false
+    host_arguments:
+      token: {$ref: /secrets/access}
+    reconcile:
+      tool: status
+      path: /structuredContent/status
+      expected: saved
+steps:
+  - id: status
+    kind: tool
+    description: Read the current service state.
+    tool: status
+    expose:
+      status: /structuredContent/status
+  - id: prepare
+    kind: tool
+    description: Prepare the preference form.
+    after: [status]
+    tool: prepare
+  - id: form
+    kind: ui
+    description: Verify the stored name and submit the embedded preference form.
+    after: [prepare]
+    ui:
+      source: prepare
+      # No resource_uri: like real MCP Apps hosts, the host finds the UI through the prepare tool's
+      # _meta.ui.resourceUri in tools/list. A scenario URI must match that link or the run fails.
+      bridge: mcp-app
+      ready_selector: "#name"
+      callback_tools: [save]
+      callback_required: true
+      actions:
+        - kind: expect_value
+          selector: "#name"
+          value: {$ref: /fixture/name}
+        - kind: click
+          selector: "#save"
+    checks:
+      - id: embedded
+        layer: host
+        path: /form/result/capabilities/rendering
+        expected: passed
+  - id: verify
+    kind: tool
+    description: Confirm the service saved the preference once.
+    after: [form]
+    tool: status
+    checks:
+      - id: saved
+        layer: service
+        path: /verify/result/structuredContent/status
+        expected: saved
+      - id: once
+        layer: service
+        path: /verify/result/structuredContent/writes
+        expected: 1

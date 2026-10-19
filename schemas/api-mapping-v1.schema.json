@@ -1,0 +1,259 @@
+{
+  "$defs": {
+    "OperationMap": {
+      "additionalProperties": false,
+      "properties": {
+        "operation": {
+          "minLength": 1,
+          "title": "Operation",
+          "type": "string"
+        },
+        "description": {
+          "minLength": 1,
+          "title": "Description",
+          "type": "string"
+        },
+        "effect": {
+          "enum": [
+            "read",
+            "draft",
+            "commit",
+            "cancel"
+          ],
+          "title": "Effect",
+          "type": "string"
+        },
+        "input_schema": {
+          "additionalProperties": true,
+          "title": "Input Schema",
+          "type": "object"
+        },
+        "request": {
+          "$ref": "#/$defs/RequestMap"
+        },
+        "responses": {
+          "additionalProperties": {
+            "$ref": "#/$defs/ResponseMap"
+          },
+          "title": "Responses",
+          "type": "object"
+        }
+      },
+      "required": [
+        "operation",
+        "description",
+        "effect",
+        "input_schema",
+        "request",
+        "responses"
+      ],
+      "title": "OperationMap",
+      "type": "object"
+    },
+    "ReceiptPolling": {
+      "additionalProperties": false,
+      "properties": {
+        "max_attempts": {
+          "default": 10,
+          "maximum": 100,
+          "minimum": 1,
+          "title": "Max Attempts",
+          "type": "integer"
+        },
+        "interval_seconds": {
+          "default": 1,
+          "maximum": 30,
+          "minimum": 0.05,
+          "title": "Interval Seconds",
+          "type": "number"
+        },
+        "wait_seconds": {
+          "default": 10,
+          "maximum": 60,
+          "minimum": 0.05,
+          "title": "Wait Seconds",
+          "type": "number"
+        }
+      },
+      "title": "ReceiptPolling",
+      "type": "object"
+    },
+    "RecoveryMap": {
+      "additionalProperties": false,
+      "properties": {
+        "lookup_tool": {
+          "minLength": 1,
+          "title": "Lookup Tool",
+          "type": "string"
+        },
+        "arguments": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "title": "Arguments",
+          "type": "object"
+        },
+        "poll": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ReceiptPolling"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "lookup_tool",
+        "arguments"
+      ],
+      "title": "RecoveryMap",
+      "type": "object"
+    },
+    "RequestMap": {
+      "additionalProperties": false,
+      "properties": {
+        "method": {
+          "enum": [
+            "GET",
+            "POST",
+            "PUT",
+            "PATCH",
+            "DELETE",
+            "HEAD",
+            "OPTIONS"
+          ],
+          "title": "Method",
+          "type": "string"
+        },
+        "path": {
+          "title": "Path",
+          "type": "string"
+        },
+        "path_parameters": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "title": "Path Parameters",
+          "type": "object"
+        },
+        "query_parameters": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "title": "Query Parameters",
+          "type": "object"
+        },
+        "body_parameters": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "title": "Body Parameters",
+          "type": "object"
+        },
+        "header_parameters": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "title": "Header Parameters",
+          "type": "object"
+        }
+      },
+      "required": [
+        "method",
+        "path"
+      ],
+      "title": "RequestMap",
+      "type": "object"
+    },
+    "ResponseMap": {
+      "additionalProperties": false,
+      "properties": {
+        "schema": {
+          "anyOf": [
+            {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Schema"
+        },
+        "project": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Project"
+        }
+      },
+      "required": [
+        "schema"
+      ],
+      "title": "ResponseMap",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "const": 1,
+      "title": "Schema Version",
+      "type": "integer"
+    },
+    "provenance": {
+      "minLength": 1,
+      "title": "Provenance",
+      "type": "string"
+    },
+    "operations": {
+      "additionalProperties": {
+        "$ref": "#/$defs/OperationMap"
+      },
+      "minProperties": 1,
+      "title": "Operations",
+      "type": "object"
+    },
+    "recovery": {
+      "additionalProperties": {
+        "$ref": "#/$defs/RecoveryMap"
+      },
+      "title": "Recovery",
+      "type": "object"
+    },
+    "credential_header": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Credential Header"
+    }
+  },
+  "required": [
+    "schema_version",
+    "provenance",
+    "operations"
+  ],
+  "title": "ApiMapping",
+  "type": "object"
+}

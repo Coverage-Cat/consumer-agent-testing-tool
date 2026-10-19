@@ -1,0 +1,14 @@
+{
+  "full_name": "Taylor Umbrella Payment Ready",
+  "email": "taylor.umbrella.payment-ready+20261005205807@example.com",
+  "phone_number": "+12065550196",
+  "birthday": "1990-04-01",
+  "marital_status": "single",
+  "license_state": "WA",
+  "license_number": "WA1234567",
+  "address": {"street": "123 Main St", "city": "Seattle", "state": "WA", "zip": "98101"},
+  "net_worth_numeric": 1500000,
+  "desired_coverage_limit": 2000000,
+  "required_coverage_e_limit": 300000,
+  "vehicle_count": 2
+}

@@ -1,0 +1,33 @@
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    groups:
+      actions:
+        patterns: ["*"]
+    open-pull-requests-limit: 1
+  - package-ecosystem: uv
+    directories:
+      - /
+      - /tooling/build-python
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 1
+    groups:
+      compatible-python:
+        update-types: [minor, patch]
+    # Exact runtime pins and release notices need review together; no automatic merging.
+  - package-ecosystem: npm
+    directories:
+      - /tooling
+      - /tooling/payment-ui
+      - /tooling/api
+      - /tooling/ci
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 1
+    groups:
+      compatible-tooling:
+        update-types: [minor, patch]

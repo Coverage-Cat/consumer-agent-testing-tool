@@ -1,0 +1,89 @@
+[
+  {
+    "tool": "exec",
+    "arguments": {
+      "command": "cat cedar-stays.md"
+    }
+  },
+  {
+    "tool": "exec",
+    "arguments": {
+      "command": "cedar-stays list-tools --names-only"
+    }
+  },
+  {
+    "tool": "exec",
+    "arguments": {
+      "command": "cedar-stays describe-tool --name get_quote"
+    }
+  },
+  {
+    "tool": "exec",
+    "arguments": {
+      "command": [
+        "cedar-stays",
+        "call-tool",
+        "--name",
+        "search_rooms",
+        "--arguments-json",
+        {
+          "check_in": "2026-12-04",
+          "check_out": "2026-12-06",
+          "adults": 2
+        }
+      ]
+    }
+  },
+  {
+    "tool": "exec",
+    "arguments": {
+      "command": [
+        "cedar-stays",
+        "call-tool",
+        "--name",
+        "get_quote",
+        "--arguments-json",
+        {
+          "room_id": {
+            "$ref": "/results/3/stdout/structuredContent/rooms/0/room_id"
+          },
+          "check_in": "2026-12-04",
+          "check_out": "2026-12-06",
+          "adults": 2
+        }
+      ]
+    }
+  },
+  {
+    "tool": "exec",
+    "arguments": {
+      "command": [
+        "cedar-stays",
+        "call-tool",
+        "--name",
+        "create_booking",
+        "--arguments-json",
+        {
+          "quote_id": {
+            "$ref": "/results/4/stdout/structuredContent/quote_id"
+          },
+          "guest_name": "Taylor Example",
+          "idempotency_key": "scripted-smoke-1"
+        }
+      ]
+    }
+  },
+  {
+    "answer": [
+      "Booked for Taylor Example, December 4 to 6, 2026. Confirmation ",
+      {
+        "$ref": "/results/5/stdout/structuredContent/booking_id"
+      },
+      "; total ",
+      {
+        "$ref": "/results/4/stdout/structuredContent/total_minor"
+      },
+      " USD in minor units, as quoted."
+    ]
+  }
+]

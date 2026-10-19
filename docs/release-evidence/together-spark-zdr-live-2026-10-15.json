@@ -1,0 +1,97 @@
+{
+  "schema_version": 1,
+  "kind": "live-openrouter-native-tool-probe",
+  "status": "passed",
+  "recorded_at": "2026-10-15T20:09:26.124213+00:00",
+  "source_sha256": "09bd675a0669111d99d658dfe06c4851ddba37ab8c6962aafc118972bb33178e",
+  "runtime_sources_match_current": true,
+  "run": "runs/r-f31134483748420e8c2f825cf9c000fe",
+  "manifest_sha256": "961b687b0e844f46bf587f75d850b0e254b301e5a15da3353430f39021ea4e4a",
+  "events_sha256": "c937989a6a3fab7e2c6599771d6ab4302597ce3e7a57b9c2862c3c90e458eef0",
+  "checks": [
+    {
+      "id": "native-tool-continuation",
+      "status": "passed",
+      "model": "meta/muse-spark-open",
+      "returned_model": "meta/muse-spark-open",
+      "api": "chat-completions",
+      "region": null,
+      "auth_mode": "api_key"
+    }
+  ],
+  "serialized_requests": [
+    {
+      "model": "meta/muse-spark-open",
+      "provider_policy": {
+        "allow_fallbacks": false,
+        "data_collection": "deny",
+        "only": [
+          "together"
+        ],
+        "require_parameters": true,
+        "zdr": true
+      },
+      "returned_provider": "Together",
+      "returned_model": "meta/muse-spark-open",
+      "artifact": "runs/r-f31134483748420e8c2f825cf9c000fe/artifacts/0dc12499270594239f379ff5c2ce2723f2fe14bcbd08b4ca22a1fa56e1286327.json",
+      "artifact_sha256": "0dc12499270594239f379ff5c2ce2723f2fe14bcbd08b4ca22a1fa56e1286327"
+    },
+    {
+      "model": "meta/muse-spark-open",
+      "provider_policy": {
+        "allow_fallbacks": false,
+        "data_collection": "deny",
+        "only": [
+          "together"
+        ],
+        "require_parameters": true,
+        "zdr": true
+      },
+      "returned_provider": "Together",
+      "returned_model": "meta/muse-spark-open",
+      "artifact": "runs/r-f31134483748420e8c2f825cf9c000fe/artifacts/a9f6a79e1f7c489f097286e439f7e36cb72b6aff08dfa2e6e076d9f1b97377c4.json",
+      "artifact_sha256": "a9f6a79e1f7c489f097286e439f7e36cb72b6aff08dfa2e6e076d9f1b97377c4"
+    }
+  ],
+  "route_confirmations": [
+    {
+      "requested": [
+        "together"
+      ],
+      "returned_provider": "Together",
+      "status": "passed",
+      "zdr_basis": "OpenRouter request policy; downstream retention is not independently observable",
+      "zdr_requested": true
+    },
+    {
+      "requested": [
+        "together"
+      ],
+      "returned_provider": "Together",
+      "status": "passed",
+      "zdr_basis": "OpenRouter request policy; downstream retention is not independently observable",
+      "zdr_requested": true
+    }
+  ],
+  "catalog_observations": {
+    "together-spark-endpoints": {
+      "response_sha256": "a824458c47b3f5b77946be42edfaea2a78d12751839f69b6b3f0f0f7a6811719",
+      "provider": "Together",
+      "tag": "together",
+      "model_id": "meta/muse-spark-open",
+      "tools_supported": true
+    },
+    "together-zdr-endpoints": {
+      "response_sha256": "ec3b538b23bad1830a42e717dcefe31dcac270e5570864aad0677abbd0faab2f",
+      "provider": "Together",
+      "tag": "together",
+      "model_id": "meta/muse-spark-open",
+      "tools_supported": true
+    }
+  },
+  "sources": [
+    "https://openrouter.ai/api/v1/models/meta/muse-spark-open/endpoints",
+    "https://openrouter.ai/api/v1/endpoints/zdr"
+  ],
+  "limits": "Two non-streamed native-tool requests with synthetic data. OpenRouter accepted Together-only ZDR routing and returned Together. Downstream retention is not independently observable; this does not qualify all consumer workflows or streaming."
+}

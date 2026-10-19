@@ -1,0 +1,36 @@
+# Scripted calls for custom-booking.yaml (--driver scripted): no model, the same host pipeline. Their URLs use
+# the REST service's port as the scenario does (${PORT:-8790}: --set PORT=<n> fills both), and they reference
+# earlier results by JSON pointer (/results/<step>/...), so they also assume its result shapes.
+- {tool: read_doc, arguments: {path: ""}}
+- {tool: read_doc, arguments: {path: llms.txt}}
+- tool: request_api_access
+  arguments: {service: cedar-stays-api, scheme: api_key, placement: header, name: X-Cedar-Key}
+# A harmless read first: the key works before anything changes.
+- tool: http_request
+  arguments:
+    method: GET
+    url: "http://127.0.0.1:${PORT:-8790}/v1/me"
+    headers: {X-Cedar-Key: {$ref: /results/2/reference}}
+- tool: http_request
+  arguments:
+    method: GET
+    url: "http://127.0.0.1:${PORT:-8790}/v1/rooms?check_in=2026-12-04&check_out=2026-12-06&adults=2"
+    headers: {X-Cedar-Key: {$ref: /results/2/reference}}
+- tool: http_request
+  arguments:
+    method: POST
+    url: "http://127.0.0.1:${PORT:-8790}/v1/quotes"
+    headers: {X-Cedar-Key: {$ref: /results/2/reference}}
+    json: {room_id: {$ref: /results/4/json/rooms/0/room_id}, check_in: "2026-12-04", check_out: "2026-12-06", adults: 2}
+- tool: http_request
+  arguments:
+    method: POST
+    url: "http://127.0.0.1:${PORT:-8790}/v1/bookings"
+    headers: {X-Cedar-Key: {$ref: /results/2/reference}, Idempotency-Key: scripted-smoke-1}
+    json: {quote_id: {$ref: /results/5/json/quote_id}, guest_name: Taylor Example}
+- answer:
+    - "Booked at Cedar Stays for Taylor Example, December 4 to 6, 2026. Confirmation "
+    - {$ref: /results/6/json/booking_id}
+    - "; total "
+    - {$ref: /results/5/json/total_minor}
+    - " USD in minor units, as quoted."

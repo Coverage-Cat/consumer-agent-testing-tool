@@ -1,0 +1,12 @@
+# FixtureConfig for wallet-checkout.yaml: the connector fixture's checkout variant, a loopback merchant whose
+# create_booking pays with a single-use payment token the host's wallet registers on its private
+# /__wallet/register endpoint. Serve it with:
+#   python -m consumer_agent_testing_tool.connector_fixture --port 8765 --config examples/connector/wallet-checkout.fixture.yaml
+variant: checkout
+auth: none
+# The synthetic code the guest's "bank" sends; wallet-checkout.yaml's scripted user knows it. Without it the
+# fixture generates one per process (announced under test_credentials), which no scripted reply can know.
+challenge_code: "246810"
+# Charges above USD 400.00 need the bank's verification (status requires_action, then confirm_payment), so the
+# Garden Queen stay (USD 448.36) exercises the wallet's 3-D Secure step.
+challenge_above_minor: 40000

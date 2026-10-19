@@ -1,0 +1,124 @@
+{
+  "schema_version": 1,
+  "id": "muse-connector-guidelines-2026-10-15",
+  "title": "Muse — Connector guidelines — Meta",
+  "publisher": "Meta",
+  "basis": "documented",
+  "label": "documented constraint, not admission",
+  "source": "https://platform.muse.ai/docs",
+  "terms_source": "https://platform.muse.ai/terms",
+  "fetched": "2026-10-15",
+  "extract_sha256_32": "60628e5a1c6199b8635a161b7f5a8aaa",
+  "extract_chars": 13929,
+  "terms_extract_sha256_32": "c627bd546cfde9bdbcad01de593ca721",
+  "terms_extract_chars": 22001,
+  "terms_effective": "2026-09-18",
+  "method": "MCPJam extractText + sha256[0:32]",
+  "method_source": {
+    "repository": "https://github.com/MCPJam/inspector",
+    "path": "scripts/lib/policy-manifest-sync.mjs",
+    "commit": "5013212e9347df00b796e04e17d5cc142c2d3387",
+    "license": "Apache-2.0",
+    "port": "consumer_agent_testing_tool.guidelines.extract_text; output identical to the original on the 2026-10-15 pages and on 12,000 differential cases",
+    "chars": "UTF-16 code units, as JavaScript's String.length counts them"
+  },
+  "corroboration": [
+    {
+      "source": "https://github.com/MCPJam/inspector/blob/da3b8ac30d2cc914be838637b5422bd66f6dd514/sdk/src/muse-readiness/manifest.ts",
+      "snapshot_date": "2026-10-07",
+      "docs": "60628e5a1c6199b8635a161b7f5a8aaa",
+      "terms": "98588b3844410fbd5ff3aca6b0000e23",
+      "note": "Same docs revision. The terms' visible text changed by 4 characters after MCPJam's 2026-10-12 drift run; the effective date did not change."
+    }
+  ],
+  "redirects": {
+    "https://muse.ai/platform/docs": "HTTP 307 to https://platform.muse.ai/docs (2026-10-15)",
+    "https://muse.ai/platform/terms": "HTTP 307 to https://platform.muse.ai/terms (2026-10-15)"
+  },
+  "quote_note": "Verbatim visible text; spaces that the page's markup leaves before punctuation are removed.",
+  "sections": {
+    "2": {
+      "title": "Example: Cedar Stays",
+      "quotes": [
+        "Don’t Call a checkout link, cart, or pending request a confirmed booking.",
+        "Reservation CS-2048 is confirmed. USD $480 paid.",
+        "Report this only after the provider confirms both the reservation and payment."
+      ]
+    },
+    "3.1": {
+      "title": "Offer read-only account access",
+      "quotes": [
+        "When using OAuth to connect to a user’s account, offer users the option to limit Muse’s permissions to Read Only, where possible."
+      ]
+    },
+    "3.2": {
+      "title": "How tools are classified",
+      "quotes": [
+        "A tool that combines reads and writes must be classified as a write.",
+        "Never hide a send, share, publish, or payment action in a tool described as a read or routine edit.",
+        "Tool descriptions must be factual. Do not use tool descriptions or responses to instruct Muse to ignore its rules, steer away from competitors, access unrelated data, force recommendations, conceal commercial interests, or take unrequested actions."
+      ]
+    },
+    "3.3": {
+      "title": "Permission choices",
+      "quotes": [
+        "Sensitive writes cannot be set to Always allow, including through Settings or a saved permission."
+      ]
+    },
+    "3.4": {
+      "title": "Respect the scope of approval",
+      "quotes": [
+        "If any details (e.g. the price, recipient, scope) change after a write is approved, require a new fresh write to be approved."
+      ]
+    },
+    "4.3": {
+      "title": "Be accurate and transparent",
+      "quotes": [
+        "Do not fabricate reviews, urgency, discounts, or successful outcomes."
+      ]
+    },
+    "4.4": {
+      "title": "Security",
+      "quotes": [
+        "Protect authentication credentials, payment data, and other secrets. Do not expose them in prompts, tool descriptions or responses, URLs, analytics, or logs; collect and transmit them only through secure flows."
+      ]
+    },
+    "4.6": {
+      "title": "Finance Connectors",
+      "quotes": [
+        "We allow Connectors that have read access to financial data, but are not currently approving new financial money movement tools, such as transfers between financial accounts, or tools that place financial trade orders at this time."
+      ]
+    },
+    "4.7": {
+      "title": "Transactions",
+      "quotes": [
+        "Distinguish quoted, pending, confirmed, failed, and cancelled actions. Report uncertain outcomes honestly and check their status before retrying."
+      ]
+    },
+    "5.4": {
+      "title": "Integration credentials and tool documentation",
+      "quotes": [
+        "In your API or MCP documentation, include setup instructions, inputs and outputs, read/write classifications, sensitive designations, permissions, side effects, status handling, errors, and rate limits."
+      ]
+    },
+    "5.5": {
+      "title": "Test user credentials and demo",
+      "quotes": [
+        "Provide a dedicated test account so reviewers can connect your service and exercise each submitted tool. Include sign-in instructions, required permissions, representative test data, and any account or regional limits. Keep the account accessible throughout review.",
+        "For transaction tools, explain how to test checkout without real charges."
+      ]
+    },
+    "5.6": {
+      "title": "Tool annotation (coming soon)",
+      "quotes": [
+        "For now, include these annotations in your tool documentation, following Section 3."
+      ]
+    },
+    "6": {
+      "title": "Review process",
+      "quotes": [
+        "We review submissions in three stages. Meeting these guidelines does not guarantee approval."
+      ]
+    }
+  }
+}

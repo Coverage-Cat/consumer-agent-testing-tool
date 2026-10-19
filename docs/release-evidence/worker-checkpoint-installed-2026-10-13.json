@@ -1,0 +1,73 @@
+{
+  "source_sha256": "5071d8a718d8851190d0bd93c3a9483901faf3f2427b243a856110dbf3fcbea1",
+  "distribution_sha256": "a28fe869937c334ce59a4412575796556df482fbea8c9685ab4e27ac153aaa17",
+  "workers": [
+    {
+      "journal": ".cache/d-blbs7sql/p/worker-evidence/runs/worker-48bd4e60f7ac44809e2371de181c5a29/worker.json",
+      "sha256": "3aef7be3a6e1f02f00f69f7ff894dbb66e4d580a6e818f41db4064273ed5139a",
+      "complete_archive_verified": true,
+      "job_deleted": true,
+      "runtime_archive_verified": false,
+      "checkpoints": []
+    },
+    {
+      "journal": ".cache/d-blbs7sql/p/worker-evidence/runs/worker-7771f4e6f5804f4e82e1600b0623b473/worker.json",
+      "sha256": "f8023e8b906d8ecdc09bb0ada4ebf6adff550b74051e524fc0fe2456240d59d1",
+      "complete_archive_verified": true,
+      "job_deleted": true,
+      "runtime_archive_verified": false,
+      "checkpoints": []
+    },
+    {
+      "journal": ".cache/d-blbs7sql/p/worker-evidence/runs/worker-b8c6e11585894aed99508556d05ccde9/worker.json",
+      "sha256": "a9f12683d80263b2acc6e0aa0e7b8b05b5b863961d5ab2c0219e1d18092fdf18",
+      "complete_archive_verified": true,
+      "job_deleted": true,
+      "runtime_archive_verified": false,
+      "checkpoints": []
+    },
+    {
+      "journal": ".cache/d-blbs7sql/p/worker-selector/runs/worker-9221108c94e34773ac63e6f078222d04/worker.json",
+      "sha256": "77c70c017dfafeb17abe1936987bcc29da7eaca94ffc7a1ad6909f2b0dcb0174",
+      "complete_archive_verified": true,
+      "job_deleted": true,
+      "runtime_archive_verified": true,
+      "checkpoints": []
+    },
+    {
+      "journal": ".cache/d-blbs7sql/p/worker-continuation/runs/worker-48f0f1223881416e835bac3f2f3e9216/worker.json",
+      "sha256": "301128581825eea9765aa1de4e48b26dc63ccc7a23ee6e8bf77ffebad03568e4",
+      "complete_archive_verified": true,
+      "job_deleted": true,
+      "runtime_archive_verified": false,
+      "checkpoints": [
+        {
+          "run_id": "r-9a828cc2fb664e33a1c34ebe82283fb3",
+          "receipt_sha256": "c0c425fcc64e13c27b09e068f80da6f261cd87432ad37e9cd6fc56b88224bd83",
+          "attempt": 2,
+          "status": "completed"
+        }
+      ]
+    },
+    {
+      "journal": ".cache/d-blbs7sql/p/worker-continuation/runs/worker-9c86344223d448cc90a319c7f1b3f2df/worker.json",
+      "sha256": "77c7624e6e78da512d779590576e7bff1843a5e93f2810939c1cf76a51429319",
+      "complete_archive_verified": true,
+      "job_deleted": true,
+      "runtime_archive_verified": false,
+      "checkpoints": [
+        {
+          "run_id": "r-9a828cc2fb664e33a1c34ebe82283fb3",
+          "receipt_sha256": "fd1d5aca4646315cea9b2ec5e9ba2d85cdc424ea3a8c94df90500289361c2e08",
+          "attempt": 1,
+          "status": "running"
+        }
+      ]
+    }
+  ],
+  "expiry_proof": ".cache/d-blbs7sql/p/worker-evidence/expiry-proof.json",
+  "expiry_sha256": "be396d7f6fe099b4a3abaea5dbe77e5842e790d30632a86c6acfc80c9bfc1e98",
+  "positive_control_cases": 5,
+  "node_content_unchanged": true,
+  "limits": "Installed local fixtures and synthetic loopback SDK only; no hosted inference, cloud provisioning or Muse qualification."
+}

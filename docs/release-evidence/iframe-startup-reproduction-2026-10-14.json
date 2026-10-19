@@ -1,0 +1,14 @@
+{
+  "source_sha256": "dbf99422fe40797c851ae4e8c01a5b31d9696df6c525b85093876250239e40ed",
+  "trigger": "Delay iframe Fetch.enable by 100 milliseconds before executing the existing network-autoload test",
+  "unmodified_repetitions": 10,
+  "unmodified_repetitions_passed": 10,
+  "delayed_result": "failed",
+  "seconds": 32.342307792045176,
+  "diagnostic": {
+    "path": ".cache/qualification-audit-2026-10-14/autoload-delayed-protocol-1.jsonl",
+    "sha256": "29f4403a79738619d53c3f680d5cf1a35aa250f2390ef6d94cab1e5cb40449de"
+  },
+  "original_regression": "docs/release-evidence/qualification-audit-regression-2026-10-14.run.json",
+  "limits": "Synthetic local browser timing treatment; not live model or browser-isolation qualification"
+}

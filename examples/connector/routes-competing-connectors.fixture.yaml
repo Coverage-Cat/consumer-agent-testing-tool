@@ -1,0 +1,9 @@
+# FixtureConfig for the trip-desk connector of routes-competing-connectors.yaml: a second instance of the
+# loopback hotel fixture under the Trip Desk travel agency's own brand (server trip-desk; its title, seller
+# and catalog text say Trip Desk), selling the same rooms at the same rates. Serve it with:
+#   python -m consumer_agent_testing_tool.connector_fixture --port 8766 \
+#     --config examples/connector/routes-competing-connectors.fixture.yaml
+variant: good
+auth: none
+brand:
+  name: Trip Desk

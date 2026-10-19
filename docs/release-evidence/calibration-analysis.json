@@ -1,0 +1,229 @@
+{
+  "gate": "calibration-analysis",
+  "basis": "test-report",
+  "status": "passed",
+  "source_sha256": "53f7c3b8921a5e25495910de9f8101dd4be10a39faa5a69924522a46411d4c59",
+  "junit": "docs/release-evidence/measurement-coverage-regression-2026-10-15.xml",
+  "junit_sha256": "9c10ee0fff77b954e4de0f292c2491c617ba7f3eaa5a594e03239d7859213136",
+  "run_record_sha256": "a343f6552474922379f11798abb1c59973d016a907a0fe173cba97d7b6db98d3",
+  "regression_sha256": "c3d99010d35210f17c807f860e615d6e528f5abc44b1bbd14df970f26f5e514c",
+  "recorded_at": "2026-10-15T01:43:53.691240+00:00",
+  "checks": [
+    {
+      "id": "test_calibration_all_observable_dimensions_and_synthetic_exclusion",
+      "status": "passed"
+    },
+    {
+      "id": "test_calibration_differences_are_dimension_specific",
+      "status": "passed"
+    },
+    {
+      "id": "test_calibration_partial_traces_do_not_establish_absence_or_disagreement",
+      "status": "passed"
+    },
+    {
+      "id": "test_calibration_aligns_arguments_by_declared_milestone",
+      "status": "passed"
+    },
+    {
+      "id": "test_calibration_records_repeated_and_changed_arguments_without_retry_intent",
+      "status": "passed"
+    },
+    {
+      "id": "test_calibration_boolean_annotations_do_not_coerce_numbers[task_success]",
+      "status": "passed"
+    },
+    {
+      "id": "test_calibration_boolean_annotations_do_not_coerce_numbers[final_consistent]",
+      "status": "passed"
+    },
+    {
+      "id": "test_calibration_backend_comparison_preserves_boolean_numeric_distinction",
+      "status": "passed"
+    },
+    {
+      "id": "test_calibration_requires_matching_artifacts_identity_and_sources[artifact]",
+      "status": "passed"
+    },
+    {
+      "id": "test_calibration_requires_matching_artifacts_identity_and_sources[source]",
+      "status": "passed"
+    },
+    {
+      "id": "test_calibration_requires_matching_artifacts_identity_and_sources[identity]",
+      "status": "passed"
+    },
+    {
+      "id": "test_calibration_requires_matching_artifacts_identity_and_sources[source_path]",
+      "status": "passed"
+    },
+    {
+      "id": "test_calibration_requires_matching_artifacts_identity_and_sources[source_kind]",
+      "status": "passed"
+    },
+    {
+      "id": "test_calibration_requires_matching_artifacts_identity_and_sources[pair_profile]",
+      "status": "passed"
+    },
+    {
+      "id": "test_calibration_requires_matching_artifacts_identity_and_sources[pair_revision]",
+      "status": "passed"
+    },
+    {
+      "id": "test_calibration_requires_matching_artifacts_identity_and_sources[pair_kind]",
+      "status": "passed"
+    },
+    {
+      "id": "test_calibration_current_profile_revision_and_date_are_required[profile]",
+      "status": "passed"
+    },
+    {
+      "id": "test_calibration_current_profile_revision_and_date_are_required[revision]",
+      "status": "passed"
+    },
+    {
+      "id": "test_calibration_current_profile_revision_and_date_are_required[expired]",
+      "status": "passed"
+    },
+    {
+      "id": "test_calibration_current_profile_revision_and_date_are_required[missing_revision]",
+      "status": "passed"
+    },
+    {
+      "id": "test_calibration_declared_muse_fixture_tests_eligibility_not_authenticity",
+      "status": "passed"
+    },
+    {
+      "id": "test_calibration_unknown_visible_details_are_not_an_agreement",
+      "status": "passed"
+    },
+    {
+      "id": "test_calibration_cli_and_partner_packet_keep_synthetic_analysis_unqualified",
+      "status": "passed"
+    },
+    {
+      "id": "test_calibration_packaged_examples_work_without_accounts_or_network",
+      "status": "passed"
+    },
+    {
+      "id": "test_calibration_collection_contract_rejects_ambiguous_metadata[authorization]",
+      "status": "passed"
+    },
+    {
+      "id": "test_calibration_collection_contract_rejects_ambiguous_metadata[cohort_version]",
+      "status": "passed"
+    },
+    {
+      "id": "test_calibration_collection_contract_rejects_ambiguous_metadata[pair_version]",
+      "status": "passed"
+    },
+    {
+      "id": "test_calibration_collection_contract_rejects_ambiguous_metadata[dimensions]",
+      "status": "passed"
+    },
+    {
+      "id": "test_calibration_collection_contract_rejects_ambiguous_metadata[rubric]",
+      "status": "passed"
+    },
+    {
+      "id": "test_cluster_interval_does_not_treat_repetitions_as_independent_scenarios",
+      "status": "passed"
+    },
+    {
+      "id": "test_weighting_is_an_explicit_estimand_choice",
+      "status": "passed"
+    },
+    {
+      "id": "test_missing_pairs_and_single_scenario_do_not_establish_uncertainty[paired-trials]",
+      "status": "passed"
+    },
+    {
+      "id": "test_missing_pairs_and_single_scenario_do_not_establish_uncertainty[equal-scenarios]",
+      "status": "passed"
+    },
+    {
+      "id": "test_identical_scenario_rates_do_not_produce_false_certainty[1-0-paired-trials]",
+      "status": "passed"
+    },
+    {
+      "id": "test_identical_scenario_rates_do_not_produce_false_certainty[1-0-equal-scenarios]",
+      "status": "passed"
+    },
+    {
+      "id": "test_identical_scenario_rates_do_not_produce_false_certainty[0-1-paired-trials]",
+      "status": "passed"
+    },
+    {
+      "id": "test_identical_scenario_rates_do_not_produce_false_certainty[0-1-equal-scenarios]",
+      "status": "passed"
+    },
+    {
+      "id": "test_identical_scenario_rates_do_not_produce_false_certainty[1-9-paired-trials]",
+      "status": "passed"
+    },
+    {
+      "id": "test_identical_scenario_rates_do_not_produce_false_certainty[1-9-equal-scenarios]",
+      "status": "passed"
+    },
+    {
+      "id": "test_analysis_is_deterministic_and_order_independent",
+      "status": "passed"
+    },
+    {
+      "id": "test_analysis_rejects_undeclared_methods_and_assumptions[change0]",
+      "status": "passed"
+    },
+    {
+      "id": "test_analysis_rejects_undeclared_methods_and_assumptions[change1]",
+      "status": "passed"
+    },
+    {
+      "id": "test_analysis_rejects_undeclared_methods_and_assumptions[change2]",
+      "status": "passed"
+    },
+    {
+      "id": "test_analysis_rejects_undeclared_methods_and_assumptions[change3]",
+      "status": "passed"
+    },
+    {
+      "id": "test_analysis_rejects_undeclared_methods_and_assumptions[change4]",
+      "status": "passed"
+    },
+    {
+      "id": "test_analysis_rejects_undeclared_methods_and_assumptions[change5]",
+      "status": "passed"
+    },
+    {
+      "id": "test_analysis_requires_explicit_method_unit_and_weighting[method]",
+      "status": "passed"
+    },
+    {
+      "id": "test_analysis_requires_explicit_method_unit_and_weighting[independent_unit]",
+      "status": "passed"
+    },
+    {
+      "id": "test_analysis_requires_explicit_method_unit_and_weighting[weighting]",
+      "status": "passed"
+    },
+    {
+      "id": "test_full_packet_analysis_preserves_pairs_unknowns_and_qualification",
+      "status": "passed"
+    },
+    {
+      "id": "test_existing_packet_does_not_silently_assume_scenario_independence",
+      "status": "passed"
+    },
+    {
+      "id": "test_cli_scenario_analysis_is_account_free_and_keeps_synthetic_exclusion",
+      "status": "passed"
+    },
+    {
+      "id": "test_packaged_scenario_analysis_example_keeps_small_sample_limits",
+      "status": "passed"
+    },
+    {
+      "id": "test_calibration_heldout_visibility_staleness_and_hashes",
+      "status": "passed"
+    }
+  ]
+}

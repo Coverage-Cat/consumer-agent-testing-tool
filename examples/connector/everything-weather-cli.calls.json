@@ -1,0 +1,27 @@
+[
+  {
+    "tool": "exec",
+    "arguments": {"command": "everything list-tools --names-only"}
+  },
+  {
+    "tool": "exec",
+    "arguments": {"command": "everything describe-tool --name get-structured-content"}
+  },
+  {
+    "tool": "exec",
+    "arguments": {
+      "command": ["everything", "call-tool", "--name", "get-structured-content", "--arguments-json", {"location": "Chicago"}]
+    }
+  },
+  {
+    "answer": [
+      "Chicago is at ",
+      {"$ref": "/results/2/stdout/structuredContent/temperature"},
+      " degrees right now, with ",
+      {"$ref": "/results/2/stdout/structuredContent/conditions"},
+      " and ",
+      {"$ref": "/results/2/stdout/structuredContent/humidity"},
+      "% humidity."
+    ]
+  }
+]

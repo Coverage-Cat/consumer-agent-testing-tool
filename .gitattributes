@@ -1,0 +1,6 @@
+# Keep hashed evidence, packaged assets, and original third-party notices byte-for-byte.
+third_party/** -text -whitespace
+# Upstream Markdown headings can be seven equals signs, not unresolved merge conflicts.
+third_party/**/*AUTHORS.md conflict-marker-size=32
+docs/release-evidence/** -text -whitespace
+src/consumer_agent_testing_tool/data/** -text -whitespace

@@ -1,0 +1,21 @@
+{
+  "fixture_version": "synthetic-v1",
+  "entries": [
+    {
+      "request": {
+        "step": "read",
+        "operation": "get",
+        "arguments": {
+          "id": "synthetic-1"
+        },
+        "headers": {},
+        "body_sha256": "2df942a171f823be145fa9ad6d70039ba8fa641e6b032f42e67d0eed83248f78",
+        "fixture_version": "synthetic-v1"
+      },
+      "response": {
+        "status": "draft",
+        "id": "synthetic-1"
+      }
+    }
+  ]
+}

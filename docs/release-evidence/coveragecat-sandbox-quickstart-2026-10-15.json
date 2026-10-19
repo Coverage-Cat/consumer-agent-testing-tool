@@ -1,0 +1,165 @@
+{
+  "schema_version": 1,
+  "recorded_at": "2026-10-15T22:14:47.495815+00:00",
+  "status": "passed",
+  "scenario": "examples/coveragecat-sandbox.yaml",
+  "scenario_sha256": "be68dbe68778999e9d5910a7dad42a8a5e87fc3711a198b39d23c92ef26ed7a3",
+  "endpoint": "https://www.coveragecat.com/api/consumer/mcp",
+  "tools": [
+    "umbrella_consumer_prefill",
+    "consumer_intake_issues"
+  ],
+  "sandbox_activation": "Host-owned sandbox: true on the initial umbrella_consumer_prefill call",
+  "runs": [
+    {
+      "path": "runs/surface-1a006e2b11524c4cb68238ef870b7e01",
+      "driver": "scripted",
+      "status": "completed",
+      "result_sha256": "8f3a7e94585977d93bcd448be05ad41de19ca845e26d6a52083a273dc4aff747",
+      "checks": [
+        {
+          "id": "sandbox-created",
+          "step": "prefill",
+          "layer": "service",
+          "status": "passed",
+          "expected": true,
+          "actual": true
+        },
+        {
+          "id": "sandbox-retained",
+          "step": "followup",
+          "layer": "service",
+          "status": "passed",
+          "expected": true,
+          "actual": true
+        },
+        {
+          "id": "same-draft",
+          "step": "followup",
+          "layer": "service",
+          "status": "passed",
+          "expected": "073c061d-e5cc-439e-a4d3-2e7b7cc2cacd",
+          "actual": "073c061d-e5cc-439e-a4d3-2e7b7cc2cacd"
+        },
+        {
+          "id": "not-submitted",
+          "step": "followup",
+          "layer": "service",
+          "status": "passed",
+          "expected": false,
+          "actual": false
+        }
+      ],
+      "capabilities": {
+        "discovery": "passed",
+        "negotiation": "passed",
+        "resource": "not-exercised",
+        "rendering": "not-exercised",
+        "interaction": "not-exercised",
+        "completion": "not-exercised"
+      }
+    },
+    {
+      "path": "runs/surface-5988a5da082343dcbfc1521d6f5b4c4e",
+      "driver": "agent",
+      "status": "completed",
+      "result_sha256": "be97f8d36fa5134f2afc6cfc9303b961a0dbc18957e5e8b2a911919d1426b659",
+      "checks": [
+        {
+          "id": "sandbox-created",
+          "step": "prefill",
+          "layer": "service",
+          "status": "passed",
+          "expected": true,
+          "actual": true
+        },
+        {
+          "id": "sandbox-retained",
+          "step": "followup",
+          "layer": "service",
+          "status": "passed",
+          "expected": true,
+          "actual": true
+        },
+        {
+          "id": "same-draft",
+          "step": "followup",
+          "layer": "service",
+          "status": "passed",
+          "expected": "e448bc09-8613-449a-a6bd-25c3bb1625f2",
+          "actual": "e448bc09-8613-449a-a6bd-25c3bb1625f2"
+        },
+        {
+          "id": "not-submitted",
+          "step": "followup",
+          "layer": "service",
+          "status": "passed",
+          "expected": false,
+          "actual": false
+        }
+      ],
+      "capabilities": {
+        "discovery": "passed",
+        "negotiation": "passed",
+        "resource": "not-exercised",
+        "rendering": "not-exercised",
+        "interaction": "not-exercised",
+        "completion": "not-exercised"
+      },
+      "model": "meta/muse-spark-open",
+      "request_policies": [
+        {
+          "allow_fallbacks": false,
+          "data_collection": "deny",
+          "only": [
+            "together"
+          ],
+          "require_parameters": true,
+          "zdr": true
+        },
+        {
+          "allow_fallbacks": false,
+          "data_collection": "deny",
+          "only": [
+            "together"
+          ],
+          "require_parameters": true,
+          "zdr": true
+        }
+      ],
+      "provider_confirmations": [
+        {
+          "requested": [
+            "together"
+          ],
+          "returned_provider": "Together",
+          "status": "passed",
+          "zdr_basis": "OpenRouter request policy; downstream retention is not independently observable",
+          "zdr_requested": true
+        },
+        {
+          "requested": [
+            "together"
+          ],
+          "returned_provider": "Together",
+          "status": "passed",
+          "zdr_basis": "OpenRouter request policy; downstream retention is not independently observable",
+          "zdr_requested": true
+        }
+      ],
+      "warning": "Inspect optional control server could not start: AF_UNIX path too long. The agent workflow completed without that control surface."
+    }
+  ],
+  "failed_attempts": [
+    {
+      "path": "runs/surface-a2755698f1b84be3a6c4fd7241ba1efe",
+      "reason": "Sandbox-restricted network fetch failed before any workflow action; rerun with network permission passed."
+    }
+  ],
+  "limits": [
+    "Draft and follow-up smoke only; no application submitted, quote selection, payment setup or browser widget exercised.",
+    "Server responses are not independent backend verification.",
+    "The agent is a consumer-surface surrogate, not real Muse certification.",
+    "ZDR is verified as the serialized request policy and accepted provider route, not independent downstream retention."
+  ]
+}

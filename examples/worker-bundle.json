@@ -1,0 +1,4 @@
+{
+  "files": ["examples/worker-task.py"],
+  "command": ["python3", "examples/worker-task.py"]
+}

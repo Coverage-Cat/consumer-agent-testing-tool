@@ -1,0 +1,38 @@
+{
+  "schema_version": 1,
+  "checked_at": "2026-10-05",
+  "provider": "openrouter",
+  "model_id": "meta/muse-glimmer-30b",
+  "api": "chat-completions",
+  "base_url": "https://openrouter.ai/api/v1",
+  "authentication": "api_key",
+  "streaming": false,
+  "live_run_id": "r-bd203a5ea25546a9a9a45bf2a527cea6",
+  "manifest_sha256": "fc10135bff897e8ee87e008601e7128754bf1c8adbd8f0df420d6a6fa249e6f8",
+  "checks": [
+    {
+      "id": "native-tool-continuation",
+      "status": "passed",
+      "model": "meta/muse-glimmer-30b",
+      "returned_model": "meta/muse-glimmer-30b",
+      "api": "chat-completions",
+      "region": null,
+      "auth_mode": "api_key"
+    }
+  ],
+  "provider_receipt": {
+    "requested": [
+      "phala"
+    ],
+    "returned_provider": "Phala",
+    "status": "passed",
+    "zdr_basis": "OpenRouter request policy; downstream retention is not independently observable",
+    "zdr_requested": true
+  },
+  "receipt_sha256": "0925728545f05edfc437abf1dce55cd4aae5756d400a5a041c627497638abc80",
+  "limitations": [
+    "Native tool probe only; no certification of hosted revision immutability or provider retention.",
+    "Does not qualify local/offline Glimmer or Bedrock.",
+    "Deterministic negative gates are in tests/test_openrouter.py and tests/test_providers.py."
+  ]
+}

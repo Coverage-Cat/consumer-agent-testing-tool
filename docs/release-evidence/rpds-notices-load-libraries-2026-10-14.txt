@@ -1,0 +1,4 @@
+.cache/d-y0heuj82/venv/lib/python3.14/site-packages/rpds/rpds.cpython-314-darwin.so:
+	@rpath/rpds.cpython-314-darwin.so (compatibility version 0.0.0, current version 0.0.0)
+	/usr/lib/libiconv.2.dylib (compatibility version 7.0.0, current version 7.0.0)
+	/usr/lib/libSystem.B.dylib (compatibility version 1.0.0, current version 1356.0.0)

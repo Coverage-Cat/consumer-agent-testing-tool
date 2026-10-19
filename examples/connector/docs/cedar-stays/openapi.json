@@ -1,0 +1,808 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Cedar Stays API",
+    "version": "1.0.0",
+    "description": "Rooms, price quotes and bookings at Cedar Stays. Amounts are integer minor units with an ISO 4217 currency code. Send your API key in the X-Cedar-Key header on every /v1 request. Create keys in your Cedar Stays account settings."
+  },
+  "servers": [
+    {
+      "url": "{{service_url}}"
+    }
+  ],
+  "paths": {
+    "/v1/me": {
+      "get": {
+        "operationId": "getAccount",
+        "summary": "The account the credentials belong to",
+        "responses": {
+          "200": {
+            "description": "The account",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Account"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/rooms": {
+      "get": {
+        "operationId": "searchRooms",
+        "summary": "Rooms available for a stay",
+        "description": "Nightly rate and stay subtotal before taxes and fees. Stays are 1 to 14 nights; check_out must be after check_in.",
+        "parameters": [
+          {
+            "name": "check_in",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
+          },
+          {
+            "name": "check_out",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
+          },
+          {
+            "name": "adults",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 4
+            }
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 10
+            }
+          },
+          {
+            "name": "page_token",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Matching rooms",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RoomSearch"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "The stay cannot be quoted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/quotes": {
+      "post": {
+        "operationId": "createQuote",
+        "summary": "Quote one room for a stay",
+        "description": "Subtotal, taxes, fees, total, payment timing and cancellation policy. A quote reserves nothing and charges nothing; it expires after 15 minutes.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/QuoteRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "The quote",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Quote"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict with the current state",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "The stay cannot be quoted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/bookings": {
+      "post": {
+        "operationId": "createBooking",
+        "summary": "Book the room in a quote",
+        "description": "Charges the card on file for the quoted total. A retry with the same Idempotency-Key (or the same quote) returns the original booking without charging again. The status is confirmed, or pending until the hotel confirms; GET the booking for its current status.",
+        "parameters": [
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9._:-]{8,64}$"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BookingRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "The new booking",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Booking"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "The original booking (a repeated request)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Booking"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict with the current state",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "The payment service did not answer; check the booking before retrying",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/bookings/{booking_id}": {
+      "get": {
+        "operationId": "getBooking",
+        "summary": "A booking's current status",
+        "parameters": [
+          {
+            "name": "booking_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^b-\\d{4,}$"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The booking",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Booking"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/bookings/{booking_id}/cancel": {
+      "post": {
+        "operationId": "cancelBooking",
+        "summary": "Cancel a booking",
+        "description": "Refunds the charge in full within the free-cancellation window. Cancelling a cancelled booking changes nothing.",
+        "parameters": [
+          {
+            "name": "booking_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^b-\\d{4,}$"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The cancelled booking",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Booking"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Error": {
+        "type": "object",
+        "required": [
+          "error",
+          "message"
+        ],
+        "properties": {
+          "error": {
+            "type": "string",
+            "description": "A stable error code."
+          },
+          "message": {
+            "type": "string"
+          }
+        }
+      },
+      "Account": {
+        "type": "object",
+        "required": [
+          "username",
+          "name"
+        ],
+        "properties": {
+          "username": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "email": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      },
+      "Room": {
+        "type": "object",
+        "required": [
+          "room_id",
+          "name",
+          "beds",
+          "max_adults",
+          "floor",
+          "summary",
+          "nightly_minor",
+          "subtotal_minor"
+        ],
+        "properties": {
+          "room_id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "beds": {
+            "type": "string"
+          },
+          "max_adults": {
+            "type": "integer"
+          },
+          "floor": {
+            "type": "string"
+          },
+          "summary": {
+            "type": "string"
+          },
+          "nightly_minor": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Amount in minor units (cents)."
+          },
+          "subtotal_minor": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Whole stay before taxes and fees."
+          }
+        }
+      },
+      "RoomSearch": {
+        "type": "object",
+        "required": [
+          "check_in",
+          "check_out",
+          "nights",
+          "adults",
+          "currency",
+          "rooms",
+          "search_session_id",
+          "next_page_token"
+        ],
+        "properties": {
+          "check_in": {
+            "type": "string",
+            "format": "date",
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
+            "description": "Hotel-local date."
+          },
+          "check_out": {
+            "type": "string",
+            "format": "date",
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
+            "description": "Hotel-local date."
+          },
+          "nights": {
+            "type": "integer"
+          },
+          "adults": {
+            "type": "integer"
+          },
+          "currency": {
+            "type": "string"
+          },
+          "rooms": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Room"
+            }
+          },
+          "search_session_id": {
+            "type": "string"
+          },
+          "next_page_token": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Pass as page_token for more rooms."
+          }
+        }
+      },
+      "QuoteRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "room_id",
+          "check_in",
+          "check_out",
+          "adults"
+        ],
+        "properties": {
+          "room_id": {
+            "type": "string",
+            "pattern": "^rm-[a-z0-9-]{1,40}$"
+          },
+          "check_in": {
+            "type": "string",
+            "format": "date",
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
+            "description": "Hotel-local date."
+          },
+          "check_out": {
+            "type": "string",
+            "format": "date",
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
+            "description": "Hotel-local date."
+          },
+          "adults": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 4
+          }
+        }
+      },
+      "CancellationPolicy": {
+        "type": "object",
+        "required": [
+          "refundable",
+          "free_cancellation_until",
+          "summary"
+        ],
+        "properties": {
+          "refundable": {
+            "type": "boolean"
+          },
+          "free_cancellation_until": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "summary": {
+            "type": "string"
+          }
+        }
+      },
+      "Quote": {
+        "type": "object",
+        "properties": {
+          "quote_id": {
+            "type": "string"
+          },
+          "room_id": {
+            "type": "string"
+          },
+          "room_name": {
+            "type": "string"
+          },
+          "check_in": {
+            "type": "string",
+            "format": "date",
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
+            "description": "Hotel-local date."
+          },
+          "check_out": {
+            "type": "string",
+            "format": "date",
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
+            "description": "Hotel-local date."
+          },
+          "nights": {
+            "type": "integer"
+          },
+          "adults": {
+            "type": "integer"
+          },
+          "nightly_minor": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Amount in minor units (cents)."
+          },
+          "subtotal_minor": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Amount in minor units (cents)."
+          },
+          "taxes_minor": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Amount in minor units (cents)."
+          },
+          "fees_minor": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Amount in minor units (cents)."
+          },
+          "total_minor": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Full price: subtotal, taxes and fees."
+          },
+          "currency": {
+            "type": "string",
+            "description": "ISO 4217 code."
+          },
+          "seller": {
+            "type": "string"
+          },
+          "payment_timing": {
+            "type": "string"
+          },
+          "recurring": {
+            "type": "boolean"
+          },
+          "cancellation_policy": {
+            "$ref": "#/components/schemas/CancellationPolicy"
+          },
+          "expires_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "After this time the quote cannot be booked."
+          }
+        }
+      },
+      "BookingRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "quote_id",
+          "guest_name"
+        ],
+        "properties": {
+          "quote_id": {
+            "type": "string",
+            "pattern": "^q-\\d{4,}$"
+          },
+          "guest_name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100
+          },
+          "guest_email": {
+            "type": "string",
+            "format": "email",
+            "description": "Defaults to the account's email."
+          }
+        }
+      },
+      "Booking": {
+        "type": "object",
+        "properties": {
+          "booking_id": {
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "pending",
+              "confirmed",
+              "cancelled"
+            ]
+          },
+          "quote_id": {
+            "type": "string"
+          },
+          "room_id": {
+            "type": "string"
+          },
+          "room_name": {
+            "type": "string"
+          },
+          "check_in": {
+            "type": "string",
+            "format": "date",
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
+            "description": "Hotel-local date."
+          },
+          "check_out": {
+            "type": "string",
+            "format": "date",
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
+            "description": "Hotel-local date."
+          },
+          "nights": {
+            "type": "integer"
+          },
+          "adults": {
+            "type": "integer"
+          },
+          "guest_name": {
+            "type": "string"
+          },
+          "guest_email": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "total_minor": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Amount in minor units (cents)."
+          },
+          "currency": {
+            "type": "string"
+          },
+          "payment_status": {
+            "enum": [
+              "pending",
+              "captured",
+              "refunded",
+              "not_charged"
+            ]
+          },
+          "charged_minor": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Amount in minor units (cents)."
+          },
+          "refunded_minor": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Amount in minor units (cents)."
+          },
+          "cancellation_policy": {
+            "$ref": "#/components/schemas/CancellationPolicy"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "replayed": {
+            "type": "boolean",
+            "description": "True when this repeats an earlier request."
+          }
+        }
+      }
+    },
+    "securitySchemes": {
+      "apiKey": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "X-Cedar-Key",
+        "description": "Send your API key in the X-Cedar-Key header on every /v1 request. Create keys in your Cedar Stays account settings."
+      }
+    }
+  },
+  "security": [
+    {
+      "apiKey": []
+    }
+  ]
+}

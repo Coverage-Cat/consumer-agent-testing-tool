@@ -1,0 +1,10 @@
+{
+  "client_id": "https://client.example.com/catt/oauth-client.json",
+  "client_name": "Consumer Agent Testing Tool (CIMD test client)",
+  "client_uri": "https://client.example.com/catt",
+  "redirect_uris": ["http://127.0.0.1:47321/callback"],
+  "grant_types": ["authorization_code", "refresh_token"],
+  "response_types": ["code"],
+  "token_endpoint_auth_method": "none",
+  "scope": "stays:read stays:write"
+}

@@ -1,0 +1,174 @@
+# AGENTS.md
+
+Guidance for coding agents that use this tool to test a service, or that change the tool itself. The
+[README](README.md) is the user guide; this page is the short path through it.
+
+## What the tool does
+
+It runs a consumer agent (a model, or a scripted replay with no model) against your real MCP server
+through a labeled surrogate of a Muse-like host, then checks the outcome your server recorded rather
+than what the agent said. It is not Muse and proves nothing about admission: every report says
+"surrogate".
+
+## Setup
+
+```sh
+uv sync --extra openrouter --extra dev
+npm --prefix tooling ci --ignore-scripts
+npm --prefix tooling/payment-ui ci --ignore-scripts
+PLAYWRIGHT_BROWSERS_PATH="$PWD/.cache/ms-playwright" node tooling/payment-ui/node_modules/playwright/cli.js install chromium
+uv run consumer-agent-testing-tool doctor
+```
+
+The connector lane (the usual entry point) needs only `uv sync`; Node and Chromium are for the browser
+and MCP Apps lanes. On Linux, install Chromium with `install --with-deps chromium` (see the README's
+Linux notes). `doctor` prints one line per failed check with the command that fixes it.
+
+## Testing an MCP server: the workflow
+
+Run these in order. Each step needs only what the step before it produced.
+
+1. **Scaffold** a scenario from the live catalog. It calls `initialize` and `tools/list` only:
+
+   ```sh
+   uv run consumer-agent-testing-tool scaffold http://127.0.0.1:8080/mcp --output my-connector.yaml
+   ```
+
+   Then replace every `TODO(scaffold)` in the file. Validate against
+   [`schemas/connector-v1.schema.json`](schemas/connector-v1.schema.json). The fields are:
+   - `goal`: the user's request in their words.
+   - `connectors[].tools.allow`: the reviewed allowlist.
+   - `permissions`: approval rules for the scripted user.
+   - `private`: host-private values such as the email. The model never sees them.
+   - `checks`: read the real outcome from an `oracle` state URL or a `tool` the host calls after the run.
+   - `answer.relay`: regexes the final answer must contain.
+
+2. **Readiness**, which reads the catalog and runs no agent:
+
+   ```sh
+   uv run consumer-agent-testing-tool check http://127.0.0.1:8080/mcp --suite muse-guidelines --manifest readiness.yaml
+   ```
+
+3. **Scripted run**: no model, no key, deterministic. This is the one to put in CI:
+
+   ```sh
+   uv run consumer-agent-testing-tool connector-run my-connector.yaml --driver scripted --script my-connector.calls.json
+   ```
+
+   A calls file is a JSON (or YAML) list of steps:
+   - `{"tool": NAME, "arguments": {...}}` for a tool call;
+   - `{"idle": true}` where the agent stops so background work can resume it;
+   - a final `{"answer": [...]}`. Its parts may be `{"$ref": "/results/N/result/structuredContent/..."}` to
+     quote earlier results. Under `--projection muse-cli`, use `/results/N/stdout/...` instead.
+
+   [`examples/connector/`](examples/connector/README.md) has a working pair for every feature.
+
+4. **Agent trials**: paid model inference. They need a model profile (`init`) and an API key in the
+   environment:
+
+   ```sh
+   uv run consumer-agent-testing-tool connector-run my-connector.yaml --config agent.yaml --trials 5
+   ```
+
+   Repeat under each treatment a Muse-like host may use:
+   - `--projection muse-cli`
+   - `--exposure search-only`
+   - `--client-profile muse-template-unofficial-2026-10`
+   - `--output-schema strict`
+
+   Turn a trusted trial into a calls file with
+   `scaffold --from-run runs/connector-<id> --output FILE`.
+
+5. **Compare builds**: `diff RUN_A RUN_B` exits 1 on an outcome regression.
+
+Never start agent trials, or any command that calls a model provider, unless the user asked for paid
+inference. Scripted runs, `scaffold`, `check` without `--drift-check`, and `doctor` without
+`--model-preflight` make no model request. A saved model profile, `--config`, or `--model-profile` does
+not opt `doctor` into inference; `doctor --model-preflight` does and requires paid-inference authorization.
+
+## Exit codes
+
+`connector-run`, `check` (contract suite) and `surface-run` share these:
+
+| Code | Meaning | What to do |
+| --- | --- | --- |
+| 0 | every required check passed | done |
+| 1 | a check failed, the answer made a false claim, or an agent limit was reached | read the report; it is a finding about the service or scenario |
+| 2 | setup, harness or reporting error; nothing about the service is concluded | fix the command, server or config |
+| 3 | blocked or unsupported, for example an uncertain write to reconcile, an unobservable check, or a client-profile limit | not a pass; read the reason |
+
+The guidelines readiness suite uses 0 (no fail finding), 1 (fail findings), 2 (setup error) and 3 (the
+client profile cannot reach the server).
+
+## CI and machine-readable output
+
+```sh
+uv run consumer-agent-testing-tool connector-run my-connector.yaml \
+  --driver scripted --script my-connector.calls.json \
+  --start "python -m my_service --port {port}" --ready-url "http://127.0.0.1:{port}/health" \
+  --junit reports/connector.xml --summary-json reports/connector.json
+```
+
+- `--start CMD` launches the service under test (shlex-split, no shell) and waits until `--ready-url`
+  (default: the first connector endpoint) answers HTTP. It then runs the scenario and stops the
+  service's process group: SIGTERM, then SIGKILL after 5 s.
+  - `{port}` is a free loopback port. The service also gets it as `PORT` and the scenario as `${PORT}`.
+  - The service's output goes to `runs/service-<id>.log`, outside the sealed run.
+  - A service that exits early or isn't ready within `--ready-timeout` seconds (default 30) exits 2.
+- `--junit FILE` writes one test suite per trial and one test case per check. Blocked and unsupported
+  checks are `<skipped>`, and setup errors are `<error>`.
+- `--summary-json FILE` writes a summary that
+  [`schemas/summary-v1.schema.json`](schemas/summary-v1.schema.json) describes.
+  - To read results from a command, use `--summary-json -` and parse stdout as one JSON document. The
+    human-readable lines go to stderr in this mode; don't parse them.
+  - Read `exit_code` and `status`: `completed`, `failed`, `blocked` or `error`. `error` means nothing
+    was concluded; `error.detail` says why.
+  - Then read each `trials[]` entry's `run`, `failure_stage`, `failure_class`, `reason` and
+    `checks[]` (`id`, `status`, `required`).
+- `check --suite muse-guidelines` (and the `contract` and `static` suites) accepts both flags.
+- The service log isn't redacted. Pass secrets to `--start` services through the environment, not
+  their command line.
+
+[`examples/ci/`](examples/ci/README.md) has a GitHub Actions workflow to copy: scripted runs and
+readiness on every pull request, and nightly agent trials gated on a secret.
+
+## Evidence
+
+Each run is sealed under `runs/<lane>-<id>/`, with `report.html` at the top. `report RUN` re-renders the
+report, and `replay RUN` verifies the seals. `private/` holds host-private values: never paste it, upload
+it or commit it. To share a run, use the output of `consumer-agent-testing-tool export RUN`.
+
+## Changing the tool itself
+
+- Human-facing writing follows Strunk and White: active voice, concrete words, short sentences,
+  no needless words or promotional filler. Apply this to the README, CLI help, errors and reports.
+  Keep safety caveats and evidence labels; do not change machine-readable fields or model-facing
+  prompts during a copy edit.
+- Muse is the initial emulation and testing target. Instinct and other assistants are planned for
+  later releases, not implemented targets. Keep this distinct from the model that drives a trial.
+- Code is in `src/consumer_agent_testing_tool/` (CLI entry: `cli.py`). The connector lane is in
+  `connector*.py`.
+- Tests: `uv run pytest -q` runs the full supported collection, in about 20 minutes, with no network
+  beyond loopback. Run the files you touched first, for example
+  `uv run pytest -q tests/test_connector_*.py`.
+- Lint: `uv run ruff check src tests scripts`.
+- Tests must make no network request beyond loopback and no model request. Use the stand-in servers in
+  `tests/` and the `connector_fixture` module.
+- After changing a pydantic model behind a schema, run `uv run python scripts/generate_schema.py` to
+  regenerate `schemas/` and `src/consumer_agent_testing_tool/data/schemas/`.
+- Don't record release evidence as part of a change. It is generated per release by
+  `.github/workflows/release.yml` on a `v*` tag and attached to the GitHub release, not committed.
+  - It is bound to a digest of `src/`, `scripts/`, `tests/`, the lock files and the third-party
+    notices, so any change there makes recorded gates stale. Docs, the README and examples are outside
+    the digest.
+  - Without recorded evidence, `release-audit` exits 3. That is expected between releases, not a
+    failure to fix.
+  - `docs/release-gates.json` is the committed policy. Edit it only to change the gates themselves.
+  - `docs/release-evidence/` holds historical records that the docs cite; don't add generated output
+    there.
+  - To record locally, follow [Release audit](README.md#release-audit) in order. Everything goes to
+    `release/`, which git ignores.
+- Reference: [docs/README.md](docs/README.md) indexes the docs. The most useful pages are:
+  - [connector-lane.md](docs/connector-lane.md): scenario format, flags and evidence;
+  - [connector-extensions.md](docs/connector-extensions.md);
+  - [readiness-checks.md](docs/readiness-checks.md).

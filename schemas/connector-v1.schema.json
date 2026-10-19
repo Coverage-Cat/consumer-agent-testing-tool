@@ -1,0 +1,3073 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:consumer-agent-testing-tool:connector:v1",
+  "additionalProperties": false,
+  "properties": {
+    "version": {
+      "const": 1,
+      "title": "Version",
+      "type": "integer"
+    },
+    "kind": {
+      "const": "connector",
+      "title": "Kind",
+      "type": "string"
+    },
+    "id": {
+      "pattern": "^[A-Za-z][A-Za-z0-9_-]{0,63}$",
+      "title": "Id",
+      "type": "string"
+    },
+    "goal": {
+      "maxLength": 8000,
+      "minLength": 1,
+      "title": "Goal",
+      "type": "string"
+    },
+    "connectors": {
+      "items": {
+        "$ref": "#/$defs/ConnectorSpec"
+      },
+      "maxItems": 8,
+      "title": "Connectors",
+      "type": "array"
+    },
+    "projection": {
+      "default": "native",
+      "enum": [
+        "native",
+        "muse-cli"
+      ],
+      "title": "Projection",
+      "type": "string"
+    },
+    "exposure": {
+      "default": "in-prompt",
+      "enum": [
+        "in-prompt",
+        "search-only"
+      ],
+      "title": "Exposure",
+      "type": "string"
+    },
+    "profile": {
+      "$ref": "#/$defs/ProfileSpec"
+    },
+    "private": {
+      "additionalProperties": true,
+      "title": "Private",
+      "type": "object"
+    },
+    "user": {
+      "$ref": "#/$defs/UserSpec"
+    },
+    "permissions": {
+      "$ref": "#/$defs/PermissionsSpec"
+    },
+    "checks": {
+      "items": {
+        "$ref": "#/$defs/CheckSpec"
+      },
+      "title": "Checks",
+      "type": "array"
+    },
+    "answer": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/AnswerSpecModel"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "expected": {
+      "$ref": "#/$defs/ExpectedSpec"
+    },
+    "limits": {
+      "$ref": "#/$defs/Limits"
+    },
+    "reset": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Reset"
+    },
+    "extensions": {
+      "title": "Extensions",
+      "type": "object",
+      "propertyNames": {
+        "pattern": "^[a-z][a-z0-9_-]{0,39}$"
+      },
+      "properties": {
+        "browser": {
+          "$ref": "#/$defs/BrowserConfig"
+        },
+        "clock": {
+          "$ref": "#/$defs/ClockConfig"
+        },
+        "content_trust": {
+          "$ref": "#/$defs/ContentTrustConfig"
+        },
+        "custom_connector": {
+          "$ref": "#/$defs/CustomConnectorConfig"
+        },
+        "memory": {
+          "$ref": "#/$defs/MemoryConfig"
+        },
+        "presentation": {
+          "$ref": "#/$defs/PresentationConfig"
+        },
+        "routes": {
+          "$ref": "#/$defs/RoutesConfig"
+        },
+        "scheduler": {
+          "$ref": "#/$defs/SchedulerConfig"
+        },
+        "user_simulator": {
+          "$ref": "#/$defs/UserSimulatorConfig"
+        },
+        "wallet": {
+          "$ref": "#/$defs/WalletConfig"
+        }
+      },
+      "additionalProperties": {
+        "type": "object"
+      }
+    }
+  },
+  "required": [
+    "version",
+    "kind",
+    "id",
+    "goal",
+    "connectors"
+  ],
+  "title": "ConnectorScenario",
+  "type": "object",
+  "$defs": {
+    "AnswerSpecModel": {
+      "additionalProperties": false,
+      "properties": {
+        "claims": {
+          "items": {
+            "$ref": "#/$defs/ClaimRuleSpec"
+          },
+          "title": "Claims",
+          "type": "array"
+        },
+        "relay": {
+          "items": {
+            "$ref": "#/$defs/RelayFactSpec"
+          },
+          "title": "Relay",
+          "type": "array"
+        }
+      },
+      "title": "AnswerSpecModel",
+      "type": "object"
+    },
+    "ApiKeyAuthSpec": {
+      "additionalProperties": false,
+      "properties": {
+        "mode": {
+          "const": "api_key",
+          "title": "Mode",
+          "type": "string"
+        },
+        "env": {
+          "title": "Env",
+          "type": "string"
+        },
+        "placement": {
+          "default": "bearer_header",
+          "enum": [
+            "bearer_header",
+            "custom_header",
+            "query_param",
+            "url_path_segment"
+          ],
+          "title": "Placement",
+          "type": "string"
+        },
+        "name": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Name"
+        }
+      },
+      "required": [
+        "mode",
+        "env"
+      ],
+      "title": "ApiKeyAuthSpec",
+      "type": "object"
+    },
+    "Approvals": {
+      "additionalProperties": false,
+      "description": "How the away user answers cards shown during background work (BASIS[\"background-approvals\"]).",
+      "properties": {
+        "answer": {
+          "default": "never",
+          "enum": [
+            "late",
+            "never"
+          ],
+          "title": "Answer",
+          "type": "string"
+        },
+        "after": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "string"
+            },
+            {
+              "items": {
+                "anyOf": [
+                  {
+                    "type": "integer"
+                  },
+                  {
+                    "type": "string"
+                  }
+                ]
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "After"
+        }
+      },
+      "title": "Approvals",
+      "type": "object"
+    },
+    "Billing": {
+      "additionalProperties": false,
+      "description": "The billing postal code a merchant's address verification compares with the issuer's record: the purchase\ntool's `argument`, filled by a host overlay of scenario private value `private` (BASES[\"billing-postal-code\"]).",
+      "properties": {
+        "argument": {
+          "default": "billing_postal_code",
+          "maxLength": 64,
+          "minLength": 1,
+          "title": "Argument",
+          "type": "string"
+        },
+        "private": {
+          "pattern": "^[A-Za-z][A-Za-z0-9_-]{0,63}$",
+          "title": "Private",
+          "type": "string"
+        }
+      },
+      "required": [
+        "private"
+      ],
+      "title": "Billing",
+      "type": "object"
+    },
+    "BrowserConfig": {
+      "additionalProperties": false,
+      "description": "extensions.browser: where tasks may go (url, allowed_origins, rules), their limits, checkout\ndetection, saved credentials, takeover and anti-automation recognizers.",
+      "properties": {
+        "url": {
+          "title": "Url",
+          "type": "string"
+        },
+        "allowed_origins": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Allowed Origins",
+          "type": "array"
+        },
+        "rules": {
+          "items": {
+            "$ref": "#/$defs/RuleConfig"
+          },
+          "minItems": 1,
+          "title": "Rules",
+          "type": "array"
+        },
+        "limits": {
+          "$ref": "#/$defs/LimitsConfig"
+        },
+        "snapshot_max_chars": {
+          "default": 20000,
+          "maximum": 2000000,
+          "minimum": 1000,
+          "title": "Snapshot Max Chars",
+          "type": "integer"
+        },
+        "history_snapshots": {
+          "default": 2,
+          "maximum": 20,
+          "minimum": 1,
+          "title": "History Snapshots",
+          "type": "integer"
+        },
+        "dialogs": {
+          "default": "agent",
+          "enum": [
+            "agent",
+            "accept",
+            "dismiss"
+          ],
+          "title": "Dialogs",
+          "type": "string"
+        },
+        "max_tasks": {
+          "default": 3,
+          "maximum": 10,
+          "minimum": 1,
+          "title": "Max Tasks",
+          "type": "integer"
+        },
+        "checkout": {
+          "$ref": "#/$defs/CheckoutConfig"
+        },
+        "credentials": {
+          "additionalProperties": {
+            "$ref": "#/$defs/CredentialConfig"
+          },
+          "title": "Credentials",
+          "type": "object"
+        },
+        "takeover": {
+          "$ref": "#/$defs/TakeoverConfig"
+        },
+        "barriers": {
+          "additionalProperties": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "propertyNames": {
+            "enum": [
+              "captcha",
+              "waf-block",
+              "account-locked"
+            ]
+          },
+          "title": "Barriers",
+          "type": "object"
+        }
+      },
+      "required": [
+        "url",
+        "allowed_origins",
+        "rules"
+      ],
+      "title": "BrowserConfig",
+      "type": "object"
+    },
+    "Call": {
+      "additionalProperties": false,
+      "description": "A call that obeys an injection: this tool (named as a plant's carrier: <tool>, <connector>/<tool> or an\nenabled extension's <extension>/<tool>), with these top-level arguments (type-strict).",
+      "properties": {
+        "tool": {
+          "maxLength": 200,
+          "minLength": 1,
+          "title": "Tool",
+          "type": "string"
+        },
+        "arguments": {
+          "additionalProperties": true,
+          "title": "Arguments",
+          "type": "object"
+        }
+      },
+      "required": [
+        "tool"
+      ],
+      "title": "Call",
+      "type": "object"
+    },
+    "CheckSpec": {
+      "additionalProperties": false,
+      "properties": {
+        "source": {
+          "enum": [
+            "oracle",
+            "tool"
+          ],
+          "title": "Source",
+          "type": "string"
+        },
+        "oracle": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/OracleSpec"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "tool": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ToolReadSpec"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "connector": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Connector"
+        },
+        "expect": {
+          "$ref": "#/$defs/Expect"
+        },
+        "id": {
+          "pattern": "^[A-Za-z][A-Za-z0-9_-]{0,63}$",
+          "title": "Id",
+          "type": "string"
+        },
+        "required": {
+          "default": true,
+          "title": "Required",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "source",
+        "expect",
+        "id"
+      ],
+      "title": "CheckSpec",
+      "type": "object"
+    },
+    "CheckoutConfig": {
+      "additionalProperties": false,
+      "properties": {
+        "payment_fields": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Payment Fields",
+          "type": "array"
+        },
+        "submit_names": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Submit Names",
+          "type": "array"
+        },
+        "disclosure": {
+          "additionalProperties": {
+            "$ref": "#/$defs/TermConfig"
+          },
+          "title": "Disclosure",
+          "type": "object"
+        }
+      },
+      "title": "CheckoutConfig",
+      "type": "object"
+    },
+    "ClaimRuleSpec": {
+      "additionalProperties": false,
+      "properties": {
+        "state": {
+          "enum": [
+            "confirmed",
+            "pending",
+            "quoted",
+            "failed",
+            "cancelled",
+            "submitted",
+            "paid"
+          ],
+          "title": "State",
+          "type": "string"
+        },
+        "true_when": {
+          "title": "True When",
+          "type": "string"
+        }
+      },
+      "required": [
+        "state",
+        "true_when"
+      ],
+      "title": "ClaimRuleSpec",
+      "type": "object"
+    },
+    "ClockConfig": {
+      "additionalProperties": false,
+      "properties": {
+        "now": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Now"
+        },
+        "timezone": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Timezone"
+        }
+      },
+      "title": "ClockConfig",
+      "type": "object"
+    },
+    "ClockEndpoint": {
+      "additionalProperties": false,
+      "description": "A test service's clock control, answering {\"clock\": <ISO instant>}: POST {\"set\": <ISO instant>} (set, the\nconnector fixture's /__oracle/clock), or the whole seconds since the last move, as {\"advance_seconds\": n} or\n{\"seconds\": n} (a clock that only moves forward; the first POST sends 0 to read it).",
+      "properties": {
+        "url": {
+          "title": "Url",
+          "type": "string"
+        },
+        "send": {
+          "default": "set",
+          "enum": [
+            "set",
+            "advance_seconds",
+            "seconds"
+          ],
+          "title": "Send",
+          "type": "string"
+        }
+      },
+      "required": [
+        "url"
+      ],
+      "title": "ClockEndpoint",
+      "type": "object"
+    },
+    "Conditional": {
+      "additionalProperties": false,
+      "description": "The connector's own conditional read: an ETag analog (if_none_match -> not_modified) or a since-cursor\n(since -> only the changes since then). The token argument a call sends and the result fields it reads.",
+      "properties": {
+        "argument": {
+          "title": "Argument",
+          "type": "string"
+        },
+        "etag": {
+          "title": "Etag",
+          "type": "string"
+        },
+        "not_modified": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Not Modified"
+        },
+        "changes": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Changes"
+        }
+      },
+      "required": [
+        "argument",
+        "etag"
+      ],
+      "title": "Conditional",
+      "type": "object"
+    },
+    "ConnectorLimits": {
+      "additionalProperties": false,
+      "properties": {
+        "tool_calls": {
+          "maximum": 1000,
+          "minimum": 1,
+          "title": "Tool Calls",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "tool_calls"
+      ],
+      "title": "ConnectorLimits",
+      "type": "object"
+    },
+    "ConnectorRoute": {
+      "additionalProperties": false,
+      "description": "connector_search's line for one declared connector, and the scripted user's answer to connecting it.",
+      "properties": {
+        "description": {
+          "anyOf": [
+            {
+              "maxLength": 300,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Description"
+        },
+        "consent": {
+          "default": "allow",
+          "enum": [
+            "allow",
+            "decline"
+          ],
+          "title": "Consent",
+          "type": "string"
+        }
+      },
+      "title": "ConnectorRoute",
+      "type": "object"
+    },
+    "ConnectorSpec": {
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "pattern": "^[a-z][a-z0-9-]{0,39}$",
+          "title": "Name",
+          "type": "string"
+        },
+        "endpoint": {
+          "title": "Endpoint",
+          "type": "string"
+        },
+        "allowed_origins": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Allowed Origins",
+          "type": "array"
+        },
+        "auth": {
+          "discriminator": {
+            "mapping": {
+              "api_key": "#/$defs/ApiKeyAuthSpec",
+              "none": "#/$defs/NoAuthSpec",
+              "oauth": "#/$defs/OAuthAuthSpec"
+            },
+            "propertyName": "mode"
+          },
+          "oneOf": [
+            {
+              "$ref": "#/$defs/NoAuthSpec"
+            },
+            {
+              "$ref": "#/$defs/ApiKeyAuthSpec"
+            },
+            {
+              "$ref": "#/$defs/OAuthAuthSpec"
+            }
+          ],
+          "title": "Auth"
+        },
+        "client_profile": {
+          "default": "generic-sdk",
+          "enum": [
+            "generic-sdk",
+            "muse-template-unofficial-2026-10"
+          ],
+          "title": "Client Profile",
+          "type": "string"
+        },
+        "tools": {
+          "$ref": "#/$defs/ToolsSpec"
+        },
+        "doc": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Doc"
+        },
+        "exposure": {
+          "anyOf": [
+            {
+              "enum": [
+                "in-prompt",
+                "search-only",
+                "disconnected"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Exposure"
+        },
+        "limits": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ConnectorLimits"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "output_schema": {
+          "anyOf": [
+            {
+              "enum": [
+                "lenient",
+                "strict"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Output Schema"
+        }
+      },
+      "required": [
+        "name",
+        "endpoint",
+        "allowed_origins"
+      ],
+      "title": "ConnectorSpec",
+      "type": "object"
+    },
+    "ContentTrustConfig": {
+      "additionalProperties": false,
+      "properties": {
+        "classifier": {
+          "default": "off",
+          "enum": [
+            "off",
+            "flag",
+            "quarantine"
+          ],
+          "title": "Classifier",
+          "type": "string"
+        },
+        "withhold": {
+          "default": true,
+          "title": "Withhold",
+          "type": "boolean"
+        },
+        "fill": {
+          "items": {
+            "$ref": "#/$defs/Fill"
+          },
+          "maxItems": 20,
+          "title": "Fill",
+          "type": "array"
+        },
+        "allowed_hosts": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 50,
+          "title": "Allowed Hosts",
+          "type": "array"
+        },
+        "injections": {
+          "items": {
+            "$ref": "#/$defs/Injection"
+          },
+          "maxItems": 20,
+          "title": "Injections",
+          "type": "array"
+        }
+      },
+      "title": "ContentTrustConfig",
+      "type": "object"
+    },
+    "CredentialConfig": {
+      "additionalProperties": false,
+      "description": "A saved credential the host may fill, only on its allowed origins: an environment variable (never\nthe scenario), or a host-private value (the scenario's, or one an extension registers while the run\ngoes), optionally at a JSON pointer inside it. Not a value an extension binds to its own approved uses\n(bound_private_names, such as the wallet's single-use card).",
+      "properties": {
+        "env": {
+          "anyOf": [
+            {
+              "pattern": "^[A-Z_][A-Z0-9_]*$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Env"
+        },
+        "private": {
+          "anyOf": [
+            {
+              "pattern": "^[A-Za-z][A-Za-z0-9_-]{0,63}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Private"
+        },
+        "pointer": {
+          "anyOf": [
+            {
+              "pattern": "^(?:/(?:[^~/]|~[01])*)+$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Pointer"
+        },
+        "allowed_origins": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Allowed Origins",
+          "type": "array"
+        },
+        "description": {
+          "default": "",
+          "maxLength": 200,
+          "title": "Description",
+          "type": "string"
+        }
+      },
+      "required": [
+        "allowed_origins"
+      ],
+      "title": "CredentialConfig",
+      "type": "object"
+    },
+    "CredentialSpec": {
+      "additionalProperties": false,
+      "description": "How the service's API authenticates (what its documentation says) and where the host keeps the\nsecret: an environment variable holding the API key, or an OAuth access token for oauth (the code\nflow happens outside this lane). A declined scheme names no variable: nothing can be issued.",
+      "properties": {
+        "scheme": {
+          "enum": [
+            "api_key",
+            "oauth",
+            "cookie",
+            "password",
+            "signed_request",
+            "multi_secret"
+          ],
+          "title": "Scheme",
+          "type": "string"
+        },
+        "env": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Env"
+        },
+        "placement": {
+          "anyOf": [
+            {
+              "enum": [
+                "header",
+                "bearer",
+                "query"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Placement"
+        },
+        "name": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Name"
+        }
+      },
+      "required": [
+        "scheme"
+      ],
+      "title": "CredentialSpec",
+      "type": "object"
+    },
+    "CustomConnectorConfig": {
+      "additionalProperties": false,
+      "description": "extensions.custom_connector: one service with a public HTTP API and no connector.",
+      "properties": {
+        "service": {
+          "pattern": "^[a-z][a-z0-9-]{0,39}$",
+          "title": "Service",
+          "type": "string"
+        },
+        "title": {
+          "anyOf": [
+            {
+              "maxLength": 80,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Title"
+        },
+        "url": {
+          "title": "Url",
+          "type": "string"
+        },
+        "allowed_origins": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "maxItems": 8,
+              "minItems": 1,
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Allowed Origins"
+        },
+        "docs": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Docs"
+        },
+        "credential": {
+          "$ref": "#/$defs/CredentialSpec"
+        },
+        "classes": {
+          "additionalProperties": {
+            "enum": [
+              "read",
+              "write",
+              "sensitive-write"
+            ],
+            "type": "string"
+          },
+          "title": "Classes",
+          "type": "object"
+        },
+        "disclosure": {
+          "additionalProperties": {
+            "additionalProperties": {
+              "oneOf": [
+                {
+                  "$ref": "#/$defs/Pick"
+                },
+                {
+                  "$ref": "#/$defs/Fixed"
+                }
+              ]
+            },
+            "type": "object"
+          },
+          "title": "Disclosure",
+          "type": "object"
+        },
+        "limits": {
+          "$ref": "#/$defs/LimitsSpec"
+        }
+      },
+      "required": [
+        "service",
+        "url",
+        "credential"
+      ],
+      "title": "CustomConnectorConfig",
+      "type": "object"
+    },
+    "Duplicates": {
+      "additionalProperties": false,
+      "properties": {
+        "at_most": {
+          "default": 1,
+          "maximum": 100,
+          "minimum": 0,
+          "title": "At Most",
+          "type": "integer"
+        },
+        "count": {
+          "items": {
+            "$ref": "#/$defs/RouteCount"
+          },
+          "maxItems": 16,
+          "minItems": 1,
+          "title": "Count",
+          "type": "array"
+        }
+      },
+      "required": [
+        "count"
+      ],
+      "title": "Duplicates",
+      "type": "object"
+    },
+    "Endpoint": {
+      "additionalProperties": false,
+      "description": "A private loopback endpoint of the merchant; a `url` key, so ${PORT} fills it like other scenario URLs.",
+      "properties": {
+        "url": {
+          "title": "Url",
+          "type": "string"
+        }
+      },
+      "required": [
+        "url"
+      ],
+      "title": "Endpoint",
+      "type": "object"
+    },
+    "Expect": {
+      "additionalProperties": false,
+      "properties": {
+        "op": {
+          "enum": [
+            "eq",
+            "ne",
+            "lt",
+            "lte",
+            "gt",
+            "gte",
+            "in",
+            "exists"
+          ],
+          "title": "Op",
+          "type": "string"
+        },
+        "value": {
+          "title": "Value"
+        }
+      },
+      "required": [
+        "op",
+        "value"
+      ],
+      "title": "Expect",
+      "type": "object"
+    },
+    "ExpectedSpec": {
+      "additionalProperties": false,
+      "properties": {
+        "tools": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Tools",
+          "type": "array"
+        }
+      },
+      "title": "ExpectedSpec",
+      "type": "object"
+    },
+    "Expiry": {
+      "additionalProperties": false,
+      "description": "A write refused because its quote or hold expired, and the tools that obtain a new one.",
+      "properties": {
+        "connector": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Connector"
+        },
+        "tool": {
+          "minLength": 1,
+          "title": "Tool",
+          "type": "string"
+        },
+        "error": {
+          "$ref": "#/$defs/Signal"
+        },
+        "reference": {
+          "title": "Reference",
+          "type": "string"
+        },
+        "renew": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 8,
+          "minItems": 1,
+          "title": "Renew",
+          "type": "array"
+        }
+      },
+      "required": [
+        "tool",
+        "error",
+        "reference",
+        "renew"
+      ],
+      "title": "Expiry",
+      "type": "object"
+    },
+    "Fill": {
+      "additionalProperties": false,
+      "description": "A tool argument that may receive a withheld value (use_withheld_value).",
+      "properties": {
+        "tool": {
+          "maxLength": 200,
+          "minLength": 1,
+          "title": "Tool",
+          "type": "string"
+        },
+        "argument": {
+          "maxLength": 64,
+          "minLength": 1,
+          "title": "Argument",
+          "type": "string"
+        },
+        "kinds": {
+          "items": {
+            "enum": [
+              "one-time-code",
+              "reset-link",
+              "sign-in-link"
+            ],
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Kinds",
+          "type": "array"
+        }
+      },
+      "required": [
+        "tool",
+        "argument"
+      ],
+      "title": "Fill",
+      "type": "object"
+    },
+    "Fixed": {
+      "additionalProperties": false,
+      "properties": {
+        "value": {
+          "title": "Value"
+        }
+      },
+      "required": [
+        "value"
+      ],
+      "title": "Fixed",
+      "type": "object"
+    },
+    "Injection": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "pattern": "^[A-Za-z][A-Za-z0-9_-]{0,63}$",
+          "title": "Id",
+          "type": "string"
+        },
+        "text": {
+          "maxLength": 4000,
+          "minLength": 8,
+          "title": "Text",
+          "type": "string"
+        },
+        "plant": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Plant"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "follows": {
+          "items": {
+            "$ref": "#/$defs/Call"
+          },
+          "maxItems": 20,
+          "title": "Follows",
+          "type": "array"
+        },
+        "values": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 20,
+          "title": "Values",
+          "type": "array"
+        },
+        "answer": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 10,
+          "title": "Answer",
+          "type": "array"
+        }
+      },
+      "required": [
+        "id",
+        "text"
+      ],
+      "title": "Injection",
+      "type": "object"
+    },
+    "Job": {
+      "additionalProperties": false,
+      "description": "One recurring task: due at first, first + every, ... (each plus its jitter) until it ends.",
+      "properties": {
+        "id": {
+          "pattern": "^[a-z][a-z0-9-]{0,39}$",
+          "title": "Id",
+          "type": "string"
+        },
+        "every": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "string"
+            }
+          ],
+          "title": "Every"
+        },
+        "jitter": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "string"
+            }
+          ],
+          "default": 0,
+          "title": "Jitter"
+        },
+        "message": {
+          "maxLength": 2000,
+          "minLength": 1,
+          "title": "Message",
+          "type": "string"
+        },
+        "first": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "First"
+        },
+        "until": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Until"
+        },
+        "max_runs": {
+          "anyOf": [
+            {
+              "maximum": 20,
+              "minimum": 1,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Max Runs"
+        }
+      },
+      "required": [
+        "id",
+        "every",
+        "message"
+      ],
+      "title": "Job",
+      "type": "object"
+    },
+    "Limits": {
+      "additionalProperties": false,
+      "properties": {
+        "model_turns": {
+          "default": 30,
+          "maximum": 500,
+          "minimum": 1,
+          "title": "Model Turns",
+          "type": "integer"
+        },
+        "tool_calls": {
+          "default": 40,
+          "maximum": 1000,
+          "minimum": 1,
+          "title": "Tool Calls",
+          "type": "integer"
+        },
+        "wall_seconds": {
+          "default": 600,
+          "maximum": 7200,
+          "minimum": 1,
+          "title": "Wall Seconds",
+          "type": "integer"
+        },
+        "result_characters": {
+          "default": 16384,
+          "maximum": 262144,
+          "minimum": 1024,
+          "title": "Result Characters",
+          "type": "integer"
+        }
+      },
+      "title": "Limits",
+      "type": "object"
+    },
+    "LimitsConfig": {
+      "additionalProperties": false,
+      "description": "Per task, across its spawn and steers.",
+      "properties": {
+        "actions": {
+          "default": 30,
+          "maximum": 200,
+          "minimum": 1,
+          "title": "Actions",
+          "type": "integer"
+        },
+        "model_turns": {
+          "default": 40,
+          "maximum": 500,
+          "minimum": 1,
+          "title": "Model Turns",
+          "type": "integer"
+        },
+        "wall_seconds": {
+          "default": 180,
+          "maximum": 3600,
+          "minimum": 1,
+          "title": "Wall Seconds",
+          "type": "integer"
+        },
+        "timeout_seconds": {
+          "default": 10,
+          "maximum": 60,
+          "minimum": 1,
+          "title": "Timeout Seconds",
+          "type": "integer"
+        }
+      },
+      "title": "LimitsConfig",
+      "type": "object"
+    },
+    "LimitsSpec": {
+      "additionalProperties": false,
+      "properties": {
+        "request_bytes": {
+          "default": 65536,
+          "maximum": 4194304,
+          "minimum": 1024,
+          "title": "Request Bytes",
+          "type": "integer"
+        },
+        "response_bytes": {
+          "default": 1048576,
+          "maximum": 16777216,
+          "minimum": 4096,
+          "title": "Response Bytes",
+          "type": "integer"
+        },
+        "timeout_seconds": {
+          "default": 30,
+          "exclusiveMinimum": 0,
+          "maximum": 120,
+          "title": "Timeout Seconds",
+          "type": "number"
+        },
+        "doc_characters": {
+          "default": 12000,
+          "maximum": 200000,
+          "minimum": 1000,
+          "title": "Doc Characters",
+          "type": "integer"
+        }
+      },
+      "title": "LimitsSpec",
+      "type": "object"
+    },
+    "LiveRead": {
+      "additionalProperties": false,
+      "description": "Where the current truth of a stale fact is read: a connector's read tool and a pointer into its result.",
+      "properties": {
+        "connector": {
+          "anyOf": [
+            {
+              "pattern": "^[a-z][a-z0-9-]{0,39}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Connector"
+        },
+        "tool": {
+          "maxLength": 128,
+          "minLength": 1,
+          "title": "Tool",
+          "type": "string"
+        },
+        "pointer": {
+          "maxLength": 500,
+          "minLength": 1,
+          "title": "Pointer",
+          "type": "string"
+        }
+      },
+      "required": [
+        "tool",
+        "pointer"
+      ],
+      "title": "LiveRead",
+      "type": "object"
+    },
+    "Match": {
+      "additionalProperties": false,
+      "description": "Which accepted result a pick reads: the latest whose `result` pointer equals the call's `argument`\n(the quote the booking names), never merely the latest result of that tool.",
+      "properties": {
+        "result": {
+          "minLength": 1,
+          "title": "Result",
+          "type": "string"
+        },
+        "argument": {
+          "minLength": 1,
+          "title": "Argument",
+          "type": "string"
+        }
+      },
+      "required": [
+        "result",
+        "argument"
+      ],
+      "title": "Match",
+      "type": "object"
+    },
+    "MemoryConfig": {
+      "additionalProperties": false,
+      "properties": {
+        "memory": {
+          "anyOf": [
+            {
+              "maxLength": 8000,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Memory"
+        },
+        "soul": {
+          "anyOf": [
+            {
+              "maxLength": 4000,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Soul"
+        },
+        "identity": {
+          "anyOf": [
+            {
+              "maxLength": 2000,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Identity"
+        },
+        "stale": {
+          "items": {
+            "$ref": "#/$defs/StaleFact"
+          },
+          "maxItems": 20,
+          "title": "Stale",
+          "type": "array"
+        },
+        "needs": {
+          "additionalProperties": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "title": "Needs",
+          "type": "object"
+        },
+        "require_minimal": {
+          "default": false,
+          "title": "Require Minimal",
+          "type": "boolean"
+        }
+      },
+      "title": "MemoryConfig",
+      "type": "object"
+    },
+    "NoAuthSpec": {
+      "additionalProperties": false,
+      "properties": {
+        "mode": {
+          "const": "none",
+          "default": "none",
+          "title": "Mode",
+          "type": "string"
+        }
+      },
+      "title": "NoAuthSpec",
+      "type": "object"
+    },
+    "OAuthAuthSpec": {
+      "additionalProperties": false,
+      "properties": {
+        "mode": {
+          "const": "oauth",
+          "title": "Mode",
+          "type": "string"
+        },
+        "registration": {
+          "default": "dcr",
+          "enum": [
+            "dcr",
+            "cimd",
+            "preregistered"
+          ],
+          "title": "Registration",
+          "type": "string"
+        },
+        "client_id_env": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Client Id Env"
+        },
+        "client_secret_env": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Client Secret Env"
+        },
+        "client_metadata_url": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Client Metadata Url"
+        },
+        "scopes": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Scopes",
+          "type": "array"
+        },
+        "read_only_scopes": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Read Only Scopes",
+          "type": "array"
+        },
+        "expected_subject": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Expected Subject"
+        },
+        "consent": {
+          "default": "interactive",
+          "enum": [
+            "fixture-auto",
+            "interactive"
+          ],
+          "title": "Consent",
+          "type": "string"
+        },
+        "test_login_env": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Test Login Env"
+        },
+        "redirect_port": {
+          "anyOf": [
+            {
+              "maximum": 65535,
+              "minimum": 1024,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Redirect Port"
+        }
+      },
+      "required": [
+        "mode"
+      ],
+      "title": "OAuthAuthSpec",
+      "type": "object"
+    },
+    "Observation": {
+      "additionalProperties": false,
+      "properties": {
+        "source": {
+          "enum": [
+            "oracle",
+            "tool"
+          ],
+          "title": "Source",
+          "type": "string"
+        },
+        "oracle": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/OracleSpec"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "tool": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ToolReadSpec"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "connector": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Connector"
+        },
+        "expect": {
+          "$ref": "#/$defs/Expect"
+        }
+      },
+      "required": [
+        "source",
+        "expect"
+      ],
+      "title": "Observation",
+      "type": "object"
+    },
+    "OracleSpec": {
+      "additionalProperties": false,
+      "properties": {
+        "url": {
+          "title": "Url",
+          "type": "string"
+        },
+        "pointer": {
+          "default": "",
+          "title": "Pointer",
+          "type": "string"
+        }
+      },
+      "required": [
+        "url"
+      ],
+      "title": "OracleSpec",
+      "type": "object"
+    },
+    "PermissionsSpec": {
+      "additionalProperties": false,
+      "properties": {
+        "mode": {
+          "default": "platform-default",
+          "enum": [
+            "platform-default",
+            "ask-for-some",
+            "always-ask"
+          ],
+          "title": "Mode",
+          "type": "string"
+        },
+        "important_reads": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Important Reads",
+          "type": "array"
+        },
+        "rules": {
+          "items": {
+            "$ref": "#/$defs/RuleSpec"
+          },
+          "title": "Rules",
+          "type": "array"
+        },
+        "default": {
+          "enum": [
+            "deny",
+            "no_response"
+          ],
+          "type": "string",
+          "default": "deny",
+          "title": "Default"
+        },
+        "persisted_always": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Persisted Always",
+          "type": "array"
+        }
+      },
+      "title": "PermissionsSpec",
+      "type": "object"
+    },
+    "PhoneScript": {
+      "additionalProperties": false,
+      "description": "What a business says when the agent phones it; books: the call makes a booking (no_duplicates counts it).",
+      "properties": {
+        "id": {
+          "pattern": "^[A-Za-z][A-Za-z0-9_-]{0,63}$",
+          "title": "Id",
+          "type": "string"
+        },
+        "business": {
+          "maxLength": 120,
+          "minLength": 1,
+          "title": "Business",
+          "type": "string"
+        },
+        "match": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 20,
+          "title": "Match",
+          "type": "array"
+        },
+        "transcript": {
+          "maxLength": 8000,
+          "minLength": 1,
+          "title": "Transcript",
+          "type": "string"
+        },
+        "books": {
+          "default": false,
+          "title": "Books",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "id",
+        "business",
+        "transcript"
+      ],
+      "title": "PhoneScript",
+      "type": "object"
+    },
+    "Pick": {
+      "additionalProperties": false,
+      "description": "A value read from an accepted result of a tool (joined to the call by match), or from the call's\nown arguments (from: arguments).",
+      "properties": {
+        "from": {
+          "minLength": 1,
+          "title": "From",
+          "type": "string"
+        },
+        "pointer": {
+          "title": "Pointer",
+          "type": "string"
+        },
+        "match": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Match"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "from",
+        "pointer"
+      ],
+      "title": "Pick",
+      "type": "object"
+    },
+    "Plant": {
+      "additionalProperties": false,
+      "description": "Where the host writes an injection: the carrier tool's model-visible results.",
+      "properties": {
+        "tool": {
+          "maxLength": 200,
+          "minLength": 1,
+          "title": "Tool",
+          "type": "string"
+        },
+        "at": {
+          "anyOf": [
+            {
+              "maxLength": 500,
+              "minLength": 2,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "At"
+        },
+        "times": {
+          "default": "every",
+          "enum": [
+            "every",
+            "first"
+          ],
+          "title": "Times",
+          "type": "string"
+        }
+      },
+      "required": [
+        "tool"
+      ],
+      "title": "Plant",
+      "type": "object"
+    },
+    "Polling": {
+      "additionalProperties": false,
+      "properties": {
+        "conditional": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Conditional"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "volatile": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 20,
+          "title": "Volatile",
+          "type": "array"
+        }
+      },
+      "title": "Polling",
+      "type": "object"
+    },
+    "PresentationConfig": {
+      "additionalProperties": false,
+      "properties": {
+        "channel": {
+          "default": "app",
+          "enum": [
+            "app",
+            "whatsapp",
+            "voice"
+          ],
+          "title": "Channel",
+          "type": "string"
+        },
+        "announce": {
+          "default": true,
+          "title": "Announce",
+          "type": "boolean"
+        },
+        "enforce": {
+          "default": true,
+          "title": "Enforce",
+          "type": "boolean"
+        },
+        "max_characters": {
+          "anyOf": [
+            {
+              "maximum": 65536,
+              "minimum": 20,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Max Characters"
+        },
+        "speakable_ids": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 20,
+          "title": "Speakable Ids",
+          "type": "array"
+        },
+        "widget_fields": {
+          "items": {
+            "enum": [
+              "title",
+              "price",
+              "status",
+              "id",
+              "link"
+            ],
+            "type": "string"
+          },
+          "maxItems": 5,
+          "title": "Widget Fields",
+          "type": "array"
+        }
+      },
+      "title": "PresentationConfig",
+      "type": "object"
+    },
+    "ProfileSpec": {
+      "additionalProperties": false,
+      "properties": {
+        "memory": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 100,
+          "title": "Memory",
+          "type": "array"
+        },
+        "identity": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "title": "Identity",
+          "type": "object"
+        }
+      },
+      "title": "ProfileSpec",
+      "type": "object"
+    },
+    "Purchase": {
+      "additionalProperties": false,
+      "properties": {
+        "tool": {
+          "maxLength": 128,
+          "minLength": 1,
+          "title": "Tool",
+          "type": "string"
+        },
+        "connector": {
+          "anyOf": [
+            {
+              "pattern": "^[a-z][a-z0-9-]{0,39}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Connector"
+        },
+        "registration": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Endpoint"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "state": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Endpoint"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "billing": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Billing"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "tool"
+      ],
+      "title": "Purchase",
+      "type": "object"
+    },
+    "Questions": {
+      "additionalProperties": false,
+      "description": "How the away user answers ask_user questions no scripted reply matches during background work\n(BASIS[\"background-questions\"]): late, with the scenario's user.fallback, or never; delays per question.",
+      "properties": {
+        "answer": {
+          "default": "never",
+          "enum": [
+            "late",
+            "never"
+          ],
+          "title": "Answer",
+          "type": "string"
+        },
+        "after": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "string"
+            },
+            {
+              "items": {
+                "anyOf": [
+                  {
+                    "type": "integer"
+                  },
+                  {
+                    "type": "string"
+                  }
+                ]
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "After"
+        }
+      },
+      "title": "Questions",
+      "type": "object"
+    },
+    "RateLimit": {
+      "additionalProperties": false,
+      "description": "Where a rate-limited tool error result carries its Retry-After delay, in seconds, and what it limits: the\nconnector, one tool, or one call (the same tool and arguments, such as one booking's status).",
+      "properties": {
+        "retry_after": {
+          "title": "Retry After",
+          "type": "string"
+        },
+        "scope": {
+          "default": "connector",
+          "enum": [
+            "connector",
+            "tool",
+            "call"
+          ],
+          "title": "Scope",
+          "type": "string"
+        }
+      },
+      "required": [
+        "retry_after"
+      ],
+      "title": "RateLimit",
+      "type": "object"
+    },
+    "RelayFactSpec": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "pattern": "^[A-Za-z][A-Za-z0-9_-]{0,63}$",
+          "title": "Id",
+          "type": "string"
+        },
+        "patterns": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Patterns",
+          "type": "array"
+        },
+        "value_from": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Value From"
+        },
+        "unit": {
+          "anyOf": [
+            {
+              "const": "minor",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Unit"
+        }
+      },
+      "required": [
+        "id"
+      ],
+      "title": "RelayFactSpec",
+      "type": "object"
+    },
+    "Reply": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "pattern": "^[A-Za-z][A-Za-z0-9_-]{0,63}$",
+          "title": "Id",
+          "type": "string"
+        },
+        "match": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Match",
+          "type": "array"
+        },
+        "reply": {
+          "minLength": 1,
+          "title": "Reply",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "match",
+        "reply"
+      ],
+      "title": "Reply",
+      "type": "object"
+    },
+    "RouteCount": {
+      "additionalProperties": false,
+      "description": "Where one route's backend counts its bookings: an independent oracle, never what the model saw.",
+      "properties": {
+        "route": {
+          "pattern": "^(?:custom:)?[a-z][a-z0-9-]{0,39}$",
+          "title": "Route",
+          "type": "string"
+        },
+        "url": {
+          "title": "Url",
+          "type": "string"
+        },
+        "pointer": {
+          "minLength": 1,
+          "title": "Pointer",
+          "type": "string"
+        }
+      },
+      "required": [
+        "route",
+        "url",
+        "pointer"
+      ],
+      "title": "RouteCount",
+      "type": "object"
+    },
+    "RoutesConfig": {
+      "additionalProperties": false,
+      "properties": {
+        "expected_route": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Expected Route"
+        },
+        "judge": {
+          "default": "first",
+          "enum": [
+            "first",
+            "commit"
+          ],
+          "title": "Judge",
+          "type": "string"
+        },
+        "connectors": {
+          "additionalProperties": {
+            "$ref": "#/$defs/ConnectorRoute"
+          },
+          "title": "Connectors",
+          "type": "object"
+        },
+        "exposure": {
+          "anyOf": [
+            {
+              "enum": [
+                "in-prompt",
+                "search-only"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Exposure"
+        },
+        "phone": {
+          "items": {
+            "$ref": "#/$defs/PhoneScript"
+          },
+          "maxItems": 20,
+          "title": "Phone",
+          "type": "array"
+        },
+        "phone_fallback": {
+          "default": "Nobody answered, and the call went to voicemail.",
+          "maxLength": 2000,
+          "minLength": 1,
+          "title": "Phone Fallback",
+          "type": "string"
+        },
+        "website": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Website"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "duplicates": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Duplicates"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "title": "RoutesConfig",
+      "type": "object"
+    },
+    "RuleConfig": {
+      "additionalProperties": false,
+      "description": "One exact request the browser may make (browser_network.NetworkRule), written as a URL so scenario\nvariables fill it. A write says what it commits: checkout, submit (the default) or session (a sign-in\nor search that commits nothing: no review or card).",
+      "properties": {
+        "id": {
+          "pattern": "^[A-Za-z][A-Za-z0-9_.:-]{0,63}$",
+          "title": "Id",
+          "type": "string"
+        },
+        "url": {
+          "title": "Url",
+          "type": "string"
+        },
+        "methods": {
+          "items": {
+            "enum": [
+              "GET",
+              "HEAD",
+              "OPTIONS",
+              "POST",
+              "PUT",
+              "PATCH",
+              "DELETE"
+            ],
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Methods",
+          "type": "array"
+        },
+        "effect": {
+          "enum": [
+            "read",
+            "write"
+          ],
+          "title": "Effect",
+          "type": "string"
+        },
+        "commits": {
+          "anyOf": [
+            {
+              "enum": [
+                "checkout",
+                "submit",
+                "session"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Commits"
+        }
+      },
+      "required": [
+        "id",
+        "url",
+        "methods",
+        "effect"
+      ],
+      "title": "RuleConfig",
+      "type": "object"
+    },
+    "RuleSpec": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "pattern": "^[A-Za-z][A-Za-z0-9_-]{0,63}$",
+          "title": "Id",
+          "type": "string"
+        },
+        "when": {
+          "additionalProperties": true,
+          "title": "When",
+          "type": "object"
+        },
+        "decision": {
+          "enum": [
+            "allow_once",
+            "allow_task",
+            "allow_site",
+            "always_allow",
+            "deny",
+            "edit",
+            "no_response"
+          ],
+          "title": "Decision",
+          "type": "string"
+        },
+        "edits": {
+          "anyOf": [
+            {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Edits"
+        }
+      },
+      "required": [
+        "id",
+        "when",
+        "decision"
+      ],
+      "title": "RuleSpec",
+      "type": "object"
+    },
+    "SchedulerConfig": {
+      "additionalProperties": false,
+      "properties": {
+        "jobs": {
+          "items": {
+            "$ref": "#/$defs/Job"
+          },
+          "maxItems": 8,
+          "minItems": 1,
+          "title": "Jobs",
+          "type": "array"
+        },
+        "advance": {
+          "items": {
+            "$ref": "#/$defs/ClockEndpoint"
+          },
+          "maxItems": 8,
+          "title": "Advance",
+          "type": "array"
+        },
+        "approvals": {
+          "$ref": "#/$defs/Approvals"
+        },
+        "questions": {
+          "$ref": "#/$defs/Questions"
+        },
+        "polling": {
+          "$ref": "#/$defs/Polling"
+        },
+        "rate_limit": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/RateLimit"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "expiry": {
+          "items": {
+            "$ref": "#/$defs/Expiry"
+          },
+          "maxItems": 8,
+          "title": "Expiry",
+          "type": "array"
+        },
+        "standing_context": {
+          "default": true,
+          "title": "Standing Context",
+          "type": "boolean"
+        },
+        "cancel_tool": {
+          "default": true,
+          "title": "Cancel Tool",
+          "type": "boolean"
+        },
+        "seed": {
+          "default": 0,
+          "maximum": 2147483647,
+          "minimum": 0,
+          "title": "Seed",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "jobs"
+      ],
+      "title": "SchedulerConfig",
+      "type": "object"
+    },
+    "Signal": {
+      "additionalProperties": false,
+      "properties": {
+        "pointer": {
+          "title": "Pointer",
+          "type": "string"
+        },
+        "value": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "integer"
+            },
+            {
+              "type": "boolean"
+            }
+          ],
+          "title": "Value"
+        }
+      },
+      "required": [
+        "pointer",
+        "value"
+      ],
+      "title": "Signal",
+      "type": "object"
+    },
+    "StaleFact": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "pattern": "^[A-Za-z][A-Za-z0-9_-]{0,63}$",
+          "title": "Id",
+          "type": "string"
+        },
+        "text": {
+          "maxLength": 500,
+          "minLength": 1,
+          "title": "Text",
+          "type": "string"
+        },
+        "value": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "integer"
+            },
+            {
+              "type": "number"
+            }
+          ],
+          "title": "Value"
+        },
+        "live": {
+          "items": {
+            "$ref": "#/$defs/LiveRead"
+          },
+          "maxItems": 4,
+          "minItems": 1,
+          "title": "Live",
+          "type": "array"
+        },
+        "answer": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 10,
+          "title": "Answer",
+          "type": "array"
+        }
+      },
+      "required": [
+        "id",
+        "text",
+        "value",
+        "live"
+      ],
+      "title": "StaleFact",
+      "type": "object"
+    },
+    "TakeoverConfig": {
+      "additionalProperties": false,
+      "properties": {
+        "handback": {
+          "default": "never",
+          "enum": [
+            "never",
+            "on-steer"
+          ],
+          "title": "Handback",
+          "type": "string"
+        }
+      },
+      "title": "TakeoverConfig",
+      "type": "object"
+    },
+    "TermConfig": {
+      "additionalProperties": false,
+      "description": "A checkout card term: a fixed value, or the first group of a pattern on the page (money: minor units).",
+      "properties": {
+        "value": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "integer"
+            },
+            {
+              "type": "number"
+            },
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Value"
+        },
+        "pattern": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Pattern"
+        },
+        "money": {
+          "default": false,
+          "title": "Money",
+          "type": "boolean"
+        }
+      },
+      "title": "TermConfig",
+      "type": "object"
+    },
+    "ToolReadSpec": {
+      "additionalProperties": false,
+      "description": "A host-side call of one of the connector's read tools (never shown to the model).",
+      "properties": {
+        "name": {
+          "minLength": 1,
+          "title": "Name",
+          "type": "string"
+        },
+        "arguments": {
+          "additionalProperties": true,
+          "title": "Arguments",
+          "type": "object"
+        },
+        "pointer": {
+          "default": "",
+          "title": "Pointer",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "title": "ToolReadSpec",
+      "type": "object"
+    },
+    "ToolsSpec": {
+      "additionalProperties": false,
+      "properties": {
+        "allow": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Allow"
+        },
+        "classes": {
+          "additionalProperties": {
+            "enum": [
+              "read",
+              "write",
+              "sensitive-write"
+            ],
+            "type": "string"
+          },
+          "title": "Classes",
+          "type": "object"
+        },
+        "host_arguments": {
+          "additionalProperties": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "title": "Host Arguments",
+          "type": "object"
+        },
+        "capture": {
+          "additionalProperties": {
+            "$ref": "#/$defs/Pick"
+          },
+          "title": "Capture",
+          "type": "object"
+        },
+        "disclosure": {
+          "additionalProperties": {
+            "additionalProperties": {
+              "oneOf": [
+                {
+                  "$ref": "#/$defs/Pick"
+                },
+                {
+                  "$ref": "#/$defs/Fixed"
+                }
+              ]
+            },
+            "type": "object"
+          },
+          "title": "Disclosure",
+          "type": "object"
+        },
+        "reconcile": {
+          "additionalProperties": {
+            "$ref": "#/$defs/Observation"
+          },
+          "title": "Reconcile",
+          "type": "object"
+        }
+      },
+      "title": "ToolsSpec",
+      "type": "object"
+    },
+    "UserSimulatorConfig": {
+      "additionalProperties": false,
+      "properties": {
+        "model_profile": {
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]{0,63}$",
+          "title": "Model Profile",
+          "type": "string"
+        },
+        "persona": {
+          "maxLength": 8000,
+          "minLength": 1,
+          "title": "Persona",
+          "type": "string"
+        },
+        "seed": {
+          "anyOf": [
+            {
+              "maximum": 2147483647,
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Seed"
+        },
+        "max_turns": {
+          "default": 10,
+          "maximum": 50,
+          "minimum": 1,
+          "title": "Max Turns",
+          "type": "integer"
+        },
+        "knows": {
+          "items": {
+            "enum": [
+              "goal",
+              "replies",
+              "identity"
+            ],
+            "type": "string"
+          },
+          "title": "Knows",
+          "type": "array"
+        }
+      },
+      "required": [
+        "model_profile",
+        "persona"
+      ],
+      "title": "UserSimulatorConfig",
+      "type": "object"
+    },
+    "UserSpec": {
+      "additionalProperties": false,
+      "properties": {
+        "replies": {
+          "items": {
+            "$ref": "#/$defs/Reply"
+          },
+          "title": "Replies",
+          "type": "array"
+        },
+        "fallback": {
+          "default": "I don't know; use your best judgement.",
+          "minLength": 1,
+          "title": "Fallback",
+          "type": "string"
+        }
+      },
+      "title": "UserSpec",
+      "type": "object"
+    },
+    "Verification": {
+      "additionalProperties": false,
+      "properties": {
+        "mode": {
+          "default": "ask",
+          "enum": [
+            "ask",
+            "takeover",
+            "agent"
+          ],
+          "title": "Mode",
+          "type": "string"
+        },
+        "tool": {
+          "default": "confirm_payment",
+          "maxLength": 128,
+          "minLength": 1,
+          "title": "Tool",
+          "type": "string"
+        }
+      },
+      "title": "Verification",
+      "type": "object"
+    },
+    "WalletConfig": {
+      "additionalProperties": false,
+      "properties": {
+        "registration": {
+          "$ref": "#/$defs/Endpoint"
+        },
+        "state": {
+          "$ref": "#/$defs/Endpoint"
+        },
+        "purchases": {
+          "items": {
+            "$ref": "#/$defs/Purchase"
+          },
+          "maxItems": 16,
+          "minItems": 1,
+          "title": "Purchases",
+          "type": "array"
+        },
+        "tolerance_minor": {
+          "default": 0,
+          "maximum": 100000,
+          "minimum": 0,
+          "title": "Tolerance Minor",
+          "type": "integer"
+        },
+        "valid_seconds": {
+          "default": 900,
+          "maximum": 86400,
+          "minimum": 60,
+          "title": "Valid Seconds",
+          "type": "integer"
+        },
+        "three_ds": {
+          "$ref": "#/$defs/Verification"
+        }
+      },
+      "required": [
+        "registration",
+        "state",
+        "purchases"
+      ],
+      "title": "WalletConfig",
+      "type": "object"
+    },
+    "Website": {
+      "additionalProperties": false,
+      "description": "The website route: the tools of a browser extension the scenario enables (P2.3).",
+      "properties": {
+        "extension": {
+          "default": "browser",
+          "pattern": "^[a-z][a-z0-9_-]{0,39}$",
+          "title": "Extension",
+          "type": "string"
+        },
+        "tools": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "minItems": 1,
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Tools"
+        },
+        "url": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Url"
+        }
+      },
+      "title": "Website",
+      "type": "object"
+    }
+  }
+}

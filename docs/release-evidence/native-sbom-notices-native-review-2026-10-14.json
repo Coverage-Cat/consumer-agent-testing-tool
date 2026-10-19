@@ -1,0 +1,318 @@
+{
+  "schema_version": 1,
+  "status": "partial-review",
+  "source_sha256": "4a723403e7e80112105e1ff62c29144d68ed9c0c97642c2a896c8e3aa8d5178a",
+  "payloads": [
+    {
+      "artifact": {
+        "path": ".cache/d-yrtmzfk9/venv/lib/python3.14/site-packages/cryptography/hazmat/bindings/_rust.abi3.so",
+        "sha256": "0aced18998c288668c0eb65cfdc76fd41726370e6d5d9760c0b27143929162d2"
+      },
+      "format": "mach-o",
+      "owners": [
+        "core-python:pypi:cryptography@50.0.2",
+        "optional-api-python:pypi:cryptography@50.0.2"
+      ],
+      "slices": [
+        {
+          "architecture": "single slice; see Mach header",
+          "declared_dependencies": [
+            {
+              "command": "LC_LOAD_DYLIB",
+              "name": "/usr/lib/libiconv.2.dylib"
+            },
+            {
+              "command": "LC_LOAD_DYLIB",
+              "name": "/usr/lib/libSystem.B.dylib"
+            }
+          ],
+          "declared_identity": [
+            "@rpath/cryptography.hazmat.bindings._rust.abi3.so"
+          ],
+          "rpaths": []
+        }
+      ],
+      "load_commands": {
+        "path": "docs/release-evidence/native-sbom-notices-load-commands-0aced18998c2-2026-10-14.txt",
+        "sha256": "aa55f98ec8f3e6eb3840c1a100619df9e6c55d166f0b412e3c6dde32d6a8bd44"
+      },
+      "mach_header": {
+        "path": "docs/release-evidence/native-sbom-notices-mach-header-0aced18998c2-2026-10-14.txt",
+        "sha256": "718cf8857fffe6f538bfa3b6d7c83a2444e8de066635e304db109b7049414964"
+      }
+    },
+    {
+      "artifact": {
+        "path": ".cache/d-yrtmzfk9/api/lib/python3.14/site-packages/jiter/jiter.cpython-314-darwin.so",
+        "sha256": "5e6be43e9d5eec6f196e6f8b40c2c43cf54cdc407f20d2e95fcd8dab329abe71"
+      },
+      "format": "mach-o",
+      "owners": [
+        "optional-api-python:pypi:jiter@0.17.0"
+      ],
+      "slices": [
+        {
+          "architecture": "single slice; see Mach header",
+          "declared_dependencies": [
+            {
+              "command": "LC_LOAD_DYLIB",
+              "name": "/usr/lib/libiconv.2.dylib"
+            },
+            {
+              "command": "LC_LOAD_DYLIB",
+              "name": "/usr/lib/libSystem.B.dylib"
+            }
+          ],
+          "declared_identity": [
+            "@rpath/jiter.cpython-314-darwin.so"
+          ],
+          "rpaths": []
+        }
+      ],
+      "load_commands": {
+        "path": "docs/release-evidence/native-sbom-notices-load-commands-5e6be43e9d5e-2026-10-14.txt",
+        "sha256": "2bf1ace6e6c06fa5fc219577e9298b40431ff08d19f35efdfbc44305a6b16547"
+      },
+      "mach_header": {
+        "path": "docs/release-evidence/native-sbom-notices-mach-header-5e6be43e9d5e-2026-10-14.txt",
+        "sha256": "2ef1b4e450831c71bb4a32cd6e4029be5325ac385f93d34a973ffa95317b4880"
+      }
+    },
+    {
+      "artifact": {
+        "path": ".cache/d-yrtmzfk9/venv/lib/python3.14/site-packages/pydantic_core/_pydantic_core.cpython-314-darwin.so",
+        "sha256": "98d54ca07e997965210cb5596bc8314ffd3e44cdd1270b06d2173bda3125154e"
+      },
+      "format": "mach-o",
+      "owners": [
+        "core-python:pypi:pydantic-core@2.46.5",
+        "optional-api-python:pypi:pydantic-core@2.46.5"
+      ],
+      "slices": [
+        {
+          "architecture": "single slice; see Mach header",
+          "declared_dependencies": [
+            {
+              "command": "LC_LOAD_DYLIB",
+              "name": "/usr/lib/libiconv.2.dylib"
+            },
+            {
+              "command": "LC_LOAD_DYLIB",
+              "name": "/usr/lib/libSystem.B.dylib"
+            }
+          ],
+          "declared_identity": [
+            "@rpath/pydantic_core._pydantic_core.cpython-314-darwin.so"
+          ],
+          "rpaths": []
+        }
+      ],
+      "load_commands": {
+        "path": "docs/release-evidence/native-sbom-notices-load-commands-98d54ca07e99-2026-10-14.txt",
+        "sha256": "47c3001c2a3bf245c3e84c17a2cd22daee1ae870498a7878646cfe3acd9b3c3c"
+      },
+      "mach_header": {
+        "path": "docs/release-evidence/native-sbom-notices-mach-header-98d54ca07e99-2026-10-14.txt",
+        "sha256": "205c65cbb024a2e8baed792803da14da5045bd7b8effc9f41d6212507a28aa65"
+      }
+    },
+    {
+      "artifact": {
+        "path": ".cache/d-yrtmzfk9/venv/lib/python3.14/site-packages/rpds/rpds.cpython-314-darwin.so",
+        "sha256": "b7c4e37971b3fc53f50590380be63dc9f3409c13dd72c69e9fc437e6e8225aef"
+      },
+      "format": "mach-o",
+      "owners": [
+        "core-python:pypi:rpds-py@2026.6.3",
+        "optional-api-python:pypi:rpds-py@2026.6.3"
+      ],
+      "slices": [
+        {
+          "architecture": "single slice; see Mach header",
+          "declared_dependencies": [
+            {
+              "command": "LC_LOAD_DYLIB",
+              "name": "/usr/lib/libiconv.2.dylib"
+            },
+            {
+              "command": "LC_LOAD_DYLIB",
+              "name": "/usr/lib/libSystem.B.dylib"
+            }
+          ],
+          "declared_identity": [
+            "@rpath/rpds.cpython-314-darwin.so"
+          ],
+          "rpaths": []
+        }
+      ],
+      "load_commands": {
+        "path": "docs/release-evidence/native-sbom-notices-load-commands-b7c4e37971b3-2026-10-14.txt",
+        "sha256": "3727652858767857463f6974da94894cf9a1233eb8d573e60483b89f6c8d6827"
+      },
+      "mach_header": {
+        "path": "docs/release-evidence/native-sbom-notices-mach-header-b7c4e37971b3-2026-10-14.txt",
+        "sha256": "14f2b00b685ef8b113918edbfbba9d6df936135dd511de368fa80589b0c0b35f"
+      }
+    },
+    {
+      "artifact": {
+        "path": ".cache/d-yrtmzfk9/api/lib/python3.14/site-packages/hypothesis/_native.cpython-314-darwin.so",
+        "sha256": "42a50edab408133f4aa2cfd50574a8013db6d55cb3bc192382b9a269336fd231"
+      },
+      "format": "mach-o",
+      "owners": [
+        "optional-api-python:pypi:hypothesis@6.169.0"
+      ],
+      "slices": [
+        {
+          "architecture": "single slice; see Mach header",
+          "declared_dependencies": [
+            {
+              "command": "LC_LOAD_DYLIB",
+              "name": "/usr/lib/libiconv.2.dylib"
+            },
+            {
+              "command": "LC_LOAD_DYLIB",
+              "name": "/usr/lib/libSystem.B.dylib"
+            }
+          ],
+          "declared_identity": [
+            "@rpath/hypothesis._native.cpython-314-darwin.so"
+          ],
+          "rpaths": []
+        }
+      ],
+      "load_commands": {
+        "path": "docs/release-evidence/native-sbom-notices-load-commands-42a50edab408-2026-10-14.txt",
+        "sha256": "c584ab7317ee0c507a3490a542fc1e65428272e9ce720947b5637f4fcd291625"
+      },
+      "mach_header": {
+        "path": "docs/release-evidence/native-sbom-notices-mach-header-42a50edab408-2026-10-14.txt",
+        "sha256": "5c8635c8f130535db8af48f7987e56ac0d5f36c240c7fbfbcca3d11e9345f743"
+      }
+    },
+    {
+      "artifact": {
+        "path": ".cache/d-yrtmzfk9/api/lib/python3.14/site-packages/jsonschema_rs/jsonschema_rs.abi3.so",
+        "sha256": "8bdd7b95e5fb03be691f911251c8512b92168ad09daae11bfcad577e92e257be"
+      },
+      "format": "mach-o-universal",
+      "owners": [
+        "optional-api-python:pypi:jsonschema-rs@0.58.6"
+      ],
+      "slices": [
+        {
+          "architecture": "x86_64",
+          "declared_dependencies": [
+            {
+              "command": "LC_LOAD_DYLIB",
+              "name": "/System/Library/Frameworks/Security.framework/Versions/A/Security"
+            },
+            {
+              "command": "LC_LOAD_DYLIB",
+              "name": "/System/Library/Frameworks/CoreFoundation.framework/Versions/A/CoreFoundation"
+            },
+            {
+              "command": "LC_LOAD_DYLIB",
+              "name": "/usr/lib/libiconv.2.dylib"
+            },
+            {
+              "command": "LC_LOAD_DYLIB",
+              "name": "/usr/lib/libSystem.B.dylib"
+            }
+          ],
+          "declared_identity": [
+            "@rpath/jsonschema_rs.abi3.so"
+          ],
+          "rpaths": []
+        },
+        {
+          "architecture": "arm64",
+          "declared_dependencies": [
+            {
+              "command": "LC_LOAD_DYLIB",
+              "name": "/System/Library/Frameworks/Security.framework/Versions/A/Security"
+            },
+            {
+              "command": "LC_LOAD_DYLIB",
+              "name": "/System/Library/Frameworks/CoreFoundation.framework/Versions/A/CoreFoundation"
+            },
+            {
+              "command": "LC_LOAD_DYLIB",
+              "name": "/usr/lib/libiconv.2.dylib"
+            },
+            {
+              "command": "LC_LOAD_DYLIB",
+              "name": "/usr/lib/libSystem.B.dylib"
+            }
+          ],
+          "declared_identity": [
+            "@rpath/jsonschema_rs.abi3.so"
+          ],
+          "rpaths": []
+        }
+      ],
+      "load_commands": {
+        "path": "docs/release-evidence/native-sbom-notices-load-commands-8bdd7b95e5fb-2026-10-14.txt",
+        "sha256": "090b1a9731cd9d379aa12b810ff9bbd859e236c55dd4fbe201f4a66d10ab2b3b"
+      },
+      "mach_header": {
+        "path": "docs/release-evidence/native-sbom-notices-mach-header-8bdd7b95e5fb-2026-10-14.txt",
+        "sha256": "0ddad6a3d3e2a740155e9da20a1ebe3ac183b603e416aaf57a20cc42a4c4dab5"
+      }
+    },
+    {
+      "artifact": {
+        "path": ".cache/d-yrtmzfk9/api/lib/python3.14/site-packages/watchfiles/_rust_notify.abi3.so",
+        "sha256": "113f2917dabd79c4888dc3d3f72f2af79ac6a062a62579780c2e7bd590a06318"
+      },
+      "format": "mach-o",
+      "owners": [
+        "optional-api-python:pypi:watchfiles@1.3.0"
+      ],
+      "slices": [
+        {
+          "architecture": "single slice; see Mach header",
+          "declared_dependencies": [
+            {
+              "command": "LC_LOAD_DYLIB",
+              "name": "/System/Library/Frameworks/CoreFoundation.framework/Versions/A/CoreFoundation"
+            },
+            {
+              "command": "LC_LOAD_DYLIB",
+              "name": "/System/Library/Frameworks/CoreServices.framework/Versions/A/CoreServices"
+            },
+            {
+              "command": "LC_LOAD_DYLIB",
+              "name": "/usr/lib/libiconv.2.dylib"
+            },
+            {
+              "command": "LC_LOAD_DYLIB",
+              "name": "/usr/lib/libSystem.B.dylib"
+            }
+          ],
+          "declared_identity": [
+            "@rpath/watchfiles._rust_notify.abi3.so"
+          ],
+          "rpaths": []
+        }
+      ],
+      "load_commands": {
+        "path": "docs/release-evidence/native-sbom-notices-load-commands-113f2917dabd-2026-10-14.txt",
+        "sha256": "c582ca3ef6b7a324eb2aa74e9d2febec1cb3146bebad3530b0ee4ba417a5e1b9"
+      },
+      "mach_header": {
+        "path": "docs/release-evidence/native-sbom-notices-mach-header-113f2917dabd-2026-10-14.txt",
+        "sha256": "9441f934befed2dedfc4b096fd299f0b9ff50a01cf6cb5c576d903ea6cdbd7b5"
+      }
+    }
+  ],
+  "inspection_script_sha256": "e5885bba8d849d1ee23f62357e4445507b8157f37495547363c210365523c490",
+  "method": "Read-only otool -l and -hv on hash-verified workspace payloads; direct, weak, reexport, lazy and upward dylib load commands inspected. No target code executed or referenced library opened.",
+  "limits": [
+    "Load names and version fields do not identify deployed library bytes or original notices.",
+    "LC_ID_DYLIB is the object own identity, not an external dependency.",
+    "This does not enumerate statically linked code, compiler/runtime contents, transitive dependencies or unlisted vendoring.",
+    "No host paths outside the workspace were read. Native qualification remains unverified."
+  ]
+}

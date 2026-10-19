@@ -1,0 +1,155 @@
+{
+  "source_sha256": "1431925cd32a2e26be45e980d383fde43711e731e0849a3872cab0e507bd3994",
+  "interpreter": ".cache/d-edq2u6sg/api",
+  "installed_code_matches_source": {
+    ".cache/d-edq2u6sg/api/lib/python3.14/site-packages/surface_lab/evidence.py": "f0db646dd6d38abf403e298a5e127d6d6ebb97919fdbb4aeccacacd14b9e2ab6",
+    ".cache/d-edq2u6sg/api/lib/python3.14/site-packages/surface_lab/measurements.py": "e7af6ba207549a3d3b74a19097566b1da4c2531d2793b5708956c1bdf610a3bc",
+    ".cache/d-edq2u6sg/api/lib/python3.14/site-packages/surface_lab/metrics.py": "4c5d8ac5f366cbbfb7a08d9ba2dfe4ba8da6d34b3cb7d7d80fb6dd9e175b8eaa"
+  },
+  "cases": [
+    {
+      "case": "missing-response",
+      "run": ".cache/model-timing-2026-10-14/installed-proof/r-6e2b21a4c0044a68af73924700e05876",
+      "manifest_sha256": "0fba123ae4df446119c836e6f6d326a8c8ff40323e453d83f6869fb5f4e8edf5",
+      "export": ".cache/model-timing-2026-10-14/installed-proof/export-missing-response",
+      "export_manifest_sha256": "ed3007f52d5793b791e41de55cdc69c6afa33cbbbd07df5b4e6be3d1a6f45a30",
+      "model_seconds": null,
+      "coverage": {
+        "seconds": null,
+        "observed_seconds": null,
+        "started": 1,
+        "completed": 0,
+        "failed": 0,
+        "observation_gaps": 1,
+        "basis": "Unique host model request/terminal pairs within a recorded process clock epoch; provider errors have measured duration but do not establish model success. Missing or ambiguous pairs leave the full total unknown."
+      }
+    },
+    {
+      "case": "duplicate-response",
+      "run": ".cache/model-timing-2026-10-14/installed-proof/r-fa044c2b4ca74b92bebaf0c4a76d65b7",
+      "manifest_sha256": "017a4f51a471d30f98e440e12d5563e0c6179a658b613dbc0e66806d01b827b2",
+      "export": ".cache/model-timing-2026-10-14/installed-proof/export-duplicate-response",
+      "export_manifest_sha256": "1c19740e3bc73f1952a5200f18180a2904b779120531b24a5dbce71fea49e0d1",
+      "model_seconds": null,
+      "coverage": {
+        "seconds": null,
+        "observed_seconds": null,
+        "started": 1,
+        "completed": 0,
+        "failed": 0,
+        "observation_gaps": 1,
+        "basis": "Unique host model request/terminal pairs within a recorded process clock epoch; provider errors have measured duration but do not establish model success. Missing or ambiguous pairs leave the full total unknown."
+      }
+    },
+    {
+      "case": "cross-clock-response",
+      "run": ".cache/model-timing-2026-10-14/installed-proof/r-cd839a7c577a4ce8a568706ed66b83dc",
+      "manifest_sha256": "c52937b21e9c51652f26f0c21347f95a2c6a2fd26e8609e77a8fbee6041398cc",
+      "export": ".cache/model-timing-2026-10-14/installed-proof/export-cross-clock-response",
+      "export_manifest_sha256": "3e0890aa20f834bbd3e0c59d2f590e63edc3fa5dce65f86ad93ed22bcac4675c",
+      "model_seconds": null,
+      "coverage": {
+        "seconds": null,
+        "observed_seconds": null,
+        "started": 1,
+        "completed": 0,
+        "failed": 0,
+        "observation_gaps": 1,
+        "basis": "Unique host model request/terminal pairs within a recorded process clock epoch; provider errors have measured duration but do not establish model success. Missing or ambiguous pairs leave the full total unknown."
+      }
+    },
+    {
+      "case": "complete",
+      "run": ".cache/model-timing-2026-10-14/installed-proof/r-c484dd80f1a24dbd8174007a04f57cec",
+      "manifest_sha256": "2db514fe259e06e04e90d2f1d1c22547e5b4960990766616d7ba93e673d80053",
+      "export": ".cache/model-timing-2026-10-14/installed-proof/export-complete",
+      "export_manifest_sha256": "4ba7d47d5404294f89d39eb9db13052d3a106acf233c0bd7d5fde532e30f6443",
+      "model_seconds": 2.0,
+      "coverage": {
+        "seconds": 2.0,
+        "observed_seconds": 2.0,
+        "started": 1,
+        "completed": 1,
+        "failed": 0,
+        "observation_gaps": 0,
+        "basis": "Unique host model request/terminal pairs within a recorded process clock epoch; provider errors have measured duration but do not establish model success. Missing or ambiguous pairs leave the full total unknown."
+      }
+    },
+    {
+      "case": "provider-error",
+      "run": ".cache/model-timing-2026-10-14/installed-proof/r-0b8ec646492442938fe7dfb8a997eecb",
+      "manifest_sha256": "927dfd8c94d549ca148cc3bc57cb85aaf81a98dc2f869ff96f0ff1b4026290a5",
+      "export": ".cache/model-timing-2026-10-14/installed-proof/export-provider-error",
+      "export_manifest_sha256": "e5539535f79ef55ef0eb3f443337c0aab462b6393c12e64f894245f48b35cc2e",
+      "model_seconds": 2.0,
+      "coverage": {
+        "seconds": 2.0,
+        "observed_seconds": 2.0,
+        "started": 1,
+        "completed": 0,
+        "failed": 1,
+        "observation_gaps": 0,
+        "basis": "Unique host model request/terminal pairs within a recorded process clock epoch; provider errors have measured duration but do not establish model success. Missing or ambiguous pairs leave the full total unknown."
+      }
+    },
+    {
+      "case": "partial",
+      "run": ".cache/model-timing-2026-10-14/installed-proof/r-59edad8eaca64dd78c6b2b86da217038",
+      "manifest_sha256": "95c300cc69f6ef50129a0851bee3d03551140b3c6856a2d9a64e11e3a4c77b17",
+      "export": ".cache/model-timing-2026-10-14/installed-proof/export-partial",
+      "export_manifest_sha256": "b328e7123f28333e0b4bc3165d00acdc43f5b0f06344a04b75b8b458c022fd4b",
+      "model_seconds": null,
+      "coverage": {
+        "seconds": null,
+        "observed_seconds": 2.0,
+        "started": 2,
+        "completed": 1,
+        "failed": 0,
+        "observation_gaps": 1,
+        "basis": "Unique host model request/terminal pairs within a recorded process clock epoch; provider errors have measured duration but do not establish model success. Missing or ambiguous pairs leave the full total unknown."
+      }
+    },
+    {
+      "case": "measured-zero",
+      "run": ".cache/model-timing-2026-10-14/installed-proof/r-70effcb5be704f45a75e276cc20f269f",
+      "manifest_sha256": "7f8f624e5af70a8512778576324e73f91630b5a1303d1268d809df4d4cffe3a1",
+      "export": ".cache/model-timing-2026-10-14/installed-proof/export-measured-zero",
+      "export_manifest_sha256": "0f047d22ea1157c2adae28ec81e3700c0b7b6587e7b4891343a14ea774018b40",
+      "model_seconds": 0.0,
+      "coverage": {
+        "seconds": 0.0,
+        "observed_seconds": 0.0,
+        "started": 1,
+        "completed": 1,
+        "failed": 0,
+        "observation_gaps": 0,
+        "basis": "Unique host model request/terminal pairs within a recorded process clock epoch; provider errors have measured duration but do not establish model success. Missing or ambiguous pairs leave the full total unknown."
+      }
+    }
+  ],
+  "historical_cases": [
+    {
+      "case": "missing-response",
+      "original_model_seconds": 0.0,
+      "recomputed_model_seconds": null,
+      "historical_manifest_sha256": "96e7876b2df75fb10b37d55b2de2fb62d6141f975398dc6196d626babefd7585",
+      "original_record_unchanged": true
+    },
+    {
+      "case": "duplicate-response",
+      "original_model_seconds": 3.0,
+      "recomputed_model_seconds": null,
+      "historical_manifest_sha256": "184f447ce98993a08c602cb1a395a24a7ffe54f4780769701e1707784380b5e2",
+      "original_record_unchanged": true
+    },
+    {
+      "case": "cross-clock-response",
+      "original_model_seconds": 1.0,
+      "recomputed_model_seconds": null,
+      "historical_manifest_sha256": "88444f6a7b2c24fe73a92ac60534782494df9c642ad4a7d759b0915f9a65db7a",
+      "original_record_unchanged": true
+    }
+  ],
+  "reproduction_sha256": "042124ecb460c6656c49988ef90f630e4c07f0187739d3104a9dc0ffc0107a02",
+  "limits": "Synthetic local clock/request evidence; no hosted inference or live qualification."
+}

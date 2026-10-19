@@ -1,0 +1,11 @@
+# A second hotel brand serving the checkout variant (test_connector_fixture_brand.py).
+variant: checkout
+challenge_code: "975310"
+brand:
+  name: Pine Lodge
+  path_prefix: /pine-lodge
+  room_names:
+    rm-garden-queen: Meadow Queen
+    rm-cedar-king: Pine King
+    rm-family-bunk: Bunkhouse
+    rm-premier-suite: Summit Suite

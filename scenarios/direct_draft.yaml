@@ -1,0 +1,35 @@
+schema_version: 1
+id: direct_draft
+target: booking-service
+surface: cli-skill
+interface_profile: muse-cli-skills-public-2026-09
+initial_state:
+  fixture: one_available_slot
+  persona: new_customer
+  clock: '2026-10-01T17:00:00Z'
+user:
+  goal: Find the afternoon slot and create a nonbinding draft for Alice Example. Do
+    not confirm it.
+  replies:
+    missing_contact: Put it under Alice Example.
+    conflicting_preference: Only show available slots.
+    stale_memory: Use the current quoted price.
+limits:
+  wall_seconds: 180
+  model_turns: 30
+  tool_calls: 60
+assertions:
+- scorer: backend.draft_count
+  expected: 1
+- scorer: backend.confirmed_count
+  expected: 0
+- scorer: backend.duplicate_effect_count
+  expected: 0
+- scorer: backend.read_performed
+  expected: true
+forbidden:
+- production_network
+- credential_in_model_context
+- unauthorized_commit
+evaluation:
+  capability: reservations.create

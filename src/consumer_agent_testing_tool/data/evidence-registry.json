@@ -1,0 +1,55 @@
+{
+  "schema_version": 1,
+  "snapshot_id": "mvp-public-evidence-2026-10-01",
+  "entries": [
+    {
+      "id": "glimmer-llama",
+      "url": "https://dev.meta.ai/docs/muse-glimmer/llama-cpp",
+      "publisher": "Meta",
+      "retrieval_date": "2026-10-01",
+      "retrieval_method": "primary documentation fetched during implementation",
+      "source_bytes_sha256": "ecb5a5eafa9752ad12286f12ecd35a0e9334306fadb541a8d62166da485bc35c",
+      "claim": "Glimmer requires a compatible llama.cpp runtime and its native template/tool interface. The selected local preset pins b10353 and text-only artifacts.",
+      "applicability": "M0/M1; establishes documentation basis, not live adapter qualification or Muse equivalence",
+      "confidence": "documented claim; local behavior requires separate tests",
+      "refresh_trigger": "dependency upgrade, contradictory measurement, or source revision"
+    },
+    {
+      "id": "inspect-deepagent",
+      "url": "https://inspect.aisi.org.uk/deepagent.html",
+      "publisher": "UK AI Security Institute",
+      "retrieval_date": "2026-10-01",
+      "retrieval_method": "primary documentation fetched during implementation",
+      "source_bytes_sha256": "a38587f69242a291bf7c864bd83d0ae749073342e027ba3a924f6c863a867a8e",
+      "claim": "Inspect provides Deep Agent, skills and sandbox extension points. Consumer Agent Testing Tool composes these rather than implementing an inference loop.",
+      "applicability": "M0/M1; establishes documentation basis, not live adapter qualification or Muse equivalence",
+      "confidence": "documented claim; local behavior requires separate tests",
+      "refresh_trigger": "dependency upgrade, contradictory measurement, or source revision"
+    },
+    {
+      "id": "bedrock-bearer",
+      "url": "https://docs.aws.amazon.com/bedrock/latest/userguide/api-keys-use.html",
+      "publisher": "Amazon Web Services",
+      "retrieval_date": "2026-10-01",
+      "retrieval_method": "primary documentation fetched during implementation",
+      "source_bytes_sha256": "bf0c830bb577c5a7a26304cc3007583dd6f77cc846dd2833aa57f931b3467975",
+      "claim": "Bedrock API-key authentication is distinct from an IAM access-key pair. The complete async adapter path must still be tested.",
+      "applicability": "M0/M1; establishes documentation basis, not live adapter qualification or Muse equivalence",
+      "confidence": "documented claim; local behavior requires separate tests",
+      "refresh_trigger": "dependency upgrade, contradictory measurement, or source revision"
+    },
+    {
+      "id": "muse-cli-public",
+      "url": "https://research.meta.ai/blog/security-and-safety-for-ai-agents-our-approach-with-muse",
+      "publisher": "Meta; reviewed through supplied specification",
+      "retrieval_date": "2026-10-01",
+      "retrieval_method": "supplied specification",
+      "source_bytes_sha256": "1f0e2624f4be85af4c3359dcbf3f43ee3891d8596f21d81f8494910828f77e23",
+      "claim": "The supplied specification attributes CLI/skill connectors and a separate authorization boundary to Muse public engineering documentation. Private selection rules and a complete Muse MCP contract remain unknown.",
+      "applicability": "M0/M1; establishes documentation basis, not live adapter qualification or Muse equivalence",
+      "confidence": "documented claim; local behavior requires separate tests",
+      "refresh_trigger": "dependency upgrade, contradictory measurement, or source revision"
+    }
+  ],
+  "retention": "Source byte digests and reviewed claims are retained; full third-party web pages are not redistributed."
+}

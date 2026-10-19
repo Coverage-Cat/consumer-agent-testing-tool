@@ -1,0 +1,37 @@
+# Python and tooling caches
+.venv/
+__pycache__/
+.pytest_cache/
+.ruff_cache/
+*.pyc
+node_modules/
+
+# Local state: browsers, dependency caches, test sessions and scratch
+.cache/
+.l/
+.consumer-agent-testing-tool-worker-claims/
+*.sqlite*
+
+# Run outputs and build artifacts (regenerate them; share exports deliberately)
+runs/
+exports/
+output/
+dist/
+build/
+reports/
+*.egg-info/
+
+# Local configuration and credentials
+consumer-agent-testing-tool.yaml
+.env
+.env.*
+!.env.example
+.private/
+.claude/settings.local.json
+.claude/scheduled_tasks.lock
+
+# Operating system files
+.DS_Store
+
+# Recorded release results (see docs/release-gates.json and .github/workflows/release.yml)
+release/

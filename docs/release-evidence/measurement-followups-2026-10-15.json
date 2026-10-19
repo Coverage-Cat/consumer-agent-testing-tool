@@ -1,0 +1,27 @@
+{
+  "source_sha256": "1431925cd32a2e26be45e980d383fde43711e731e0849a3872cab0e507bd3994",
+  "synthetic": true,
+  "run": ".cache/model-timing-2026-10-14/followups/r-bd261d168c0d47b5851412713795193e",
+  "partial_request_usage": {
+    "requests": 2,
+    "responses_with_usage": 1,
+    "reported_token_usage": {
+      "input_tokens": 10,
+      "output_tokens": 2
+    },
+    "required_limit": "The full token total is unknown; retain the observed subtotal with explicit coverage."
+  },
+  "partial_trial_usage": {
+    "trials": 2,
+    "reported_token_usage": {
+      "input_tokens": 10,
+      "output_tokens": 2
+    },
+    "required_limit": "A trial with no usage evidence must not silently contribute zero to a complete aggregate."
+  },
+  "backwards_wall_clock": {
+    "reported_total_seconds": -60.0,
+    "required_limit": "Negative elapsed time is not a valid duration; use clock-bound timing or report an observation gap."
+  },
+  "status": "follow-up reproductions; implementation unchanged while regression runs"
+}

@@ -1,0 +1,63 @@
+{
+  "status": "passed",
+  "basis": "test-report",
+  "scope": "workspace source in Linux ARM64 test VM",
+  "source_sha256": "267db0c79a9cec4faa49f8860841bcee5c460af2a1c84270d9c895bcb9baea8d",
+  "regression_run_sha256": "0e8dd57bcdbc8b0c7aae225247bbfd43ad77743f423b31e9af4da59d4fef9e6e",
+  "origin_sha256": "8d17f060a8bc52be4241802939e5a51157c00afabe035e5198d29507b3bbefde",
+  "proof": {
+    "image": "sha256:224184965b94965e6513b71c05d578e2880f5efea4d10c50c3f93fa2a606411a",
+    "status": "passed",
+    "cases": [
+      {
+        "fault": "expiry",
+        "reason": "expired",
+        "runtime": {
+          "kind": "posix-process-group-lease-v1",
+          "platform": "linux",
+          "python": "3.14.4",
+          "guard_sha256": "1e74d683d9bb5c37f2c1ca3e23f7c76b5dfdb8f4cf85d413d235f97ac99168af",
+          "completion_grace_seconds": 0.1,
+          "isolation": "none"
+        },
+        "positive_control": true,
+        "process_tree_stopped": true,
+        "evidence_collected": true,
+        "cleanup": true
+      },
+      {
+        "fault": "rpc_killed",
+        "reason": "supervisor_lost",
+        "runtime": {
+          "kind": "posix-process-group-lease-v1",
+          "platform": "linux",
+          "python": "3.14.4",
+          "guard_sha256": "1e74d683d9bb5c37f2c1ca3e23f7c76b5dfdb8f4cf85d413d235f97ac99168af",
+          "completion_grace_seconds": 0.1,
+          "isolation": "none"
+        },
+        "positive_control": true,
+        "process_tree_stopped": true,
+        "evidence_collected": true,
+        "cleanup": true
+      },
+      {
+        "fault": "guard_killed",
+        "reason": "guard_lost",
+        "runtime": {
+          "kind": "posix-process-group-lease-v1",
+          "platform": "linux",
+          "python": "3.14.4",
+          "guard_sha256": "1e74d683d9bb5c37f2c1ca3e23f7c76b5dfdb8f4cf85d413d235f97ac99168af",
+          "completion_grace_seconds": 0.1,
+          "isolation": "none"
+        },
+        "positive_control": true,
+        "process_tree_stopped": true,
+        "evidence_collected": true,
+        "cleanup": true
+      }
+    ],
+    "limits": "Reference process groups only; not hostile isolation or a cloud-provider lifecycle"
+  }
+}

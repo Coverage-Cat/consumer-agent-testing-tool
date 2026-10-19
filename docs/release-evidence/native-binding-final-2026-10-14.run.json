@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "scope": "focused observation binding and release tests, not complete regression",
+  "source_before": "30a320de1cc5b33d3b11c0dd26b433386e2a5759dc3cbd8f5a953eb5d6209f2f",
+  "source_after": "30a320de1cc5b33d3b11c0dd26b433386e2a5759dc3cbd8f5a953eb5d6209f2f",
+  "command": [
+    "~/Development/consumer-agent-testing/.venv/bin/python",
+    "-m",
+    "pytest",
+    "-q",
+    "-o",
+    "addopts=",
+    "--basetemp=.cache/native-binding/final-tests",
+    "tests/test_native_inventory.py",
+    "tests/test_distribution.py",
+    "tests/test_release_recorder.py",
+    "tests/test_release_extensions.py",
+    "--junitxml=~/Development/consumer-agent-testing/docs/release-evidence/native-binding-final-2026-10-14.xml"
+  ],
+  "returncode": 0,
+  "junit": "docs/release-evidence/native-binding-final-2026-10-14.xml",
+  "log": "docs/release-evidence/native-binding-final-2026-10-14.log",
+  "junit_sha256": "2a97e2e49f714b18e6fe4e4e0e3328896a2748745679f210c89fba421a5940da",
+  "log_sha256": "54390b3c6f54be3c975ef4ba54cd8ba197b0cade651e8d1f01babc24b83cb649",
+  "status": "passed"
+}

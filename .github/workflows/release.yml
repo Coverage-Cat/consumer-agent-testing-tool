@@ -1,0 +1,153 @@
+# Release: record the local-consumer-v1 release evidence for the tagged commit and publish it with the packages.
+#
+# Release evidence is generated, so it is not committed. docs/release-gates.json holds the committed policy (the
+# gates, the scope and the exclusions); this workflow writes release/release-gates.json and release/evidence/,
+# and requires `release-audit` to report release_qualified before it publishes. To audit a release locally,
+# download its release-evidence archive, extract it at the repository root of the same commit and run
+# `consumer-agent-testing-tool release-audit`. Each gate expires seven days after recording.
+#
+# The recorded evidence covers macOS, as the release scope does. No step calls a model provider.
+name: release
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:   # records and uploads the evidence as an artifact; only a tag publishes a release
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  record:
+    runs-on: macos-15
+    timeout-minutes: 120
+    env:
+      PLAYWRIGHT_BROWSERS_PATH: ${{ github.workspace }}/.cache/ms-playwright
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+      - uses: astral-sh/setup-uv@1c37ad07a6a961277cf70c0d37d6f313000f5884 # v10.3.0
+        with:
+          version: "0.12.21"
+          python-version: "3.14"
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24
+          package-manager-cache: false
+      - name: Require a release tag to match the package version
+        if: startsWith(github.ref, 'refs/tags/')
+        run: |
+          git merge-base --is-ancestor "$GITHUB_SHA" origin/main
+          uv run --no-project python -c \
+            'import os, pathlib, tomllib; version = tomllib.loads(pathlib.Path("pyproject.toml").read_text())["project"]["version"]; assert os.environ["GITHUB_REF_NAME"] == f"v{version}", "tag must match project.version"'
+      - run: uv sync --locked --extra openrouter --extra dev
+      - run: npm --prefix tooling ci --ignore-scripts
+      - run: npm --prefix tooling/payment-ui ci --ignore-scripts
+      - run: node tooling/payment-ui/node_modules/playwright/cli.js install chromium
+
+      # The distribution proof installs from workspace caches with external egress denied, so the caches are
+      # filled first, online. Recording the distribution regenerates the third-party notices, which are part of
+      # the source digest, so it comes before the regression.
+      - name: Fill the distribution caches
+        run: uv run python scripts/verify_distribution.py --prepare-cache
+      - name: Verify the distribution offline
+        run: uv run python scripts/verify_distribution.py
+      - name: Require the committed notices to be current
+        # The evidence binds the source digest, which includes third_party/. Regenerated notices that differ
+        # from the commit would make the published evidence match no checkout of the tag.
+        run: git diff --exit-code -- third_party
+      - run: uv run python scripts/record_distribution.py
+
+      - name: Complete regression
+        run: uv run python scripts/run_regression.py release/evidence/regression-run.xml
+      - run: uv run python scripts/record_regression.py release/evidence/regression-run.xml
+      - run: uv run python scripts/record_release_tests.py release/evidence/regression-run.xml
+
+      - name: Release audit
+        run: uv run consumer-agent-testing-tool release-audit | tee release/audit.json
+
+      - name: Package the evidence
+        run: |
+          cp dist/verification.json release/evidence/
+          tar czf "release-evidence-${GITHUB_SHA::12}.tar.gz" release
+          shasum -a 256 dist/*.whl dist/*.tar.gz release-evidence-*.tar.gz > SHA256SUMS
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: verified-release-${{ github.sha }}
+          if-no-files-found: error
+          retention-days: 14
+          path: |
+            release-evidence-*.tar.gz
+            dist/*.whl
+            dist/*.tar.gz
+            SHA256SUMS
+      - name: Preserve failed verification diagnostics only
+        if: failure()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: failed-release-audit-${{ github.sha }}
+          retention-days: 7
+          # Only fresh verifier logs, not run directories or private evidence.
+          include-hidden-files: true
+          path: |
+            release/audit.json
+            release/evidence/*.xml
+            release/evidence/*.log
+            dist/setup.json
+            dist/verification.json
+            .cache/local-dist-*/*.log
+            .cache/local-dist-*/verification.json
+            third_party/notices.zip
+            third_party/*.json
+
+  publish:
+    if: startsWith(github.ref, 'refs/tags/')
+    needs: record
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    environment: release
+    permissions:
+      contents: write
+      id-token: write
+      attestations: write
+    steps:
+      - name: Refuse publication during private testing
+        env:
+          REPOSITORY_PRIVATE: ${{ github.event.repository.private }}
+        run: |
+          if [ "$REPOSITORY_PRIVATE" != false ]; then
+            echo "Use workflow_dispatch for private build rehearsals. Publishing requires the public-launch review." >&2
+            exit 1
+          fi
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: verified-release-${{ github.sha }}
+      - name: Check artifact hashes
+        run: sha256sum --check SHA256SUMS
+
+      - name: Attest build provenance
+        # Fail closed if attestations are not available; a rehearsal never publishes.
+        uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8 # v4.2.2
+        with:
+          subject-path: |
+            dist/*.whl
+            dist/*.tar.gz
+            release-evidence-*.tar.gz
+
+      - name: Publish the GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: >-
+          gh release create "$GITHUB_REF_NAME" --verify-tag --generate-notes
+          dist/*.whl dist/*.tar.gz release-evidence-*.tar.gz SHA256SUMS

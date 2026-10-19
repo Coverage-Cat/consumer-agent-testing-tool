@@ -1,0 +1,40 @@
+schema_version: 1
+provenance: Developer-maintained catalog API example; replace with your service contract.
+operations:
+  lookup_slot:
+    operation: catalog.slot
+    description: Read the slot price in integer minor currency units before creating a draft.
+    effect: read
+    input_schema:
+      type: object
+      properties:
+        slot:
+          type: string
+          minLength: 1
+          description: Slot identifier from the user's request or an earlier read.
+      required: [slot]
+      additionalProperties: false
+    request:
+      method: GET
+      path: /slots/{id}
+      path_parameters:
+        id: slot
+    responses:
+      "200":
+        schema:
+          type: object
+          properties:
+            id: {type: string}
+            amount_minor: {type: integer, minimum: 0}
+            currency: {type: string}
+            revision: {type: integer}
+          required: [id, amount_minor, currency, revision]
+          additionalProperties: true
+        project: [id, amount_minor, currency, revision]
+      "404":
+        schema:
+          type: object
+          properties:
+            error: {type: string}
+          required: [error]
+          additionalProperties: false

@@ -1,0 +1,23 @@
+# Scripted calls for wallet-checkout.yaml (--driver scripted): no model, the same host pipeline and wallet. They
+# assume the fixture's checkout variant served with wallet-checkout.fixture.yaml and reference earlier results by
+# JSON pointer (/results/<step>/...), so they also assume its result shapes. The booking declines the quote's
+# preselected add-on; no payment token appears here: the host fills payment_token from the wallet.
+- {tool: search_rooms, arguments: {check_in: "2026-12-04", check_out: "2026-12-06", adults: 2}}
+- tool: get_quote
+  arguments:
+    room_id: {$ref: /results/0/result/structuredContent/rooms/0/room_id}
+    check_in: "2026-12-04"
+    check_out: "2026-12-06"
+    adults: 2
+- tool: create_booking
+  arguments:
+    quote_id: {$ref: /results/1/result/structuredContent/quote_id}
+    guest_name: Taylor Example
+    decline_add_on: true
+    idempotency_key: scripted-wallet-1
+- answer:
+    - "Booked for Taylor Example, December 4 to 6, 2026, without the add-on. Confirmation "
+    - {$ref: /results/2/result/structuredContent/booking_id}
+    - "; total "
+    - {$ref: /results/1/result/structuredContent/total_minor}
+    - " USD in minor units, as quoted."

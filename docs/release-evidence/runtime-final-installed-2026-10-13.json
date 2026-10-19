@@ -1,0 +1,153 @@
+{
+  "source_sha256": "f55e89f63da4ff17cce2d17897b71bff9f8773fa9e82a0eb854dbcb47c61aed3",
+  "wheel_sha256": "e7bf191264fda8e755419a8034701f6a9e23e840a530a16be21424eae996d4ee",
+  "source_archive_sha256": "cd47d5809869807b10a4657ec0de5a5115c82b155385bc63f148258540bf9113",
+  "journals": [
+    {
+      "journal": ".cache/d-lyyc4dz1/p/worker-evidence/runs/worker-4817157abb994d6689239e56f0d76d89/worker.json",
+      "sha256": "dded2d049c7fec67b4723b0854e305f78bc9540dd0315b0d527ab2a46780bb64",
+      "collection": "complete",
+      "cleanup": "confirmed",
+      "archive_sha256": "da6cd76236723227a7e428a8d00bb79fcba0d747429a829c01482483aa0fe414",
+      "runs": 1
+    },
+    {
+      "journal": ".cache/d-lyyc4dz1/p/worker-evidence/runs/worker-cee5ff3bba9b4606acc9f484bfb44a8e/worker.json",
+      "sha256": "ce4922b1edb1ec16c4fac635319127084a55d21cba4b918a235952c387245013",
+      "collection": "complete",
+      "cleanup": "confirmed",
+      "archive_sha256": "6c08018a1eed5de84115c3fe4d23c9debcdcac8e08ea88609dfb3cce205da359",
+      "runs": 1
+    },
+    {
+      "journal": ".cache/d-lyyc4dz1/p/worker-evidence/runs/worker-ec212bed9790409ebaa6e1ed114c5585/worker.json",
+      "sha256": "65fb71dda822dd564d100403126c4ae280539c6f261762f7a71f6465425174a7",
+      "collection": "complete",
+      "cleanup": "confirmed",
+      "archive_sha256": "9f1d4a0c6f7e0ce599a267cc7051a95da5b6b7e34b6a707244e6232b23d7f6ae",
+      "runs": 1
+    },
+    {
+      "journal": ".cache/d-lyyc4dz1/p/worker-selector/runs/worker-84643896402e4f5888a0ecb8fc16bf2f/worker.json",
+      "sha256": "a189517730e6b2d3e5c3786b7136c2e634c8575fd0574f4cdfd6b41b202f8901",
+      "collection": "complete",
+      "cleanup": "confirmed",
+      "archive_sha256": "46946f5a535ba3d77d2964c66dcbbf7be0d83e4d2743bc152de6e807d45fdd40",
+      "runs": 1,
+      "runtime_assets": {
+        "format": "surface-lab-worker-runtime-v1",
+        "sha256": "a6a1b4ca73c6ec99877b1b68ca2ffda190d8e0215571f3b49ab49ad0b29dde98",
+        "bytes": 497,
+        "platform": {
+          "machine": "arm64",
+          "system": "Darwin"
+        },
+        "files": 1,
+        "lock_sha256": "e9b7fb84f392864fcc090ae3636846be707d3ac157e0163fe5b11a6aeb8ad076"
+      }
+    }
+  ],
+  "expiry_proof": {
+    "path": ".cache/d-lyyc4dz1/p/worker-evidence/expiry-proof.json",
+    "sha256": "be396d7f6fe099b4a3abaea5dbe77e5842e790d30632a86c6acfc80c9bfc1e98",
+    "cases": [
+      {
+        "fault": "expiry",
+        "reason": "expired",
+        "runtime": {
+          "kind": "posix-process-group-lease-v1",
+          "platform": "darwin",
+          "python": "3.14.4",
+          "guard_sha256": "b8a3da65d517c003ebef9ade464fdeff6a6de688ea72d15c8b5dd823637eec35",
+          "completion_grace_seconds": 0.1,
+          "isolation": "none"
+        },
+        "deadline_seconds": 5,
+        "positive_control": true,
+        "process_tree_stopped": true,
+        "evidence_collected": true,
+        "cleanup": true
+      },
+      {
+        "fault": "rpc_killed",
+        "reason": "supervisor_lost",
+        "runtime": {
+          "kind": "posix-process-group-lease-v1",
+          "platform": "darwin",
+          "python": "3.14.4",
+          "guard_sha256": "b8a3da65d517c003ebef9ade464fdeff6a6de688ea72d15c8b5dd823637eec35",
+          "completion_grace_seconds": 0.1,
+          "isolation": "none"
+        },
+        "deadline_seconds": 5,
+        "positive_control": true,
+        "process_tree_stopped": true,
+        "evidence_collected": true,
+        "cleanup": true
+      },
+      {
+        "fault": "guard_killed",
+        "reason": "guard_lost",
+        "runtime": {
+          "kind": "posix-process-group-lease-v1",
+          "platform": "darwin",
+          "python": "3.14.4",
+          "guard_sha256": "b8a3da65d517c003ebef9ade464fdeff6a6de688ea72d15c8b5dd823637eec35",
+          "completion_grace_seconds": 0.1,
+          "isolation": "none"
+        },
+        "deadline_seconds": 5,
+        "positive_control": true,
+        "process_tree_stopped": true,
+        "evidence_collected": true,
+        "cleanup": true
+      },
+      {
+        "fault": "async_expiry",
+        "reason": "expired",
+        "runtime": {
+          "kind": "posix-process-group-lease-v1",
+          "platform": "darwin",
+          "python": "3.14.4",
+          "guard_sha256": "b8a3da65d517c003ebef9ade464fdeff6a6de688ea72d15c8b5dd823637eec35",
+          "completion_grace_seconds": 0.1,
+          "isolation": "none"
+        },
+        "deadline_seconds": 5,
+        "positive_control": true,
+        "process_tree_stopped": true,
+        "evidence_collected": true,
+        "cleanup": true
+      },
+      {
+        "fault": "async_supervisor_killed",
+        "reason": "supervisor_lost",
+        "runtime": {
+          "kind": "posix-process-group-lease-v1",
+          "platform": "darwin",
+          "python": "3.14.4",
+          "guard_sha256": "b8a3da65d517c003ebef9ade464fdeff6a6de688ea72d15c8b5dd823637eec35",
+          "completion_grace_seconds": 0.1,
+          "isolation": "none"
+        },
+        "deadline_seconds": 5,
+        "positive_control": true,
+        "process_tree_stopped": true,
+        "evidence_collected": true,
+        "cleanup": true
+      }
+    ]
+  },
+  "node_content": {
+    "before": {
+      "path": ".cache/d-lyyc4dz1/node-content-before.json",
+      "sha256": "208169a83c205471efef47d10e221b7112ae3b8c3b4aff1fcef3db41b0af48e3"
+    },
+    "after": {
+      "path": ".cache/d-lyyc4dz1/node-content-after.json",
+      "sha256": "208169a83c205471efef47d10e221b7112ae3b8c3b4aff1fcef3db41b0af48e3"
+    },
+    "verified": true
+  },
+  "scope": "Fresh installed static CLI runtime deployment and public exports; not cloud or live-model qualification."
+}

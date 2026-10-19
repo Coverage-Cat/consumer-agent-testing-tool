@@ -1,0 +1,14 @@
+{
+  "execution": "failed",
+  "cleanup": "confirmed",
+  "operations": [
+    "provision",
+    "ready",
+    "seed",
+    "run",
+    "cancel",
+    "destroy"
+  ],
+  "saved_artifacts": false,
+  "remote_job_exists": false
+}

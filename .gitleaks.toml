@@ -1,0 +1,62 @@
+title = "CATT secret scanning"
+
+[extend]
+useDefault = true
+
+# Exact, reviewed synthetic values used to test authentication and redaction.
+# Keep scanning every test file: never exclude tests/, source files, or whole commits.
+[[allowlists]]
+description = "Synthetic test credentials and intentionally secret-shaped redaction samples"
+condition = "AND"
+paths = ['''^tests/test_[^/]+\.py$''']
+regexes = [
+  '''^catt-pine-api-key-5b1e8d44$''',
+  '''^tok-9f8e7d6c5b4a$''',
+  '''^xyz789-hidden$''',
+  '''^cs-env-key-0123456789abcdef$''',
+  '''^tok-4f9a1c7e2b$''',
+  '''^key-zyxw98765$''',
+  '''^tok_test_4f9a2c7e1b3d$''',
+  '''^catt-fixture-api-key-7f3a9c21$''',
+  '''^sk-live-123456$''',
+  '''^abcdef123456$''',
+  '''^abc123def456\.?$''',
+  '''^partner-secret-0123456789$''',
+  '''^cedar-live-7Hq2Lm9Zp4XwB8nR$''',
+  '''^sk_test_51Hostile0123456789$''',
+  '''^tok_9Fz2Lm7Qp4Rs8Tv1Wx3Yz6Ab5Cd0Ef$''',
+  '''^tok_live_1234567$''',
+  '''^catt-test-key-0123456789$''',
+  '''^catt-synthetic-wrong-key-0000$''',
+  '''^cedar-live-key-7Hq2Lm9Zp4Xw$''',
+  '''^c3VyZmFjZS1sYWItcGFnZS0y$''',
+  '''^eyJhbGciOiJIUzI1NiJ9\.e30\.sig$''',
+  '''^hunter2-plain$''',
+  '''^opaque-lease-identifier-77$''',
+  '''^hunter2-long-pass$''',
+  '''^eyJhbGciOiJIUzI1NiJ9\.eyJzdWIiOiJ0YXlsb3IiLCJzY29wZSI6ImFjY291bnQifQ\.c2lnbmF0dXJlLXNlY3JldA$''',
+  '''^eyJhbGciOiJIUzI1NiJ9\.eyJzdWIiOiIxMjM0NTY3ODkwIn0\.c2lnbmF0dXJlLWJ5dGVz$''',
+  '''^eyJhbGciOiJIUzI1NiJ9\.eyJzdWIiOiJ0YXlsb3IiLCJleHAiOjE3OTB9\.3kq9Zr4mT2xW8pL1nB6c$''',
+  '''^https://hooks\.slack\.com/services/T024BE7LD/B01234567/aB3dE6gH9jK2mN5pQ8sT1vW4$''',
+]
+
+[[allowlists]]
+description = "The api_key_placement field name is code, not a key"
+targetRules = ["generic-api-key"]
+condition = "AND"
+paths = ['''^tests/test_connector_fixture_brand\.py$''']
+regexTarget = "line"
+regexes = ['''^\s*config = FixtureConfig\(auth="api_key", api_key_placement="path",\s*$''']
+
+[[allowlists]]
+description = "SHA-256 artifact inventory entries with api or key in their filenames"
+targetRules = ["generic-api-key"]
+condition = "AND"
+paths = [
+  '''^docs/release-evidence/native-sbom-notices-package-2026-10-14\.json$''',
+  '''^third_party/browser-runtime\.json$''',
+]
+regexTarget = "line"
+regexes = [
+  '''^\s*"[^"]*/(?:allocator-api2-0\.2\.21\.crate|lock_api-0\.4\.14\.crate|iwa-key-distribution\.pb)": "[0-9a-f]{64}",?\s*$''',
+]

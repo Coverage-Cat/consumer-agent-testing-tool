@@ -1,0 +1,273 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:consumer-agent-testing-tool:summary:v1",
+  "title": "consumer-agent-testing-tool CI summary (--summary-json), version 1",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "kind": {
+      "const": "consumer-agent-testing-tool-summary"
+    },
+    "command": {
+      "enum": [
+        "connector-run",
+        "check"
+      ]
+    },
+    "suite": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "scenario_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "exit_code": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 3
+    },
+    "status": {
+      "enum": [
+        "completed",
+        "failed",
+        "blocked",
+        "error"
+      ]
+    },
+    "error": {
+      "oneOf": [
+        {
+          "type": "null"
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "class": {
+              "type": "string"
+            },
+            "detail": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "class",
+            "detail"
+          ]
+        }
+      ]
+    },
+    "trials": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "trial": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "run": {
+            "type": "string"
+          },
+          "status": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "exit_code": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 3
+          },
+          "failure_stage": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "failure_class": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "reason": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "checks": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "status": {
+                  "enum": [
+                    "passed",
+                    "no-finding",
+                    "warning",
+                    "info",
+                    "failed",
+                    "blocked",
+                    "observation-gap",
+                    "unsupported",
+                    "not-evaluated"
+                  ]
+                },
+                "required": {
+                  "type": "boolean"
+                }
+              },
+              "required": [
+                "id",
+                "status",
+                "required"
+              ]
+            }
+          }
+        },
+        "required": [
+          "trial",
+          "run",
+          "status",
+          "exit_code",
+          "failure_stage",
+          "failure_class",
+          "reason",
+          "checks"
+        ]
+      }
+    },
+    "pass_hat_k": {
+      "oneOf": [
+        {
+          "type": "null"
+        },
+        {
+          "type": "object",
+          "minProperties": 1,
+          "propertyNames": {
+            "pattern": "^[1-9][0-9]*$"
+          },
+          "additionalProperties": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          }
+        }
+      ]
+    },
+    "summary_run": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "treatment": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "projection": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "exposure": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "client_profile": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "output_schema": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "projection",
+        "exposure",
+        "client_profile",
+        "output_schema"
+      ]
+    },
+    "service": {
+      "oneOf": [
+        {
+          "type": "null"
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "command": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "port": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 65535
+            },
+            "pid": {
+              "type": "integer"
+            },
+            "log": {
+              "type": "string"
+            },
+            "ready_url": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "command",
+            "port",
+            "pid",
+            "log",
+            "ready_url"
+          ]
+        }
+      ]
+    }
+  },
+  "required": [
+    "schema_version",
+    "kind",
+    "command",
+    "suite",
+    "scenario_id",
+    "exit_code",
+    "status",
+    "error",
+    "trials",
+    "pass_hat_k",
+    "summary_run",
+    "treatment",
+    "service"
+  ]
+}

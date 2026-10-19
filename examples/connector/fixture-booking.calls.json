@@ -1,0 +1,44 @@
+[
+  {
+    "tool": "search_rooms",
+    "arguments": {
+      "check_in": "2026-12-04",
+      "check_out": "2026-12-06",
+      "adults": 2
+    }
+  },
+  {
+    "tool": "get_quote",
+    "arguments": {
+      "room_id": {
+        "$ref": "/results/0/result/structuredContent/rooms/0/room_id"
+      },
+      "check_in": "2026-12-04",
+      "check_out": "2026-12-06",
+      "adults": 2
+    }
+  },
+  {
+    "tool": "create_booking",
+    "arguments": {
+      "quote_id": {
+        "$ref": "/results/1/result/structuredContent/quote_id"
+      },
+      "guest_name": "Taylor Example",
+      "idempotency_key": "scripted-smoke-1"
+    }
+  },
+  {
+    "answer": [
+      "Booked for Taylor Example, December 4 to 6, 2026. Confirmation ",
+      {
+        "$ref": "/results/2/result/structuredContent/booking_id"
+      },
+      "; total ",
+      {
+        "$ref": "/results/1/result/structuredContent/total_minor"
+      },
+      " USD in minor units, as quoted."
+    ]
+  }
+]

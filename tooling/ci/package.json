@@ -1,0 +1,9 @@
+{
+  "name": "consumer-agent-testing-tool-ci",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Locked third-party MCP reference server for CI smoke tests",
+  "devDependencies": {
+    "@modelcontextprotocol/server-everything": "1.0.0"
+  }
+}

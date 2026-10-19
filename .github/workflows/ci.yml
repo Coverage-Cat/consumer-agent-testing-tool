@@ -1,0 +1,200 @@
+# Scripted tests only: no model keys, paid inference, or external service credentials.
+name: ci
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  lint:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@1c37ad07a6a961277cf70c0d37d6f313000f5884 # v10.3.0
+        with:
+          version: "0.12.21"
+          python-version: "3.14"
+      - run: uv sync --locked --extra dev
+      - run: uv run --no-sync ruff check src tests scripts
+      - name: Require generated schemas to match their contracts
+        run: |
+          uv run --no-sync python scripts/generate_schema.py
+          git diff --exit-code -- schemas src/consumer_agent_testing_tool/data/schemas
+
+  repository-checks:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+      - name: Install checksum-verified audit tools
+        run: |
+          mkdir -p "$RUNNER_TEMP/audit-tools"
+          cd "$RUNNER_TEMP/audit-tools"
+          curl --fail --silent --show-error --location --retry 3 \
+            https://github.com/rhysd/actionlint/releases/download/v1.7.12/actionlint_1.7.12_linux_amd64.tar.gz \
+            --output actionlint.tar.gz
+          echo '8aca8db96f1b94770f1b0d72b6dddcb1ebb8123cb3712530b08cc387b349a3d8  actionlint.tar.gz' | sha256sum --check
+          tar -xzf actionlint.tar.gz actionlint
+          curl --fail --silent --show-error --location --retry 3 \
+            https://github.com/gitleaks/gitleaks/releases/download/v8.30.1/gitleaks_8.30.1_linux_x64.tar.gz \
+            --output gitleaks.tar.gz
+          echo '551f6fc83ea457d62a0d98237cbad105af8d557003051f41f3e7ca7b3f2470eb  gitleaks.tar.gz' | sha256sum --check
+          tar -xzf gitleaks.tar.gz gitleaks
+          echo "$RUNNER_TEMP/audit-tools" >> "$GITHUB_PATH"
+      - name: Validate GitHub Actions
+        run: |
+          actionlint -color
+          actionlint -color examples/ci/connector-lane.yml
+      - name: Scan all fetched Git history for secrets
+        run: gitleaks git --log-opts="--all" --redact --no-banner
+      - name: Reject private state and oversized files in Git
+        run: python3 scripts/check_repository.py
+
+  tests:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-15, ubuntu-24.04]
+        python: ["3.12", "3.14"]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 60
+    env:
+      PLAYWRIGHT_BROWSERS_PATH: ${{ github.workspace }}/.cache/ms-playwright
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@1c37ad07a6a961277cf70c0d37d6f313000f5884 # v10.3.0
+        with:
+          version: "0.12.21"
+          python-version: ${{ matrix.python }}
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24
+          package-manager-cache: false
+      - run: uv sync --locked --extra openrouter --extra dev
+      - run: npm --prefix tooling ci --ignore-scripts
+      - run: npm --prefix tooling/payment-ui ci --ignore-scripts
+      - name: Install Chromium (macOS)
+        if: runner.os == 'macOS'
+        run: node tooling/payment-ui/node_modules/playwright/cli.js install chromium
+      - name: Install Chromium and its system libraries (Linux)
+        if: runner.os == 'Linux'
+        run: node tooling/payment-ui/node_modules/playwright/cli.js install --with-deps chromium
+      - run: uv run --no-sync consumer-agent-testing-tool doctor
+      - run: >-
+          uv run --no-sync pytest -v -p no:cacheprovider -o faulthandler_timeout=120
+          --durations=20 --junitxml=reports/pytest.xml tests
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        if: always()
+        with:
+          name: pytest-${{ matrix.os }}-${{ matrix.python }}
+          path: reports/pytest.xml
+          retention-days: 14
+          if-no-files-found: warn
+
+  connector-lane:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-15, ubuntu-24.04]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@1c37ad07a6a961277cf70c0d37d6f313000f5884 # v10.3.0
+        with:
+          version: "0.12.21"
+          python-version: "3.14"
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24
+          package-manager-cache: false
+      - run: uv sync --locked --extra dev
+      - run: npm --prefix tooling/ci ci --ignore-scripts
+
+      - name: Scripted booking against the bundled test service
+        run: >-
+          uv run --no-sync consumer-agent-testing-tool connector-run examples/connector/fixture-booking.yaml
+          --driver scripted --script examples/connector/fixture-booking.calls.json
+          --start "python -m consumer_agent_testing_tool.connector_fixture --port {port} --variant good --auth none"
+          --junit reports/fixture-booking.xml --summary-json reports/fixture-booking.json
+
+      - name: Same calls through the muse-cli projection
+        run: >-
+          uv run --no-sync consumer-agent-testing-tool connector-run examples/connector/fixture-booking-cli.yaml
+          --driver scripted --script examples/connector/fixture-booking-cli.calls.json
+          --start "python -m consumer_agent_testing_tool.connector_fixture --port {port} --variant good --auth none"
+          --junit reports/fixture-booking-cli.xml
+
+      - name: Scripted weather question against the locked MCP reference server
+        run: >-
+          uv run --no-sync consumer-agent-testing-tool connector-run examples/connector/everything-weather.yaml
+          --driver scripted --script examples/connector/everything-weather.calls.json
+          --start "node tooling/ci/node_modules/@modelcontextprotocol/server-everything/dist/index.js streamableHttp"
+          --junit reports/everything-weather.xml
+
+      - name: Guidelines readiness review of the test service's catalog
+        run: |
+          uv run --no-sync python -m consumer_agent_testing_tool.connector_fixture \
+            --port 8765 --variant good --auth none > fixture.log 2>&1 &
+          fixture_pid=$!
+          trap 'kill "$fixture_pid" 2>/dev/null || true; wait "$fixture_pid" 2>/dev/null || true' EXIT
+          ready=false
+          for _ in $(seq 100); do
+            kill -0 "$fixture_pid"
+            if curl --silent --output /dev/null --max-time 1 http://127.0.0.1:8765/mcp; then
+              ready=true
+              break
+            fi
+            sleep 0.2
+          done
+          if [ "$ready" != true ]; then
+            echo "Fixture did not become ready" >&2
+            exit 1
+          fi
+          uv run --no-sync consumer-agent-testing-tool check http://127.0.0.1:8765/mcp \
+            --suite muse-guidelines --manifest examples/connector/readiness.yaml --junit reports/readiness.xml
+
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        if: always()
+        with:
+          name: connector-lane-${{ matrix.os }}
+          # Never upload runs/, private values, or unredacted service logs.
+          path: reports/
+          retention-days: 14
+          if-no-files-found: warn
+
+  required:
+    name: CI
+    if: always()
+    needs: [lint, repository-checks, tests, connector-lane]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - name: Require every job to pass
+        env:
+          RESULTS: ${{ toJSON(needs) }}
+        run: |
+          echo "$RESULTS" | jq --exit-status 'all(.[]; .result == "success")'

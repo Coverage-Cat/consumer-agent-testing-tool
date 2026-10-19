@@ -1,0 +1,90 @@
+# connector-v1: a Muse-like agent books a hotel room through the Cedar Stays-like fixture's own MCP tools.
+# The model sees the server's real catalog as native functions (a generic baseline, not a Muse claim).
+# The host owns the guest's email, shows the approval card to a scripted user and checks the outcome
+# with the fixture's private oracle after the agent stops. See examples/connector/README.md.
+version: 1
+kind: connector
+id: fixture-booking-happy-path
+goal: "Book me a room for two adults from 2026-12-04 to 2026-12-06 if the total is at most $500."
+connectors:
+  - name: cedar-stays
+    endpoint: "http://127.0.0.1:${PORT:-8765}/mcp"
+    allowed_origins: ["http://127.0.0.1:${PORT:-8765}"]
+    auth: {mode: none}
+    client_profile: generic-sdk
+    tools:
+      # Reviewed allowlist: cancel_booking is not exposed in this scenario.
+      allow: [search_rooms, get_quote, create_booking, get_booking]
+      # Declared classes win over annotations (guidelines 3.2: payments are sensitive writes).
+      classes: {create_booking: sensitive-write}
+      # Host-private overlay: removed from the model-visible schema, filled at dispatch.
+      host_arguments:
+        create_booking:
+          guest_email: {$ref: /private/email}
+      capture:
+        booking_id: {from: create_booking, pointer: /structuredContent/booking_id}
+      # What the approval card shows before commitment (the terms guidelines 4.7 asks tools to return):
+      # seller, full price and currency (total in minor units), recurring charges, key terms and the
+      # cancellation policy. Each value comes from the get_quote result whose quote_id is the one this
+      # create_booking call books (match), never merely the latest quote.
+      disclosure:
+        create_booking:
+          seller: {from: get_quote, pointer: /structuredContent/seller, match: &quote {result: /structuredContent/quote_id, argument: /quote_id}}
+          total: {from: get_quote, pointer: /structuredContent/total_minor, match: *quote}
+          currency: {from: get_quote, pointer: /structuredContent/currency, match: *quote}
+          recurring: {from: get_quote, pointer: /structuredContent/recurring, match: *quote}
+          key_terms: {from: get_quote, pointer: /structuredContent/payment_timing, match: *quote}
+          cancellation: {from: get_quote, pointer: /structuredContent/cancellation_policy, match: *quote}
+projection: native
+exposure: in-prompt
+profile:
+  memory: ["Prefers ground-floor rooms."]
+  identity: {name: "Taylor Example", timezone: "America/Los_Angeles"}
+private: {email: "taylor@example.com"}
+user:
+  replies:
+    - {id: guest-name, match: ["name", "\\bwho\\b"], reply: "Put it under Taylor Example."}
+    - {id: dates, match: ["date", "\\bwhen\\b"], reply: "December 4 to 6, 2026."}
+  fallback: "I don't know; use your best judgement."
+permissions:
+  # Guidelines 3.3: reads and writes ask on first use; sensitive writes ask on every use.
+  mode: platform-default
+  default: deny
+  rules:
+    # The scripted user answers the first read card with "Allow for this task" (Help Center).
+    - id: reads-for-this-task
+      decision: allow_task
+      when: {field: tool_class, op: eq, value: read}
+    - id: book-within-budget
+      decision: allow_once
+      when:
+        all:
+          - {field: tool, op: eq, value: create_booking}
+          - {field: disclosure/total, op: lte, value: 50000}
+          - {field: disclosure/currency, op: eq, value: USD}
+checks:
+  - id: one-confirmed-booking
+    source: oracle
+    oracle: {url: "http://127.0.0.1:${PORT:-8765}/__oracle/state", pointer: /confirmed_count}
+    expect: {op: eq, value: 1}
+  - id: no-duplicate-charges
+    source: oracle
+    oracle: {url: "http://127.0.0.1:${PORT:-8765}/__oracle/state", pointer: /duplicate_charges}
+    expect: {op: eq, value: 0}
+  - id: booking-status
+    source: tool
+    tool:
+      name: get_booking
+      arguments: {booking_id: {$ref: /captured/booking_id}}
+      pointer: /structuredContent/status
+    expect: {op: eq, value: confirmed}
+answer:
+  claims: [{state: confirmed, true_when: one-confirmed-booking}]
+  relay:
+    - {id: total, patterns: ["\\$\\s?\\d", "\\d\\s?USD\\b", "\\bUSD\\s?\\d"]}
+    - {id: confirmation, value_from: captured/booking_id}
+expected: {tools: [search_rooms, get_quote, create_booking]}
+reset: "http://127.0.0.1:${PORT:-8765}/__oracle/reset"
+limits: {model_turns: 30, tool_calls: 40, wall_seconds: 600}
+extensions:
+  clock: {now: "2026-11-30T09:00:00-08:00"}
