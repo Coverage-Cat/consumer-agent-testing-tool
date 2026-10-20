@@ -1,8 +1,8 @@
 # Changelog
 
-## Unreleased
+## 0.1.0 - 2026-10-20
 
-Initial private testing of version 0.1.0 before an open-source launch.
+First public release.
 
 - Consumer-agent surrogate testing for MCP connectors, MCP Apps, browsers and mapped HTTP APIs.
 - Scripted, model-free trials; service-side checks; sealed evidence, exports, replay and diff.
@@ -13,5 +13,5 @@ Initial private testing of version 0.1.0 before an open-source launch.
   collections, and a maintained ref-parser replaces `json-schema-faker`'s old one. This removes
   Faker 5.5.3, uuid 8.3.2 and sprintf-js 1.0.3 and their advisories.
 
-This is alpha software. Supported scope and exclusions are in the README. No public release is
-claimed by this entry; release artifacts must pass the release audit for their own commit.
+This is alpha software. Supported scope and exclusions are in the README. Release artifacts must
+pass the release audit for their own commit.
