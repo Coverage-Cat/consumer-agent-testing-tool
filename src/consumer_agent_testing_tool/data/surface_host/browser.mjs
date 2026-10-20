@@ -348,6 +348,9 @@ export class RestrictedBrowser extends BrowserNetwork {
       if (index >= 0) {
         this.deferred.splice(index, 1);
         try {
+          // Linux Chromium can drop a reload issued while the placeholder is still loading.
+          await page.waitForLoadState('domcontentloaded', {timeout: Math.max(1, deadline - Date.now())})
+            .catch(() => {});
           await page.reload({waitUntil: 'domcontentloaded', timeout: this.policy.timeout_seconds * 1000});
         } catch (error) {
           this.observe({kind: 'browser_tab_load', tab: this.tabIds.get(page), status: 'failed',
