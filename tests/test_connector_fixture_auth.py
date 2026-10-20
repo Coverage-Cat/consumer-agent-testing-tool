@@ -94,8 +94,9 @@ async def test_api_key_header_rejects_missing_wrong_and_misplaced_keys():
         missing, _ = await raw_call(fixture.mcp_url, "search_rooms", STAY)
         assert missing.status_code == 401 and missing.json()["error"] == "missing_api_key"
         assert missing.headers["www-authenticate"] == 'ApiKey realm="cedar-stays", header="X-API-Key"'
+        # A generated key ends in "x" one time in 64, so change the last character, never keep it.
         wrong, _ = await raw_call(fixture.mcp_url, "search_rooms", STAY,
-                                  headers={"X-API-Key": key[:-1] + "x"})
+                                  headers={"X-API-Key": key[:-1] + ("y" if key.endswith("x") else "x")})
         assert wrong.status_code == 401 and wrong.json()["error"] == "invalid_api_key"
         misplaced, _ = await raw_call(fixture.mcp_url, "search_rooms", STAY,
                                       headers={"Authorization": f"Bearer {key}"})
