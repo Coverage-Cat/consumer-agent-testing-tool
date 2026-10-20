@@ -301,7 +301,11 @@ async def test_entire_native_request_has_a_deadline(tmp_path, monkeypatch, provi
         provider=provider, model_id="local-fixture", api="chat-completions",
         auth={"mode": "api_key", "env": "OPENROUTER_API_KEY"} if provider == "openrouter" else {"mode": "none"},
         base_url=endpoint + "/v1"))
-    profile.limits.timeout_seconds = 1
+    # Inspect stops retrying, and surfaces the 429 itself, when the first attempt alone
+    # uses the whole budget. A slow CI runner can take a second for that attempt, so
+    # the Retry-After case gets room; the 60-second hint still far exceeds it.
+    budget = 1 if failure == "stalled-response" else 5
+    profile.limits.timeout_seconds = budget
     profile.limits.max_retries = 2
     evidence = Evidence(tmp_path / "runs", lane="contract", label="protocol-tested",
                         profile=interface_profile("muse-cli-skills-public-2026-09"), lock={})
@@ -312,7 +316,7 @@ async def test_entire_native_request_has_a_deadline(tmp_path, monkeypatch, provi
             await model.generate("This response is deliberately unavailable.")
         elapsed = time.monotonic() - started
         assert classify_provider_error(error.value) == "provider timeout"
-        assert elapsed < 2.5
+        assert elapsed < budget + 1.5
         assert evidence.manifest["execution_failure"]["class"] == "setup/infrastructure"
         # The label leads; any bounded provider/Inspect reason follows it.
         assert evidence.manifest["execution_failure"]["detail"].startswith(
