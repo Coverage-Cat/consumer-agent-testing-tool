@@ -341,7 +341,8 @@ export class RestrictedBrowser extends BrowserNetwork {
   // placeholder has committed. Fails closed: a page without a guard is closed by adopt().
   async release(page) {
     await this.guardRedirects(page);
-    for (let attempt = 0; this.deferred.length; attempt++) {
+    const deadline = Date.now() + this.policy.timeout_seconds * 1000;
+    while (this.deferred.length) {
       const url = page.url().split('#')[0];
       const index = this.deferred.findIndex(row => row.url === url && (row.page ?? page) === page);
       if (index >= 0) {
@@ -354,10 +355,13 @@ export class RestrictedBrowser extends BrowserNetwork {
         }
         return;
       }
-      if (attempt) return;
-      // The placeholder may not have committed yet.
+      // The placeholder may not have committed yet; on a busy machine that takes seconds. Wait
+      // only while a held navigation can still be this page's: one recorded for it, or one
+      // recorded before any page existed while this one is still blank.
+      const blank = url === '' || url === 'about:blank', left = deadline - Date.now();
+      if (left <= 0 || !this.deferred.some(row => row.page === page || (!row.page && blank))) return;
       await page.waitForEvent('framenavigated', {predicate: frame => frame === page.mainFrame(),
-        timeout: 1000}).catch(() => {});
+        timeout: left}).catch(() => {});
     }
   }
   redirectDenied(page, url) {

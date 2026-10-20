@@ -495,6 +495,29 @@ async def test_browser_p0_popup_fragment_blank_and_post_first_navigations(portal
     assert [row["method"] for row in requests if row["path"] == "/case/popup-target"] == ["GET", "GET"]
 
 
+async def test_browser_p0_blank_tab_whose_placeholder_commits_late_still_loads(portal, tmp_path, monkeypatch):
+    # On a loaded machine a held first navigation's placeholder can take over a second to commit.
+    # The tab must still load, not stay on the inert placeholder.
+    original, receipt = asyncio.create_subprocess_exec, tmp_path / "placeholder-delay.txt"
+
+    async def delayed(*args, **kwargs):
+        if any(str(arg).endswith("/surface_host/host.mjs") for arg in args):
+            kwargs["env"] = {**kwargs["env"],
+                             "NODE_OPTIONS": "--import=" + str(Path.cwd() / "tests/browser_placeholder_delay.mjs"),
+                             "SURFACE_TEST_PLACEHOLDER_RECEIPT": str(receipt)}
+        return await original(*args, **kwargs)
+
+    monkeypatch.setattr(asyncio, "create_subprocess_exec", delayed)
+    snapshot = await portal.open("popup", reads=["/case/popup-target"])
+    opened = await portal.action(snapshot, "Open blank then details")
+    tab = next(tab for tab in opened["tabs"] if tab["id"] == "2")
+    assert tab["url"] == portal.origin + "/case/popup-target" and tab["title"] == "Synthetic portal fault"
+    requests = (await portal.oracle())["requests"]
+    assert [row["method"] for row in requests if row["path"] == "/case/popup-target"] == ["GET"]
+    # Prove the late commit was applied, not that the unmodified timing happened to pass.
+    assert receipt.read_text().splitlines() == ["delayed"]
+
+
 async def test_browser_p0_password_masks_follow_serializer_whitespace(portal):
     snapshot = await portal.open("password-spacing")
     text = snapshot["text"]
