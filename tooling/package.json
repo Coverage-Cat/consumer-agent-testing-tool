@@ -5,6 +5,6 @@
   "description": "Optional upstream protocol tools; setup separately from the Python core",
   "dependencies": {
     "@modelcontextprotocol/conformance": "0.1.16",
-    "@modelcontextprotocol/inspector": "2.9.0"
+    "@modelcontextprotocol/inspector": "2.11.0"
   }
 }
