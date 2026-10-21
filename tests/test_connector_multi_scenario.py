@@ -170,6 +170,7 @@ def test_an_unset_connector_exposure_keeps_a_p1_scenario_s_digest():
     from consumer_agent_testing_tool.serialization import digest
     loaded = parse_scenario(scenario())
     document = loaded.scenario.model_dump(mode="json", by_alias=True)
+    assert document.pop("emulation_target") == "muse"  # This selector did not exist in P1.
     document["private"] = _masked(document["private"])
     for connector in document["connectors"]:
         # The connector fields added after P1 (exposure, then limits and output_schema), all unset here.
