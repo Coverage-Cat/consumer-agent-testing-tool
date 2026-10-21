@@ -73,8 +73,11 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [macos-15, ubuntu-24.04]
-        python: ["3.12", "3.14"]
+        # Each OS once and each Python once: macOS with the release job's 3.14, Linux with the 3.12 floor.
+        # The code has no Python-version branches, so the other two pairings repeated the suite.
+        include:
+          - {os: macos-15, python: "3.14"}
+          - {os: ubuntu-24.04, python: "3.12"}
     runs-on: ${{ matrix.os }}
     timeout-minutes: 60
     env:

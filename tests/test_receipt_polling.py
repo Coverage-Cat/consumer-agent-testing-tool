@@ -75,13 +75,15 @@ async def test_public_pending_receipt_reaches_native_continuation_without_repeat
 
 @pytest.mark.parametrize("generated", [False, True])
 async def test_public_poll_budget_survives_resume_and_never_renews_grant(retained, tmp_path, generated):
+    # The wait stays below the interval so each resume polls at most once, and leaves a slow runner's
+    # loopback lookup room: a lookup that outlasts the wait is reserved but never sent.
     original, spec = await setup(retained, tmp_path, generated,
-        {"max_attempts": 2, "interval_seconds": 0.2, "wait_seconds": 0.1})
+        {"max_attempts": 2, "interval_seconds": 1.0, "wait_seconds": 0.5})
     retained.pending_receipts = 10
     first, api, checks = await resume(retained, original, spec, [])
     assert statuses(checks) == (3, "blocked"), checks
     assert api.inputs == [] and poll_record(first)["attempts"] == 1
-    await asyncio.sleep(0.21)
+    await asyncio.sleep(1.01)
     second, api, checks = await resume(retained, first, spec, [])
     assert statuses(checks) == (3, "blocked"), checks
     assert api.inputs == [] and poll_record(second)["attempts"] == 2

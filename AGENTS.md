@@ -148,10 +148,8 @@ it or commit it. To share a run, use the output of `consumer-agent-testing-tool 
   later releases, not implemented targets. Keep this distinct from the model that drives a trial.
 - Code is in `src/consumer_agent_testing_tool/` (CLI entry: `cli.py`). The connector lane is in
   `connector*.py`.
-- Tests: `uv run pytest -q` runs the full supported collection, in about 20 minutes, with no network
-  beyond loopback. Run the files you touched first, for example
-  `uv run pytest -q tests/test_connector_*.py`.
-- Lint: `uv run ruff check src tests scripts`.
+- Tests and lint: run them locally before every push. See
+  [Verify locally, push rarely](#verify-locally-push-rarely).
 - Tests must make no network request beyond loopback and no model request. Use the stand-in servers in
   `tests/` and the `connector_fixture` module.
 - After changing a pydantic model behind a schema, run `uv run python scripts/generate_schema.py` to
@@ -172,3 +170,58 @@ it or commit it. To share a run, use the output of `consumer-agent-testing-tool 
   - [connector-lane.md](docs/connector-lane.md): scenario format, flags and evidence;
   - [connector-extensions.md](docs/connector-extensions.md);
   - [readiness-checks.md](docs/readiness-checks.md).
+
+## Verify locally, push rarely
+
+Remote CI is slow:
+- A test job takes 25–30 minutes.
+- macOS jobs queue behind release runs.
+- `main` requires branches to be up to date, so merging one PR can force another full run on the
+  next.
+
+Each failed or repeated run costs about half an hour, so catch failures on your machine first.
+
+Before every push, run what CI runs:
+
+```sh
+uv run ruff check src tests scripts
+uv run python scripts/generate_schema.py
+git diff --exit-code -- schemas src/consumer_agent_testing_tool/data/schemas
+python3 scripts/check_repository.py
+uv run pytest -q -p no:cacheprovider -o faulthandler_timeout=120 tests
+```
+
+- **The full collection:** it takes about 20 minutes and makes no network request beyond
+  loopback. Run the files you touched first, for example
+  `uv run pytest -q tests/test_connector_*.py`. Then run the full collection in the background and
+  keep working.
+- **Connector lane:** if you change it, the CLI or `examples/`, also run the matching
+  `connector-run` commands from the `connector-lane` job in `.github/workflows/ci.yml`.
+- **Browser or timing changes:** repeat the affected tests several times, then once more with
+  every CPU core busy. One pass doesn't show a test is stable.
+- **New regression tests:** make sure the test fails on the old code before you rely on it.
+- **Failures you didn't cause:** if a test also fails on unmodified `main`, you didn't cause it.
+  Check with `git stash` before you investigate, and say so in the PR.
+- **Linux-only failures:** CI also runs on Ubuntu. If a failure appears only there, reproduce it in
+  a local Linux container if you can. If you can't:
+  1. Push a temporary `debug/` branch whose `ci.yml` runs only the failing tests in a loop.
+  2. Dispatch it with `gh workflow run ci.yml --ref debug/<name>`.
+  3. Delete the branch when you're done.
+
+  Don't re-run full CI over and over to diagnose a flake.
+- **Known flakes:** re-run a failed job only when the failure is a known flake. If it's new,
+  investigate it first.
+
+Batch work into fewer, larger pull requests:
+- **Group the session's changes:** put every change from one session on one branch, related or
+  not: a fix, the test flakes it uncovered, a docs correction. Make one commit per change, and
+  explain each in its message. Open a separate PR only for work that must merge on its own
+  schedule, such as a security fix or a release.
+- **Write the PR body as the commit message:** `main` allows only squash merges, and the squash
+  commit's message is the PR body. Give each change in the PR its own heading or bullet, with its
+  cause, its fix and how you verified it.
+- **Finish locally before you push:** open the PR once the branch passes locally, not to see what
+  CI says. If more fixes turn up while CI runs, add them to the same branch in one push.
+- **Know what goes stale:** changes under `src/`, `scripts/`, `tests/`, the lock files or the
+  notices make recorded release evidence stale. Group them, so a release needs one rehearsal, not
+  several.
