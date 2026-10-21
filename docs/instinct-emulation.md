@@ -118,6 +118,10 @@ The `check --suite muse-guidelines`, `poppy` and `gadget` suites remain Muse
 specific. There is no `instinct-guidelines` suite: no equivalent guidelines
 were found. Use generic MCP contract checks for protocol evidence.
 Instinct runs do not attach Muse guideline findings after execution.
+Its connector profile remains resolvable for replay and diff, but selecting it
+through `--interface-profile`, `--profile` or `defaults.interface_profile` for
+`run`, `inspect`, `check` or `doctor` is rejected. Those commands do not
+implement the connector host.
 
 ## Initial implementation
 

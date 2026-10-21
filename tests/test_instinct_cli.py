@@ -91,6 +91,9 @@ async def test_invalid_target_override_precedes_preflight_and_service_start(
 
 async def test_scaffold_records_instinct_without_calling_service_tools(workspace, monkeypatch, capsys):
     hotel = Hotel()
+    hotel.catalog.append({
+        "name": "manage_messages", "annotations": {"readOnlyHint": True},
+        "inputSchema": {"type": "object", "properties": {"action": {"enum": ["list", "send"]}}}})
     made = services(hotel)
     monkeypatch.setattr(connector_run, "default_services", lambda: made)
     assert await execute(parser().parse_args([
@@ -100,7 +103,7 @@ async def test_scaffold_records_instinct_without_calling_service_tools(workspace
     assert doc["emulation_target"] == "instinct"
     assert doc["connectors"][0]["client_profile"] == "generic-sdk"
     assert hotel.calls == []
-    assert "guidelines 3.3" not in (workspace / "instinct.yaml").read_text()
+    assert "guidelines" not in (workspace / "instinct.yaml").read_text()
     before = len(made.linked)
     with pytest.raises(LabError, match="Instinct"):
         await execute(parser().parse_args([
@@ -108,6 +111,35 @@ async def test_scaffold_records_instinct_without_calling_service_tools(workspace
             "--client-profile", "muse-template-unofficial-2026-10", "--output", "bad.yaml"]))
     assert len(made.linked) == before
     assert not (workspace / "bad.yaml").exists()
+
+
+@pytest.mark.parametrize("command", ["inspect", "check", "doctor", "run"])
+@pytest.mark.parametrize("selection", ["--interface-profile", "--profile", "default"])
+@pytest.mark.parametrize("target", ["muse", "instinct"])
+async def test_connector_profiles_cannot_label_other_commands(
+        workspace, monkeypatch, command, selection, target):
+    from consumer_agent_testing_tool.config import Config, interface_profile
+    from consumer_agent_testing_tool.emulation import target_profile
+    from consumer_agent_testing_tool.errors import Unsupported
+
+    profile = target_profile(target)["name"]
+    assert interface_profile(profile)["name"] == profile  # Still resolvable for replay and diff.
+    config = Config()
+    if selection == "default":
+        config.defaults.interface_profile = profile
+    path = workspace / "config.json"
+    path.write_text(config.model_dump_json())
+
+    def forbidden(*args, **kwargs):
+        pytest.fail("An unsupported profile must fail before creating evidence or probing a provider")
+    monkeypatch.setattr("consumer_agent_testing_tool.cli.Evidence", forbidden)
+    monkeypatch.setattr("consumer_agent_testing_tool.providers.preflight", forbidden)
+    args = [command, *(["missing.yaml"] if command == "run" else []), "--config", str(path)]
+    if selection != "default":
+        args += [selection, profile]
+    with pytest.raises(Unsupported, match="connector-run"):
+        await execute(parser().parse_args(args))
+    assert not (workspace / "runs").exists()
 
 
 async def test_instinct_export_retains_target_and_diff_reports_a_target_change(workspace, capsys):

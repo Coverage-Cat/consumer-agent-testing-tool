@@ -292,7 +292,7 @@ class Presentation(BaseExtension):
             checks.append({"id": "presentation.widget_fields", "layer": "host", "status": "observation-gap",
                            "required": False, "class": "observation gap", "expected": list(self.config.widget_fields),
                            "actual": gaps, "basis": "unofficial (ext_presentation BASES['widgets'])"
-                           if self.emulation_target == "muse" else self.behavior_bases(BASES)["widgets"],
+                           if self.emulation_target == "muse" else "assumed CATT presentation check",
                            "detail": ("List results lack fields a list widget shows: " + "; ".join(
                                f"{where}: {', '.join(missing)}" for where, missing in gaps.items()))[:500]})
         return checks

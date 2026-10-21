@@ -1397,7 +1397,8 @@ class ConnectorRun:
         for tool in connection.catalog:
             name = tool["name"]
             connection.classifications[name] = classify_tool(tool, tools_spec.classes.get(name),
-                                                             important_read=name in important)
+                                                             important_read=name in important,
+                                                             emulation_target=self.scenario.emulation_target)
         if self.scenario.emulation_target == "muse":
             try:
                 connection.sheet = classification_sheet(connection.catalog, dict(tools_spec.classes))
@@ -3893,7 +3894,8 @@ async def _run_from_cli(args, root, outputs) -> int:
     outputs.treatment = {"projection": args.projection, "exposure": args.exposure,
                          "client_profile": args.client_profile, "output_schema": getattr(args, "output_schema", None),
                          "emulation_target": chosen_target or loaded.scenario.emulation_target}
-    # Validate all treatments together before model preflight, authentication or service startup.
+    # Resolve and validate the target before preflight, authentication or service startup.
+    # ConnectorRun revalidates at construction so library callers get the same guard.
     effective = effective_scenario(loaded.scenario, projection=args.projection, exposure=args.exposure,
                                    client_profile=args.client_profile,
                                    output_schema=getattr(args, "output_schema", None),
@@ -4117,7 +4119,7 @@ async def scaffold_from_cli(args, services=None) -> int:
     if not isinstance(tools, list) or not all(isinstance(tool, dict) and isinstance(tool.get("name"), str)
                                               for tool in tools):
         raise LabError("The server's tools/list is not a list of named tools", code=1, category="tool/API")
-    classifications = {tool["name"]: classify_tool(tool) for tool in tools}
+    classifications = {tool["name"]: classify_tool(tool, emulation_target=emulation_target) for tool in tools}
     server_info = client.server_info or {}
     server_name = str(server_info.get("name") or "connector").lower()
     name = args.name or re.sub(r"[^a-z0-9-]+", "-", server_name).strip("-")

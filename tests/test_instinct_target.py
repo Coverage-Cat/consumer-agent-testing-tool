@@ -74,6 +74,24 @@ async def test_instinct_scripted_run_has_target_evidence_and_keeps_host_secrets(
     assert len(hotel.calls) == 3
 
 
+async def test_instinct_classification_keeps_conservative_rules_without_muse_citations(tmp_path):
+    hotel = Hotel()
+    hotel.catalog.append({
+        "name": "manage_messages", "annotations": {"readOnlyHint": True},
+        "inputSchema": {"type": "object", "properties": {"action": {"enum": ["list", "send"]}}}})
+    doc = scenario(emulation_target="instinct")
+    doc["permissions"]["important_reads"] = ["get_quote"]
+    run, code, _ = await run_connector(tmp_path, doc, hotel=hotel)
+    assert code == 0, run.summary()
+    classified = {item["tool"]: item for item in events(run, "classification")[0]["classes"]}
+    assert classified["manage_messages"]["tool_class"] == "sensitive-write"
+    assert any("combines reads and writes" in reason for reason in classified["manage_messages"]["reasons"])
+    assert any("important read" in reason for reason in classified["get_quote"]["reasons"])
+    text = json.dumps(classified)
+    assert "guidelines" not in text and "Help Center" not in text
+    assert "CATT assumption for Instinct" in text
+
+
 async def test_instinct_agent_prompt_and_subrun_are_target_specific_without_a_model_request(tmp_path):
     driver, api = agent(booking_responses())
     run, code, _ = await run_connector(tmp_path, scenario(emulation_target="instinct"), driver=driver)
@@ -103,6 +121,20 @@ async def test_instinct_text_channel_detects_markup_without_rewriting_the_answer
     assert result["answer"]["final_answer"] == text
     assert next(check for check in result["checks"]
                 if check["id"] == "presentation.text_format")["status"] == "failed"
+
+
+async def test_muse_can_opt_into_the_assumed_text_treatment(tmp_path):
+    from consumer_agent_testing_tool.connector_run import ScriptedDriver
+
+    text = "A plain message. " * 400
+    doc = scenario(checks=[], answer=None, extensions={"presentation": {"channel": "text", "widget_fields": []}})
+    run, code, _ = await run_connector(tmp_path, doc, driver=ScriptedDriver([{"answer": text}]))
+    assert code == 0, run.summary()
+    result = result_of(run)
+    assert result["emulation_target"] == "muse" and result["answer"]["final_answer"] == text
+    assert next(row for row in result["checks"] if row["id"] == "presentation.text_format")["status"] == "passed"
+    assert not any(row["id"] == "presentation.length" for row in result["checks"])
+    assert result["metrics"]["extensions"]["presentation"]["bases"]["text"]["basis"] == "assumed"
 
 
 def test_switching_a_cli_scenario_validates_the_combined_treatments():

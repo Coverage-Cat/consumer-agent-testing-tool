@@ -90,6 +90,10 @@ async def test_only_a_sealed_shareable_agent_trial_is_read(workspace):
         await scaffold("--from-run", scripted.path, "--output", "a.calls.yaml")
     with pytest.raises(LabError, match="does not apply to --from-run"):
         await scaffold("http://127.0.0.1:8765/mcp", "--from-run", run.path, "--output", "b.calls.yaml")
+    for target in ("muse", "instinct"):
+        with pytest.raises(LabError, match="--emulation-target does not apply to --from-run"):
+            await scaffold("--from-run", run.path, "--emulation-target", target, "--output", "target.calls.yaml")
+    assert not (workspace / "target.calls.yaml").exists()
     (workspace / "c.calls.yaml").write_text("[]")
     with pytest.raises(LabError, match="already exists"):
         await scaffold("--from-run", run.path, "--output", "c.calls.yaml")

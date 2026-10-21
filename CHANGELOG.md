@@ -5,6 +5,12 @@
 - Experimental Instinct emulation target for connector trials and selected
   extensions, with source research, plain-text checks, separate provenance,
   a scripted example and CI coverage.
+- Connector run locks, CI summaries and JUnit now record the emulation
+  target. Comparing older Muse evidence with a new run can report lock
+  changes; published Muse scenario digests and older summary validity are
+  preserved. Text presentation is also available as an assumed Muse treatment.
+- Connector-only interface profiles are rejected by other execution commands
+  instead of labeling a run with host behavior those commands do not implement.
 
 ## 0.1.0 - 2026-10-20
 

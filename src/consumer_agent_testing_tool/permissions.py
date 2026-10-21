@@ -411,7 +411,7 @@ def strongest(signals):
     return max((row[0] for row in signals), key=SEVERITY.__getitem__)
 
 
-def infer(tool):
+def infer(tool, *, combined=COMBINED):
     """(class, basis, reasons) without a declaration; annotations are hints, so signals can override."""
     notes, hints = [], {}
     annotations = tool.get("annotations")
@@ -434,7 +434,7 @@ def infer(tool):
     if read_only:
         if writes:  # A read must not hide a send, payment or booking (guidelines 3.2).
             return strongest(writes), "heuristic", stated + [
-                f"hidden-write-signal: {reason}" for _, reason in writes] + [COMBINED]
+                f"hidden-write-signal: {reason}" for _, reason in writes] + [combined]
         return "read", "annotation", stated
     if destructive:
         return "sensitive-write", "annotation", stated
@@ -445,7 +445,7 @@ def infer(tool):
     if found:
         tool_class = strongest(found)
         mixed = tool_class != "read" and any(row[0] == "read" for row in found)
-        return tool_class, "heuristic", stated + [reason for _, reason in found] + ([COMBINED] if mixed else [])
+        return tool_class, "heuristic", stated + [reason for _, reason in found] + ([combined] if mixed else [])
     return "write", "default", stated + [
         "no declared class, annotation or recognized verb: unknown tools stay write-gated"]
 
@@ -603,13 +603,17 @@ def operation_signals(tool: dict) -> dict | None:
 
 
 def classify_tool(tool: dict, declared: ToolClass | None = None, *,
-                  important_read: bool = False) -> Classification:
-    """Classify one tools/list entry; a declared class (Meta's review stand-in) wins."""
+                  important_read: bool = False, emulation_target: str = "muse") -> Classification:
+    """Classify one tools/list entry; a declared class wins. Instinct shares the algorithm as an assumption."""
+    if emulation_target != "muse":
+        target_profile(emulation_target)
+    combined = (COMBINED if emulation_target == "muse" else
+                "combines reads and writes: classified as a write (CATT assumption for Instinct)")
     if not isinstance(tool, dict) or not isinstance(tool.get("name"), str) or not tool["name"]:
         raise LabError("A tools/list entry needs a nonempty string name")
     if declared is not None and declared not in CLASSES:
         raise LabError(f"Declared class for {tool['name']} must be one of {', '.join(CLASSES)}")
-    tool_class, basis, reasons = infer(tool)
+    tool_class, basis, reasons = infer(tool, combined=combined)
     operations = operation_signals(tool)
     if operations and SEVERITY[operations["class"]] > SEVERITY[tool_class]:
         # Whatever the annotations say: the schema offers these actions (guidelines 3.2). The sheet uses
@@ -619,12 +623,13 @@ def classify_tool(tool: dict, declared: ToolClass | None = None, *,
                               f"{', '.join(map(repr, operations['values']))} ({operations['class']})")]
         if operations["combined"]:
             reasons.append(f"combined-operations: '{operations['parameter']}' offers reads and writes; "
-                           + COMBINED)
+                           + combined)
     if declared is not None:
         overridden = [] if declared == tool_class else [f"overrides {basis} class {tool_class}"]
         tool_class, basis, reasons = declared, "declared", [f"declared {declared}", *overridden, *reasons]
     if important_read:
-        reasons.append("important read: asks under Ask for some actions (Help Center)" if tool_class == "read"
+        source = "Help Center" if emulation_target == "muse" else "CATT assumption for Instinct"
+        reasons.append(f"important read: asks under Ask for some actions ({source})" if tool_class == "read"
                        else "important-read flag has no effect: writes always ask")
     return Classification(tool=tool["name"], tool_class=tool_class, basis=basis,
                           reasons=list(dict.fromkeys(reasons)))
@@ -974,7 +979,7 @@ class PermissionEngine:
         self.class_bases = behavior_bases(emulation_target, "permission classes", CLASS_BASIS)
         self.rule_bases = behavior_bases(emulation_target, "permissions", RULE_BASIS)
         self.choice_source = dict(CHOICE_SOURCE) if emulation_target == "muse" else {
-            kind: "CATT's assumed grant choice for Instinct; the product's approval UI is not published"
+            kind: f"CATT's assumed '{kind}' grant choice for Instinct; the product's approval UI is not published"
             for kind in CHOICE_SOURCE
         }
         self.policy = policy if isinstance(policy, PermissionPolicy) else PermissionPolicy.model_validate(policy)

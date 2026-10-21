@@ -645,9 +645,17 @@ def default_interface_profile(configured: str, *surfaces: str) -> str:
 def select_interface_profile(args, config: Config, target: Target | None) -> dict:
     """An explicit flag wins; otherwise the configured default when it serves this command,
     else the supported profile for the run surface or the target kind."""
-    if explicit := args.interface_profile or args.profile:
-        return interface_profile(explicit)
+    from .emulation import PROFILES
+
+    explicit = args.interface_profile or args.profile
     configured = config.defaults.interface_profile
+    # These names remain resolvable for evidence readers, but only connector-run implements their host.
+    for target_name, profile in PROFILES.items():
+        if (explicit or configured) == profile["name"]:
+            raise Unsupported(f"Interface profile {profile['name']} belongs to connector-run; "
+                              f"use connector-run SCENARIO --emulation-target {target_name}")
+    if explicit:
+        return interface_profile(explicit)
     if args.command == "run":
         return interface_profile(default_interface_profile(configured, args.surface))
     if args.command in ("inspect", "check") and target is not None:
