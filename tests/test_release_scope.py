@@ -24,6 +24,10 @@ def test_default_cli_hides_development_commands_and_local_model(capsys):
 def test_default_initialization_only_stages_consumer_tooling(tmp_path):
     initialize(parser().parse_args(["init", "--provider", "none", "--config", str(tmp_path / "lab.yaml")]))
     assert (tmp_path / "tooling/payment-ui/package-lock.json").is_file()
+    root = Path(__file__).resolve().parents[1]
+    for group in ("tooling", "tooling/payment-ui"):
+        for name in ("package.json", "package-lock.json"):
+            assert (tmp_path / group / name).read_bytes() == (root / group / name).read_bytes()
     assert not (tmp_path / "tooling/api").exists()
     assert not (tmp_path / "calibration-examples").exists()
     assert not (tmp_path / "openapi").exists()

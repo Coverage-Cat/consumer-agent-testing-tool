@@ -11,6 +11,9 @@
   preserved. Text presentation is also available as an assumed Muse treatment.
 - Connector-only interface profiles are rejected by other execution commands
   instead of labeling a run with host behavior those commands do not implement.
+- Update optional MCP Inspector to 2.11.0 and its locked MCP SDK and Vite
+  dependencies to patched versions. Fresh `init` projects receive the same
+  manifests as the repository.
 
 ## 0.1.0 - 2026-10-20
 
