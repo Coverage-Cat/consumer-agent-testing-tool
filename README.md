@@ -53,7 +53,7 @@ every page.
 
 ## Setup
 
-You need Python 3.12 or newer (tested on 3.12, 3.13 and 3.14),
+You need Python 3.12 or newer (CI tests 3.12 on Linux and 3.14 on macOS),
 [uv](https://docs.astral.sh/uv/), and Node.js 20 or newer with npm (the
 installed packages declare `>=20`; tested with 25.9). The recorded release
 evidence covers macOS. From a clone of this repository, install the Python and
