@@ -226,6 +226,51 @@ REQUIRED = {'replay-diff': {'test_backwards_wall_clock_cannot_produce_negative_e
                            'test_unsupported_proposal_schemas_remain_unknown_without_retrieval',
                            'test_wrong_pending_receipt_stops_before_second_poll_or_inference'}}
 
+# Exact module, test and parameter identities: one passing target must never stand in for the other.
+REQUIRED["surrogate-parity"] = {
+    "tests.test_surrogate_parity::test_both_targets_publish_the_same_supported_connector_contract",
+    *(
+        f"tests.{module}::{name}[{variant}{target}-{projection}]"
+        for target in ("muse", "instinct") for projection in ("native", "cli")
+        for module, name, variants in (
+            ("test_surrogate_parity", "test_surrogate_memory_checks_live_reads_and_stale_answers", ("stale-", "fresh-")),
+            ("test_surrogate_parity", "test_surrogate_routes_connect_only_with_consent_and_can_fall_back_to_phone", ("",)),
+            ("test_surrogate_parity", "test_surrogate_routes_make_newly_connected_tools_reachable", ("",)),
+            ("test_surrogate_parity", "test_surrogate_deferred_tools_send_nothing_until_discovery", ("",)),
+            ("test_surrogate_parity", "test_surrogate_strict_output_schema_refuses_bad_results", ("",)),
+            ("test_surrogate_parity", "test_surrogate_routes_fail_on_duplicate_bookings_and_unrelated_access",
+             ("duplicates-", "unrelated-")),
+            ("test_surrogate_parity", "test_surrogate_memory_rejects_an_old_quote_even_after_a_live_read", ("",)),
+            ("test_surrogate_parity", "test_surrogate_wallet_enforces_approval_and_records_settlement",
+             ("approved-", "denied-", "no-response-", "amount-changed-", "expired-", "duplicate-", "uncertain-")),
+            ("test_memory_index", "test_memory_index_separates_future_access_from_stored_context",
+             ("linked-", "unlinked-", "deleted-", "unlinked-deleted-")),
+            ("test_memory_index", "test_memory_index_blocks_connector_calls_bound_to_a_different_account", ("",)),
+            ("test_surrogate_readiness", "test_surrogate_readiness_seals_catalog_checks_without_calling_a_tool", ("",)),
+        )
+        for variant in variants
+    ),
+    *(
+        f"tests.{module}::{name}[{target}]"
+        for target in ("muse", "instinct")
+        for module, name in (
+            ("test_ext_browser_portal", "test_ext_browser_portal_saved_credentials_sign_in_then_an_approved_checkout"),
+            ("test_ext_browser_portal", "test_ext_browser_portal_a_declined_checkout_charges_nothing"),
+            ("test_ext_custom_connector_e2e", "test_the_scripted_example_books_through_a_custom_connector"),
+            ("test_ext_scheduler_e2e", "test_a_scripted_smoke_run_of_the_confirmation_example_runs_its_task_at_idle_steps"),
+            ("test_ext_content_trust_stage", "test_flag_labels_the_injection_and_quarantine_removes_only_its_span"),
+            ("test_ext_wallet_run", "test_bank_verification_asks_the_scripted_user_outside_the_conversation"),
+        )
+    ),
+}
+
+
+def required_case(case, required):
+    """Old gates accept a whole test family; parity requires exact parameterized case identities."""
+    name = case.attrib["name"]
+    identity = f'{case.attrib["classname"]}::{name}'
+    return next((key for key in (identity, name, name.split("[")[0]) if key in required), None)
+
 
 def verified_report(root, report, now):
     """Require the same report already accepted by the complete regression recorder."""
@@ -287,8 +332,8 @@ def record(root, report, *, now=None):
     destination = root / EVIDENCE_DIR
     artifacts = {}
     for gate, required in REQUIRED.items():
-        selected = [case for case in cases if case.attrib["name"].split("[")[0] in required]
-        present = {case.attrib["name"].split("[")[0] for case in selected}
+        selected = [case for case in cases if required_case(case, required) is not None]
+        present = {required_case(case, required) for case in selected}
         checks = [{"id": case.attrib["name"], "status": "failed" if any(
             child.tag in ("failure", "error", "skipped") for child in case) else "passed"}
                   for case in selected]
@@ -296,6 +341,7 @@ def record(root, report, *, now=None):
         evidence = {
             "gate": gate, "basis": "test-report", "status": "passed" if passed else "failed",
             **provenance, "recorded_at": now.isoformat(), "checks": checks,
+            "missing_cases": sorted(required - present),
         }
         artifacts[gate] = evidence
     # Prepare every result before publishing. Stale/substituted input must not

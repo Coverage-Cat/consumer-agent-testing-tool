@@ -567,6 +567,10 @@ class RoutesExtension(BaseExtension):
                 checks.append(self.unrelated(steps, connects, access))
         if self.config.duplicates is not None:
             checks.append(await self.duplicates(run, steps))
+        if self.emulation_target == "instinct":
+            for check in checks:
+                check["basis"] = ("assumed: CATT's route trace and independent per-route outcome checks; "
+                                  "phone outcomes come from the declared scripted transcript")
         return checks
 
     def accuracy(self, run, steps, commits, connects, expected):
@@ -656,7 +660,8 @@ class RoutesExtension(BaseExtension):
         try:
             steps, commits, connects, searches, access = self.observe(run)
         except Exception as error:  # noqa: BLE001 — metrics never stop the seal
-            return {"error": f"the route trace is unavailable ({type(error).__name__})", "bases": BASES}
+            return {"error": f"the route trace is unavailable ({type(error).__name__})",
+                    "bases": self.behavior_bases(BASES)}
         expected, first = self.config.expected(), steps[0]["route"] if steps else None
         commit = commits[0]["route"] if commits else None
         judged = commit if self.config.judge == "commit" else first
@@ -672,12 +677,12 @@ class RoutesExtension(BaseExtension):
             "phone_calls": sum(step["route"] == "phone" for step in steps),
             "phone_bookings": sum(step["route"] == "phone" and bool(step.get("books")) for step in steps),
             "trigger_negative_violations": len(steps) + len(connects) + len(access) if expected == ["none"] else None,
-            "duplicates": self.counted, "bases": BASES}
+            "duplicates": self.counted, "bases": self.behavior_bases(BASES)}
 
 
 def usage(run, info):
     """How the model reaches a connected connector next: its native tools, or its command under muse-cli."""
-    if run.scenario.projection == "muse-cli":
+    if run.scenario.projection != "native":
         return {"command": info.name, "next": f"Run {info.name} list-tools with exec from your next step."}
     if info.exposure == "search-only":
         return {"tools": sorted(info.model_tools),

@@ -45,6 +45,7 @@
       "default": "native",
       "enum": [
         "native",
+        "cli",
         "muse-cli"
       ],
       "title": "Projection",
@@ -1264,6 +1265,100 @@
       "title": "Fixed",
       "type": "object"
     },
+    "IndexChange": {
+      "additionalProperties": false,
+      "properties": {
+        "source": {
+          "pattern": "^[A-Za-z][A-Za-z0-9_-]{0,63}$",
+          "title": "Source",
+          "type": "string"
+        },
+        "action": {
+          "enum": [
+            "unlink",
+            "delete"
+          ],
+          "title": "Action",
+          "type": "string"
+        }
+      },
+      "required": [
+        "source",
+        "action"
+      ],
+      "title": "IndexChange",
+      "type": "object"
+    },
+    "IndexedContext": {
+      "additionalProperties": false,
+      "description": "A fixture snapshot and changes applied before this trial, not an external account mutation.",
+      "properties": {
+        "account": {
+          "pattern": "^[A-Za-z][A-Za-z0-9_-]{0,63}$",
+          "title": "Account",
+          "type": "string"
+        },
+        "sources": {
+          "additionalProperties": {
+            "$ref": "#/$defs/MemorySource"
+          },
+          "maxProperties": 20,
+          "minProperties": 1,
+          "title": "Sources",
+          "type": "object"
+        },
+        "records": {
+          "items": {
+            "$ref": "#/$defs/IndexedRecord"
+          },
+          "maxItems": 100,
+          "title": "Records",
+          "type": "array"
+        },
+        "changes": {
+          "items": {
+            "$ref": "#/$defs/IndexChange"
+          },
+          "maxItems": 40,
+          "title": "Changes",
+          "type": "array"
+        }
+      },
+      "required": [
+        "account",
+        "sources"
+      ],
+      "title": "IndexedContext",
+      "type": "object"
+    },
+    "IndexedRecord": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "pattern": "^[A-Za-z][A-Za-z0-9_-]{0,63}$",
+          "title": "Id",
+          "type": "string"
+        },
+        "source": {
+          "pattern": "^[A-Za-z][A-Za-z0-9_-]{0,63}$",
+          "title": "Source",
+          "type": "string"
+        },
+        "text": {
+          "maxLength": 2000,
+          "minLength": 1,
+          "title": "Text",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "source",
+        "text"
+      ],
+      "title": "IndexedRecord",
+      "type": "object"
+    },
     "Injection": {
       "additionalProperties": false,
       "properties": {
@@ -1644,9 +1739,53 @@
           "default": false,
           "title": "Require Minimal",
           "type": "boolean"
+        },
+        "index": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/IndexedContext"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
         }
       },
       "title": "MemoryConfig",
+      "type": "object"
+    },
+    "MemorySource": {
+      "additionalProperties": false,
+      "properties": {
+        "account": {
+          "pattern": "^[A-Za-z][A-Za-z0-9_-]{0,63}$",
+          "title": "Account",
+          "type": "string"
+        },
+        "connector": {
+          "anyOf": [
+            {
+              "pattern": "^[a-z][a-z0-9-]{0,39}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Connector"
+        },
+        "linked": {
+          "default": true,
+          "title": "Linked",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "account"
+      ],
+      "title": "MemorySource",
       "type": "object"
     },
     "NoAuthSpec": {
@@ -2722,6 +2861,19 @@
           "maxItems": 10,
           "title": "Answer",
           "type": "array"
+        },
+        "source": {
+          "anyOf": [
+            {
+              "pattern": "^[A-Za-z][A-Za-z0-9_-]{0,63}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Source"
         }
       },
       "required": [

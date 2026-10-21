@@ -212,6 +212,24 @@ async def test_check_muse_guidelines_writes_junit_and_summary(workspace, capsys)
 
 
 async def test_check_ci_outputs_refuse_suites_they_cannot_read(workspace):
-    with pytest.raises(LabError, match="contract, static and muse-guidelines"):
+    with pytest.raises(LabError, match="contract, static, surrogate and muse-guidelines"):
         await cli("check", "device.json", "--suite", "gadget", "--junit", "g.xml")
     assert not (workspace / "g.xml").exists()
+
+
+async def test_sealed_setup_failures_are_summary_errors_without_duplicate_junit_errors(workspace, monkeypatch, capsys):
+    from test_connector_support import Hotel, services
+
+    from consumer_agent_testing_tool import connector_run as connector_module
+
+    monkeypatch.setattr(connector_module, "default_services",
+                        lambda: services(Hotel(), link_error=LabError("Synthetic authentication setup failure")))
+    assert await cli("connector-run", SCENARIO, "--driver", "scripted", "--script", SCRIPT,
+                     "--summary-json", "-", "--junit", "reports/setup.xml") == 2
+    summary = json.loads(capsys.readouterr().out)
+    validate(summary)
+    assert summary["status"] == "error" and summary["exit_code"] == 2
+    assert "Synthetic authentication setup failure" in summary["error"]["detail"]
+    assert len(summary["trials"]) == 1
+    root, _ = suites(workspace / "reports/setup.xml")
+    assert root.get("errors") == "1"

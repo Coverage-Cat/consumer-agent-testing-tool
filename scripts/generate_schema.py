@@ -11,6 +11,7 @@ from consumer_agent_testing_tool.scenario import (
     PERSONA_SCHEMA,
     USER_MATCH_SCHEMA,
 )
+from consumer_agent_testing_tool.surrogate_readiness import ReadinessManifest
 
 
 def obj(properties, required=None):
@@ -125,3 +126,9 @@ for path in [Path("schemas/connector-v1.schema.json"),
 for path in [Path("schemas/summary-v1.schema.json"),
              Path("src/consumer_agent_testing_tool/data/schemas/summary-v1.schema.json")]:
     path.write_text(json.dumps(SUMMARY_SCHEMA, indent=2) + "\n")
+readiness = ReadinessManifest.model_json_schema()
+readiness.update({"$schema": "https://json-schema.org/draft/2020-12/schema",
+                  "$id": "urn:consumer-agent-testing-tool:surrogate-readiness:v1"})
+for path in [Path("schemas/surrogate-readiness-v1.schema.json"),
+             Path("src/consumer_agent_testing_tool/data/schemas/surrogate-readiness-v1.schema.json")]:
+    path.write_text(json.dumps(readiness, indent=2) + "\n")

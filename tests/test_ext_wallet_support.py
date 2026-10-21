@@ -13,10 +13,27 @@ import re
 from datetime import UTC, datetime, timedelta
 
 import httpx
+import pytest
 from test_connector_support import API_KEY, QUOTE_JOIN, FakeClient, FakeCredential
 
 from consumer_agent_testing_tool.connector_run import MACHINE_TOKENS, Services
 from consumer_agent_testing_tool.ext_wallet import luhn
+
+
+@pytest.fixture(params=("muse", "instinct"))
+def wallet_target(request, monkeypatch):
+    """Exercise the complete wallet regression suite against both supported hosts."""
+    original = request.module.run_wallet
+
+    async def run_target(tmp_path, document=None, **kwargs):
+        document = copy.deepcopy(document or wallet_scenario())
+        document["emulation_target"] = request.param
+        if request.param == "instinct" and document.get("projection") == "muse-cli":
+            document["projection"] = "cli"
+        return await original(tmp_path, document, **kwargs)
+
+    monkeypatch.setattr(request.module, "run_wallet", run_target)
+    return request.param
 
 ORIGIN = "http://127.0.0.1:8765"
 PINE = "http://127.0.0.1:8766"

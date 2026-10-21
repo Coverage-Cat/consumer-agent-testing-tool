@@ -6,14 +6,15 @@ not a claim that missing external qualifications have passed.
 
 ## Supported paths
 
-- The experimental Instinct target in `connector-run`: native MCP as an
-  assumed adapter, text presentation and the selected extensions listed in
-  [the Instinct spec](instinct-emulation.md). This adds no real-Instinct
-  calibration, admission or private-protocol claim. It does not qualify
-  Instinct's Vault, payment rails, Files or trusted-network protocol.
-- The Muse connector surrogate lane: `connector-run` with connector-v1
+- The Muse and Instinct connector surrogate targets under the
+  [shared contract](surrogate-contract.md), including routing, indexed memory
+  lifecycle, test payments and catalog readiness. Neither target has real-host
+  calibration or an admission claim. Instinct's Vault, live payment rails,
+  Files and trusted-network protocol remain outside this contract.
+- `connector-run` with connector-v1
   scenarios against a developer's MCP server over Streamable HTTP (https, or
-  plain http on loopback). It covers the `native` and `muse-cli` projections;
+  plain http on loopback). It covers `native` and `cli` for both targets,
+  plus the Muse-specific `muse-cli` projection;
   `in-prompt`, `search-only` and `disconnected` exposure; several connectors in
   one scenario; the `generic-sdk` and `muse-template-unofficial-2026-10` client
   profiles; account linking with an API key or OAuth 2.1; the permission
@@ -30,7 +31,8 @@ not a claim that missing external qualifications have passed.
   portal. `user_simulator` is exploratory: scripted runs and decision contracts
   refuse it, so its trials never become deterministic release evidence. See
   [lane extensions](connector-extensions.md).
-- Readiness checks: `check --suite muse-guidelines` (its opt-in
+- Readiness checks: `check --suite surrogate --emulation-target muse|instinct`,
+  and `check --suite muse-guidelines` (its opt-in
   `--drift-check` fetches the live guidelines over the network), `check
   --suite poppy` and `check --suite gadget`. The contract lane checks MCP
   targets with the per-revision profiles `mcp-contract-2025-11-25` (the
@@ -47,14 +49,18 @@ not a claim that missing external qualifications have passed.
 - Remote inference configuration, including OpenRouter's explicit routing and
   ZDR settings. Live behavior of every provider/model is not a release claim.
 
-The connector lane is a labeled Muse-like surrogate. Each Muse-specific
+The connector lane is a labeled surrogate. Each Muse-specific
 behavior carries a basis label, `documented`, `unofficial`, `assumed` or
 `unknown`. The host records its labels in `run_lock.bases`; each extension
 records its own in its run-lock entry or in `metrics.extensions.<name>` and its
 events, and each run's `evidence_limits` says where. Unofficial sources are
 unlicensed mirrors; the lane cites them, pinned by commit, and does not copy
 them. No connector, readiness or extension result is Muse certification or a
-claim of equivalence to Muse.
+claim of equivalence to either assistant. Shared Instinct algorithms carry
+assumed provenance, separately from documented product observations.
+The `surrogate-parity` gate requires exact cases for both targets. The
+distribution gate verifies distinct installed-wheel native/CLI runs, readiness
+and exports for each target.
 
 The browser's reference, origin, request and consent controls remain in place.
 Testing those controls and normal browser behavior does not claim isolation
@@ -69,6 +75,7 @@ offers `--surface cli-skill` only after `--development-extensions`.
 | Area | Release decision |
 | --- | --- |
 | Real-Muse calibration (`muse-calibration`, `calibration-analysis`) | No real-Muse account, observation cohort or equivalence claim; historical observation analysis is a development extension |
+| Real-Instinct calibration (`instinct-calibration`) | No real-Instinct observation cohort or equivalence claim |
 | Cloud worker lifecycle (`cloud-worker-lifecycle`) | Local execution only; no provision/run/destroy or independent cloud expiry claim |
 | Local Glimmer (`local-glimmer-offline`) | No weights, tokenizer, serving process, memory budget or offline model qualification |
 | Browser OS isolation (`browser-isolation`) | No required VM/container, isolation canary matrix or live-model escape attempts |

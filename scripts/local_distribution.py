@@ -31,6 +31,7 @@ INVENTORIES = {"notices.zip", "core-sbom.cdx.json", "sbom.cdx.json",
                "inventory-gaps.json", "browser-runtime.json", "native-runtime.json", "fixture-assets.json"}
 WORKFLOWS = {
     "embedded_consumer_verified",
+    "connector_lane_verified", "surrogate_targets_verified",
     "kernel_default_egress_denied", "playback_verified", "private_diagnostics_verified",
     "private_export_excluded", "report_recovery_verified", "api_continuation_verified",
     "browser_continuation_verified", "stop_recovery_verified", "curated_api_contract_verified",
@@ -217,6 +218,9 @@ def verify(root, report):
     if smoke.get("release_scope") != RELEASE_SCOPE or smoke.get("status") != "passed" \
             or not all(smoke.get(name) is True for name in WORKFLOWS):
         raise ValueError("Packaged consumer workflows are incomplete")
+    from consumer_agent_testing_tool.surface import inside
+    project = inside(root, Path(report.get("workspace", "")) / "project")
+    verify_connector_targets(project, smoke.get("connector_targets"))
     backend = smoke.get("browser_backend", {})
     if backend.get("name") != "@playwright/mcp" or backend.get("transport") != "private-in-memory" \
             or not all(backend.get(key) for key in ("version", "playwright_version", "protocol_version")):
@@ -230,3 +234,46 @@ def verify(root, report):
                    for c in smoke[lane]) != 1:
                 raise ValueError("Packaged workflow lacks independent backend assertions")
     return [{"id": step["step"], "status": "passed"} for step in steps]
+
+
+def verify_connector_targets(project, rows):
+    """A boolean cannot qualify target support: require four distinct sealed runs, exports and readiness."""
+    from consumer_agent_testing_tool.emulation import surrogate_contract
+    from consumer_agent_testing_tool.replay import playback
+    from consumer_agent_testing_tool.surface import inside
+
+    expected = {f"{target}/{projection}" for target in ("muse", "instinct") for projection in ("native", "cli")}
+    if not isinstance(rows, dict) or set(rows) != expected:
+        raise ValueError("Packaged surrogate targets need both native/CLI runs for Muse and Instinct")
+    used = set()
+    for key, row in rows.items():
+        target, projection = key.split("/")
+        if row.get("emulation_target") != target or row.get("projection") != projection \
+                or type(row.get("confirmed_count")) is not int or row["confirmed_count"] != 1:
+            raise ValueError("Packaged surrogate target or independent outcome does not match its treatment")
+        for field, checksum in (("run", "result_sha256"), ("export", "export_sha256"),
+                                ("readiness", "readiness_sha256")):
+            try:
+                if not isinstance(row.get(field), str) or Path(row[field]).is_absolute():
+                    raise ValueError("Expected a project-relative run")
+                path = inside(project, row[field])
+                if path in used or sha(path / "result.json") != row.get(checksum):
+                    raise ValueError("Missing, repeated or changed sealed result")
+                used.add(path)
+                result = playback(path)["result"]
+                if field == "export" and (path / "private").exists():
+                    raise ValueError("Export contains private evidence")
+            except Exception as error:
+                raise ValueError(f"Packaged surrogate {key} {field} proof is invalid: {error}") from error
+            lock = result.get("run_lock") or {}
+            if result.get("emulation_target") != target or lock.get("projection") != projection \
+                    or result.get("status") != "completed" or result.get("reporting_status") != "completed" \
+                    or lock.get("surrogate_contract") != surrogate_contract(target):
+                raise ValueError(f"Packaged surrogate {key} {field} has the wrong target, contract or status")
+            if field == "readiness":
+                if result.get("kind") != "surrogate-readiness-check" or not result.get("checks") \
+                        or any(check.get("status") in ("failed", "unsupported") for check in result["checks"]):
+                    raise ValueError("Packaged surrogate readiness has no passing catalog proof")
+            elif not any(check.get("id") == "one-confirmed-booking" and check.get("status") == "passed"
+                         and check.get("actual") == 1 for check in result.get("checks", [])):
+                raise ValueError("Packaged surrogate has no independent booking proof")

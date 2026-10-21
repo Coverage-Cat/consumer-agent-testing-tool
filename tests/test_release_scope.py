@@ -38,10 +38,12 @@ def test_release_only_requires_supported_local_gates(tmp_path):
     ledger.write_text(json.dumps({"gates": {"muse-calibration": {"status": "passed"}}}))
     result = audit(tmp_path, ledger)
     assert result["release_scope"] == RELEASE_SCOPE
-    assert set(result["gates"]) == {"regression", "distribution", "transactional-consent", "replay-diff"}
+    assert set(result["gates"]) == {"regression", "distribution", "transactional-consent", "replay-diff",
+                                    "surrogate-parity"}
     assert set(result["gates"]) == set(GATES)
     assert not result["release_qualified"]
     assert "muse-calibration" in result["excluded_capabilities"]
+    assert "instinct-calibration" in result["excluded_capabilities"]
 
 
 @pytest.mark.parametrize("selection", ["cloud", "local-model", "browser-worker"])

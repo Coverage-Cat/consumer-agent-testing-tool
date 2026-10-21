@@ -1,0 +1,60 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "version": {
+      "const": 1,
+      "default": 1,
+      "title": "Version",
+      "type": "integer"
+    },
+    "kind": {
+      "const": "surrogate-readiness",
+      "default": "surrogate-readiness",
+      "title": "Kind",
+      "type": "string"
+    },
+    "allow": {
+      "anyOf": [
+        {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 1000,
+          "minItems": 1,
+          "type": "array"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Allow"
+    },
+    "classes": {
+      "additionalProperties": {
+        "enum": [
+          "read",
+          "write",
+          "sensitive-write"
+        ],
+        "type": "string"
+      },
+      "title": "Classes",
+      "type": "object"
+    },
+    "host_arguments": {
+      "additionalProperties": {
+        "items": {
+          "type": "string"
+        },
+        "type": "array"
+      },
+      "title": "Host Arguments",
+      "type": "object"
+    }
+  },
+  "title": "ReadinessManifest",
+  "type": "object",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:consumer-agent-testing-tool:surrogate-readiness:v1"
+}

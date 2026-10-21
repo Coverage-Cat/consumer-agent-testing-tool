@@ -11,9 +11,11 @@ GATES = {
     "distribution": "fresh-install",
     "transactional-consent": "test-report",
     "replay-diff": "test-report",
+    "surrogate-parity": "test-report",
 }
 EXCLUDED = {
     "muse-calibration": "No claim of equivalence to, or calibration against, real Muse.",
+    "instinct-calibration": "No claim of equivalence to, or calibration against, real Instinct.",
     "calibration-analysis": "Historical observation analysis is a development extension.",
     "cloud-worker-lifecycle": "The supported runner executes locally; no cloud provisioning.",
     "local-glimmer-offline": "No model weights or local inference server are supplied.",

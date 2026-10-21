@@ -9,24 +9,27 @@ from .errors import LabError
 from .serialization import digest
 
 EmulationTarget = Literal["muse", "instinct"]
+ProjectionMode = Literal["native", "cli", "muse-cli"]
 TARGETS = ("muse", "instinct")
+CLI_PROJECTIONS = frozenset({"cli", "muse-cli"})
 INSTINCT_POLICY = "instinct-public-2026-10-21"
-INSTINCT_EXTENSIONS = frozenset({
+SHARED_EXTENSIONS = frozenset({
     "clock", "presentation", "browser", "custom_connector", "scheduler", "content_trust",
+    "routes", "memory", "wallet",
 })
 PROFILES = {
     "muse": {
         "name": "muse-connector-surrogate-2026-10", "surface": "mcp",
         "label": "public-constraint surrogate",
         "adapter": "consumer-agent-testing-tool-connector-v1",
-        "mapping_provenance": "the developer's MCP catalog, projected by the host (native or muse-cli)",
+        "mapping_provenance": "the developer's MCP catalog, projected by the host (native, cli or muse-cli)",
     },
     "instinct": {
         "name": "instinct-connector-surrogate-2026-10-21", "surface": "mcp",
-        "label": "experimental public-constraint surrogate",
+        "label": "public-constraint surrogate",
         "adapter": "consumer-agent-testing-tool-connector-v1",
-        "mapping_provenance": "CATT's native MCP adapter and bounded browser/HTTP extensions; "
-                              "Instinct's service integration contract is not public",
+        "mapping_provenance": "CATT's native/CLI MCP adapter and bounded service extensions; "
+                              "the reviewed sources do not publish Instinct's service integration contract",
     },
 }
 INSTINCT_FIRST_LINE = "Help your user carry out their requests with care and clear communication."
@@ -37,6 +40,39 @@ def target_profile(target: str) -> dict:
         return copy.deepcopy(PROFILES[target])
     except (KeyError, TypeError):
         raise LabError(f"Unknown emulation target {target!r}; choose muse or instinct") from None
+
+
+def surrogate_contract(target: str) -> dict:
+    """Public capabilities of the supported surrogate, not a hosted assistant's private contract.
+
+    Keep target-specific observations separate from the shared, executable testing contract. Returning
+    fresh containers also prevents callers from changing subsequent runs' capability declarations.
+    """
+    profile = target_profile(target)
+    return {
+        "version": 1, "id": "connector-surrogate-v1", "emulation_target": target,
+        "status": "supported", "fidelity": "uncalibrated", "profile": profile["name"],
+        "shared": {
+            "projections": ["native", "cli"], "exposures": ["in-prompt", "search-only"],
+            "client_profiles": ["generic-sdk"], "output_schemas": ["lenient", "strict"],
+            "drivers": ["scripted", "agent"], "extensions": sorted(SHARED_EXTENSIONS),
+            "developer_extensions": "shared extension API; custom implementations are not qualified",
+            "checks": ["catalog", "approval", "private-values", "outcome", "answer",
+                       "uncertain-writes", "routes", "memory", "wallet", "replay", "export", "diff"],
+        },
+        "additional_treatments": {
+            "projections": ["muse-cli"] if target == "muse" else [],
+            "client_profiles": ["muse-template-unofficial-2026-10"] if target == "muse" else [],
+            "presentation": ["app", "whatsapp", "voice", "text"] if target == "muse"
+                            else ["text", "whatsapp", "voice"],
+        },
+        "exploratory_extensions": ["user_simulator"],
+        "limits": [
+            "Passing tests qualifies CATT's surrogate, not admission or real-host compatibility.",
+            "No real-host calibration; model quality and paid inference are separate from target support.",
+            "CLI parsing, memory, routing and payment fixtures are local test treatments.",
+        ],
+    }
 
 
 @lru_cache(maxsize=1)
@@ -78,11 +114,10 @@ def behavior_bases(target: str, component: str, originals: dict) -> dict:
 def host_bases(target: str, originals: dict) -> dict:
     result = behavior_bases(target, "connector host", originals)
     if target == "instinct":
-        result.pop("search-only-cli", None)
         result["system-prompt-first-line"]["detail"] = (
             "CATT supplies a neutral personal-assistant prompt. Instinct's system prompt is unknown.")
         result["mcp-adapter"] = {
-            "basis": "assumed", "detail": "Native MCP is CATT's service-testing adapter. "
+            "basis": "assumed", "detail": "Native and CLI MCP are CATT's service-testing adapters. "
             "No public Instinct MCP transport, tool catalog or integration contract was found.",
         }
         result["public-product-observations"] = {
@@ -97,14 +132,11 @@ def host_bases(target: str, originals: dict) -> dict:
 
 def validate_instinct(projection, client_profiles, extensions):
     """Scenario and CLI validation, before any model, service startup or authentication."""
-    if projection != "native":
-        raise ValueError("Instinct supports projection native; muse-cli is a Muse-specific treatment")
+    if projection not in ("native", "cli"):
+        raise ValueError("Instinct supports projection native or cli; muse-cli is a Muse-specific treatment")
     if any(profile != "generic-sdk" for profile in client_profiles):
         raise ValueError("Instinct uses client_profile generic-sdk as an assumed MCP adapter; "
                          "the unofficial Muse template client is not an Instinct treatment")
-    if unsupported := sorted(set(extensions) - INSTINCT_EXTENSIONS):
-        raise ValueError(f"Instinct does not yet support extensions {', '.join(unsupported)}; "
-                         f"implemented: {', '.join(sorted(INSTINCT_EXTENSIONS))}")
     presentation = extensions.get("presentation", {})
     if isinstance(presentation, dict):
         if presentation.get("channel", "text") not in ("text", "whatsapp", "voice"):

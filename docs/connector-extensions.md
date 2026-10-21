@@ -1,10 +1,10 @@
 # Connector lane extensions
 
-Muse is the default target for these extensions. The experimental Instinct
-target supports `clock`, `presentation`, `browser`, `custom_connector`,
-`scheduler` and `content_trust`. Their algorithms are CATT assumptions for
-Instinct. Its default presentation is text with no character cap or widget
-checks. Other extensions are rejected for Instinct; see the
+Muse and Instinct support all the extensions below. Muse remains the default.
+Their shared algorithms are CATT assumptions for Instinct. Its default
+presentation is text with no character cap or widget checks; Muse app widgets
+remain a Muse-specific treatment. The simulated user remains exploratory for
+both targets. See the [shared contract](surrogate-contract.md) and
 [Instinct specification](instinct-emulation.md).
 
 A connector-run trial can enable lane extensions. An extension adds one
@@ -624,7 +624,7 @@ Basis (labels in `run_lock.extensions[i].bases`; full entries in
 | `stale-facts` | assumed | What counts as a use, a re-read and a correction. Muse's own memory refresh is not public. |
 | `data-minimization` | documented | guidelines section 4.2, an obligation on connectors. Comparing returned fields with declared needs is the host's reading (assumed). |
 
-Config (at least one of `memory`, `soul`, `identity`, `stale` or `needs`):
+Config (at least one of `memory`, `soul`, `identity`, `stale`, `needs` or `index`):
 
 | Field | Default | Meaning |
 |---|---|---|
@@ -634,6 +634,7 @@ Config (at least one of `memory`, `soul`, `identity`, `stale` or `needs`):
 | `stale[]` | none | Up to 20 facts: `id`; `text`, the Memory.md line the model sees; `value`, what the fact says (text or number); `live[]`, 1 to 4 reads of the truth `{connector, tool, pointer}` (`connector` may be left out with one connector); `answer[]`, regexes for a final answer that mentions it. |
 | `needs` | none | `"<connector>/<tool>"` (or `"<tool>"` with one connector) to the pointers into its result the task needs. `*` stands for any array position; a pointer covers every field under it. |
 | `require_minimal` | `false` | `memory.data_minimization` fails on personal fields the task does not need. Needs `needs`. |
+| `index` | none | Account-scoped fixture context, source linking and pre-trial unlink/delete changes. See [indexed memory lifecycle](surrogate-contract.md#indexed-memory-lifecycle). |
 
 The model sees each file under its name (`Memory.md:`, `Soul.md:`,
 `Identity.md:`) in the standing context. Stale facts are appended as ordinary
@@ -666,7 +667,12 @@ file), `stale_facts` (per fact: `outcome`, `uses`, `reads`, the deciding use,
 returned fields, personal fields, needs, unneeded fields, unneeded personal
 fields and declared fields no result carried; with totals) and `bases`.
 
-Events: none of its own. Results are observed as the model receives them,
+With an index, `memory.index_ready` records lifecycle changes and counts;
+`memory.source_access` checks that unavailable sources received no tool requests.
+`stale[].source` optionally binds a fact to an indexed source, so other-account
+or deleted facts stay out of context and stale-fact scoring. Instinct uses
+"Remembered context", "Standing preferences" and "Assistant identity" headings.
+Results are observed as the model receives them,
 after the extensions that sort earlier: with `content_trust`, withheld values
 are not read as live values.
 

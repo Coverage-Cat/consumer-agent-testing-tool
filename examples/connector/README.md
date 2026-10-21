@@ -1,7 +1,7 @@
 # Connector examples (connector-v1)
 
 [`instinct-booking.yaml`](instinct-booking.yaml) runs the same booking flow
-under the experimental Instinct target. It shares
+under the supported Instinct surrogate target. It shares
 [`fixture-booking.calls.json`](fixture-booking.calls.json), uses native MCP
 as an assumed adapter and checks a plain-text answer:
 
@@ -12,9 +12,12 @@ uv run consumer-agent-testing-tool connector-run examples/connector/instinct-boo
   --summary-json reports/instinct-booking.json
 ```
 
-The remaining examples default to Muse. See the
-[Instinct spec](../../docs/instinct-emulation.md) before applying
-`--emulation-target instinct` to one: only its listed extensions are ported.
+The remaining examples default to Muse. Shared routing, memory, wallet,
+browser/HTTP and scheduling treatments also accept `--emulation-target instinct`.
+For `fixture-booking-cli.yaml`, also pass `--projection cli --client-profile generic-sdk`.
+The [shared contract](../../docs/surrogate-contract.md) lists target-specific
+presentation differences. `surrogate-readiness.yaml` works with either target:
+`check URL --suite surrogate --emulation-target instinct --manifest examples/connector/surrogate-readiness.yaml`.
 
 These scenarios test whether a Muse-like agent can discover, choose and
 correctly use an MCP connector's real tools. They check that it asks the user

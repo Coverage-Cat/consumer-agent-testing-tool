@@ -2,9 +2,17 @@
 
 ## Unreleased
 
-- Experimental Instinct emulation target for connector trials and selected
-  extensions, with source research, plain-text checks, separate provenance,
-  a scripted example and CI coverage.
+- Muse and Instinct are supported connector surrogate targets, with a shared
+  native/CLI contract, route discovery, memory, local wallet and bank-verification
+  fixtures, and separate provenance. Muse-specific CLI/client treatments remain available.
+- `targets --json` publishes capabilities; `check --suite surrogate` checks the
+  catalog and projection for either target without calling a model or service tool.
+- Indexed memory fixtures separate account isolation, future-access unlinking
+  and stored-context deletion. Source-scoped stale facts obey the same lifecycle.
+- A named surrogate-parity release gate requires exact cases for both targets;
+  distribution verification checks distinct installed-wheel runs, readiness and exports.
+- CI summaries report sealed setup/reporting failures as `status: error` with
+  an error detail, consistent with exit code 2.
 - Connector run locks, CI summaries and JUnit now record the emulation
   target. Comparing older Muse evidence with a new run can report lock
   changes; published Muse scenario digests and older summary validity are

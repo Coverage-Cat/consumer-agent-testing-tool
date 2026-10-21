@@ -20,6 +20,11 @@
       "status": "unverified",
       "basis": "test-report",
       "reason": "Recorded per release, not committed: the release workflow (.github/workflows/release.yml) writes release/release-gates.json and attaches it, with its evidence, to the GitHub release"
+    },
+    "surrogate-parity": {
+      "status": "unverified",
+      "basis": "test-report",
+      "reason": "Requires the named Muse and Instinct native/CLI matrix, memory lifecycle, readiness and extension cases. Recorded per release by the release workflow, not committed."
     }
   },
   "release_scope": "local-consumer-v1",
@@ -58,6 +63,7 @@
   },
   "excluded_capabilities": {
     "muse-calibration": "No claim of equivalence to, or calibration against, real Muse.",
+    "instinct-calibration": "No claim of equivalence to, or calibration against, real Instinct.",
     "calibration-analysis": "Historical observation analysis is a development extension.",
     "cloud-worker-lifecycle": "The supported runner executes locally; no cloud provisioning.",
     "local-glimmer-offline": "No model weights or local inference server are supplied.",

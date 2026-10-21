@@ -44,13 +44,15 @@ REASON_CHARACTERS = 300
 def parser(*, development=False):
     root = argparse.ArgumentParser(prog="consumer-agent-testing-tool", description=(
         "Test your service with a local consumer-agent surrogate. Muse is the default emulation target."),
-        epilog="Instinct is an experimental target for connector-run and its supported extensions. "
+        epilog="Muse and Instinct are supported surrogate targets for connector-run. "
                "The inference model is a separate choice. This tool does not certify compatibility with "
                "any hosted assistant.")
     root.add_argument("--development-extensions", action="store_true",
                       default=development,
                       help="Enable experiments outside the supported release")
     commands = root.add_subparsers(dest="command", required=True)
+    targets = commands.add_parser("targets", help="List supported surrogate targets and their testing contract")
+    targets.add_argument("--json", action="store_true", help="Print the versioned target capabilities as JSON")
     initialize = commands.add_parser("init", help="Write a local configuration; no Muse account required")
     live = [key for key in LIVE_ADAPTERS if development or key != "local-glimmer"]
     initialize.add_argument("--provider", choices=[
@@ -105,15 +107,20 @@ def parser(*, development=False):
                                                             "gadget: a gadget-readiness or link.register JSON/YAML "
                                                             "file" if command == "check" else ""))
         if command == "check":
-            item.add_argument("--suite", choices=["contract", "static", "muse-guidelines", "poppy", "gadget"],
+            item.add_argument("--suite", choices=["contract", "static", "surrogate", "muse-guidelines", "poppy", "gadget"],
                               default="contract",
-                              help="muse-guidelines: read-only Muse connector-guidelines readiness (documented "
+                              help="surrogate: catalog readiness for either supported target; "
+                                   "muse-guidelines: read-only Muse connector-guidelines readiness (documented "
                                    "constraint, not admission); poppy: Personal Agent Protocol draft 0.1 discovery "
                                    "and session probes (no production Muse evidence); gadget: static link.register "
                                    "and command-spec limits of the official Gadget SDK")
-            item.add_argument("--endpoint", help="muse-guidelines: the MCP endpoint (default: TARGET as a URL "
+            item.add_argument("--emulation-target", choices=["muse", "instinct"],
+                              help="surrogate suite: assistant target (default: muse)")
+            item.add_argument("--projection", choices=["native", "cli", "muse-cli"],
+                              help="surrogate suite: test catalog projection (default: native)")
+            item.add_argument("--endpoint", help="surrogate/muse-guidelines: the MCP endpoint (default: TARGET as a URL "
                                                  "or a configured target's base_url)")
-            item.add_argument("--manifest", type=Path, help="muse-guidelines: developer readiness manifest; "
+            item.add_argument("--manifest", type=Path, help="surrogate/muse-guidelines: suite-specific readiness manifest; "
                                                             "poppy: probe manifest (session, sign-in and "
                                                             "operation probes)")
             item.add_argument("--drift-check", action="store_true",
@@ -146,15 +153,16 @@ def parser(*, development=False):
     connector = commands.add_parser("connector-run", help="Test a service through a Muse or Instinct surrogate",
                                     description="Run a scenario with a model or replay scripted calls without "
                                     "one. Check the outcome in the service and save a sealed report. "
-                                    "Select Muse (default) or the experimental Instinct target. "
+                                    "Select Muse (default) or Instinct. Both are supported surrogate targets. "
                                     "This is a surrogate, not the hosted assistant.",
                                     epilog=CONNECTOR_EXIT_CODES, formatter_class=argparse.RawDescriptionHelpFormatter)
     connector.add_argument("scenario", type=Path, help="A connector-v1 scenario file (see examples/connector)")
     connector.add_argument("--emulation-target", choices=["muse", "instinct"],
                            help="Override the assistant host being emulated; separate from the model provider "
                                 "(default: scenario target, or muse)")
-    connector.add_argument("--projection", choices=["native", "muse-cli"],
-                           help="Override the scenario's projection (recorded as a treatment)")
+    connector.add_argument("--projection", choices=["native", "cli", "muse-cli"],
+                           help="native or cli for either target; muse-cli preserves the Muse-specific "
+                                "treatment (recorded in the run)")
     connector.add_argument("--exposure", choices=["in-prompt", "search-only"],
                            help="Override the exposure of every connector that is not disconnected (search-only: "
                                 "deferred loading via tool_search)")
@@ -633,6 +641,17 @@ async def execute(args):
     if isinstance(getattr(args, "target", None), DefaultTarget):
         args.target, args.target_given = str(args.target), False  # A plain str from here on.
     require_supported(experimental=getattr(args, "development_extensions", False), command=args.command)
+    if args.command == "targets":
+        from .emulation import TARGETS, surrogate_contract
+        targets = [surrogate_contract(target) for target in TARGETS]
+        if args.json:
+            print(json.dumps({"schema_version": 1, "targets": targets}, indent=2))
+        else:
+            for target in targets:
+                print(f"{target['emulation_target']}: {target['status']} surrogate; "
+                      f"projections {', '.join(target['shared']['projections'])}; fidelity {target['fidelity']}")
+            print("Use --emulation-target muse|instinct with connector-run or check --suite surrogate.")
+        return 0
     if args.command in ("browse", "surface-run") and getattr(args, "driver", None) == "agent":
         warn_selected_agent_model(args)
     if args.command in ("browse", "browser-diagnostics", "replay", "diff", "calibrate", "release-audit", "worker"):
@@ -650,9 +669,11 @@ async def execute(args):
     if args.command == "check" and (getattr(args, "junit", None) or getattr(args, "summary_json", None)) \
             and not getattr(args, "ci_outputs", None):
         return await check_ci_outputs(args)
-    if args.command == "check" and args.suite == "muse-guidelines":
+    if args.command == "check" and args.suite in ("surrogate", "muse-guidelines"):
         from .connector_run import guidelines_from_cli
         return await guidelines_from_cli(args)
+    if args.command == "check" and (getattr(args, "emulation_target", None) or getattr(args, "projection", None)):
+        raise LabError("--emulation-target and --projection apply to check --suite surrogate")
     if args.command == "check" and args.drift_check:
         raise LabError("--drift-check applies only to --suite muse-guidelines")
     if args.command == "check" and args.suite in ("poppy", "gadget"):
@@ -923,7 +944,7 @@ async def check_ci_outputs(args):
     sealed run (ci_outputs); the contract, static and muse-guidelines suites only."""
     from .ci_outputs import CiOutputs
     if args.suite in ("poppy", "gadget") or args.drift_check:
-        raise LabError("--junit and --summary-json apply to check --suite contract, static and muse-guidelines"
+        raise LabError("--junit and --summary-json apply to check --suite contract, static, surrogate and muse-guidelines"
                        + (" (not --drift-check)" if args.drift_check else ""))
     outputs = args.ci_outputs = CiOutputs(args, "check", Path.cwd().resolve())
     outputs.scenario_id = args.suite

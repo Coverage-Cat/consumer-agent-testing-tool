@@ -1,7 +1,7 @@
 # Connector lane
 
-Muse is the default target described below. Set `emulation_target: instinct`
-or pass `--emulation-target instinct` for the experimental Instinct target.
+Muse and Instinct are supported surrogate targets; Muse is the default.
+Set `emulation_target: instinct` or pass `--emulation-target instinct`.
 Its [spec and research](instinct-emulation.md) define the supported extensions,
 default text channel, native MCP adapter and evidence limits. Shared host
 rules are assumptions for Instinct; its runs do not apply Muse guidelines.
@@ -103,8 +103,8 @@ service state stays unresolved.
 | Option | Default | Effect |
 |---|---|---|
 | `SCENARIO` | | A connector-v1 file |
-| `--emulation-target {muse,instinct}` | scenario's target, or `muse` | Selects the assistant host, independently of the inference model. Instinct requires native projection and generic-sdk. |
-| `--projection {native,muse-cli}` | the scenario's | Replaces `projection` |
+| `--emulation-target {muse,instinct}` | scenario's target, or `muse` | Selects the assistant host, independently of the inference model. Both support native/cli projection and generic-sdk. |
+| `--projection {native,cli,muse-cli}` | the scenario's | Replaces `projection`; muse-cli remains a Muse-specific treatment |
 | `--exposure {in-prompt,search-only}` | the scenario's | Replaces `exposure` and every connector's exposure except `disconnected` |
 | `--client-profile {generic-sdk,muse-template-unofficial-2026-10}` | each connector's | Replaces every connector's `client_profile` |
 | `--output-schema {lenient,strict}` | each connector's | Replaces every connector's `output_schema` ([output schemas](#output-schemas)) |
@@ -162,7 +162,7 @@ A scenario that does not load exits 2.
 | `id` | | `^[A-Za-z][A-Za-z0-9_-]{0,63}$` |
 | `goal` | | The user's request, 1 to 8,000 characters: the user's first message to the agent |
 | `connectors` | | Up to 8 connectors (below). `[]` only when an enabled extension provides the agent's service, as `custom_connector` (an HTTP API) and `browser` (websites) do |
-| `projection` | `native` | `native` or `muse-cli` |
+| `projection` | `native` | `native` or `cli` for either target; `muse-cli` for Muse |
 | `exposure` | `in-prompt` | `in-prompt` or `search-only`; a connector's own `exposure` wins |
 | `profile.memory` | `[]` | Up to 100 lines, shown under "What you remember about your user" |
 | `profile.identity` | `{}` | Text fields, shown under "About your user"; `timezone` also sets the clock's zone |
@@ -273,11 +273,16 @@ setup error (exit 2).
 
 ## Projections
 
-| | `native` | `muse-cli` |
+`native` and `cli` support both targets. `cli` uses the command surface below
+with assumed CATT provenance. `muse-cli` preserves the existing additional
+Muse treatment and its unofficial sources. See the
+[shared contract](surrogate-contract.md#selection-and-public-api).
+
+| | `native` | `cli` / `muse-cli` |
 |---|---|---|
 | Model tools | One function per allowed tool, plus `ask_user` | One `exec` tool, plus `ask_user` |
 | A result | `{source, tool, untrusted: true, result: {isError, content, structuredContent}}` | `{exit_status, stdout, stderr, source, untrusted}`; stdout holds the `CallToolResult` without `_meta` |
-| Basis | `native`, assumed: a generic function-calling baseline, not a claim about Muse | `muse-cli`, unofficial: mirrors `rallat/muse-skills@3b5ae2c160` and `sneakers-the-rat/muse-skills@25b2494` |
+| Basis | `native`, assumed: a generic function-calling baseline | `cli`: assumed CATT parser; `muse-cli`: unofficial mirrors `rallat/muse-skills@3b5ae2c160` and `sneakers-the-rat/muse-skills@25b2494` |
 
 `tool_search` joins both when a connector is search-only. Native function
 names are provider-safe (`^[a-zA-Z0-9_-]{1,64}$`) and get a hash suffix on a

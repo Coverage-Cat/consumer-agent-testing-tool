@@ -1,11 +1,13 @@
 # Instinct emulation specification
 
-Research and design: 21 October 2026. Status: initial implementation.
+Research and design: 21 October 2026. Status: supported connector surrogate.
 
-CATT adds `instinct` as an explicit, experimental emulation target beside
+CATT supports `instinct` as an explicit surrogate emulation target beside
 `muse`. It approximates public behavior; it does not run Instinct, reproduce
 its private implementation, or certify that Instinct can use a service.
-The inference model remains a separate choice.
+The inference model remains a separate choice. The
+[shared contract](surrogate-contract.md) specifies parity, the Python/CLI API,
+memory lifecycle and qualification requirements.
 
 ## Research method and findings
 
@@ -99,10 +101,10 @@ Scaffolding still calls only initialize and tools/list.
 
 Target, projection, MCP client and model are separate choices:
 
-| Choice | Meaning | Instinct initial implementation |
+| Choice | Meaning | Instinct |
 | --- | --- | --- |
 | `emulation_target` | Which assistant host is approximated | `instinct` |
-| `projection` | How CATT offers service tools to its model | `native` only |
+| `projection` | How CATT offers service tools to its model | `native` or the neutral `cli` treatment |
 | `client_profile` | The MCP transport CATT runs | `generic-sdk` only |
 | `exposure` | Immediate or deferred tool discovery | `in-prompt` or `search-only`, both assumed |
 | model profile | Which model drives a paid trial | Existing supported providers; unchanged |
@@ -111,19 +113,20 @@ Target, projection, MCP client and model are separate choices:
 `muse-cli` and the unofficial Muse template client are rejected for Instinct.
 The rejection happens before linking, model preflight, service startup or a
 run directory is created. Overrides must be validated together, so switching
-a Muse CLI scenario to Instinct works only when native projection and the
+a Muse CLI scenario to Instinct works only when native or neutral CLI projection and the
 generic client are also selected.
 
 The `check --suite muse-guidelines`, `poppy` and `gadget` suites remain Muse
 specific. There is no `instinct-guidelines` suite: no equivalent guidelines
-were found. Use generic MCP contract checks for protocol evidence.
+were found. `check --suite surrogate --emulation-target instinct` checks CATT's
+shared catalog/projection contract; generic MCP contract checks cover protocol evidence.
 Instinct runs do not attach Muse guideline findings after execution.
 Its connector profile remains resolvable for replay and diff, but selecting it
 through `--interface-profile`, `--profile` or `defaults.interface_profile` for
 `run`, `inspect`, `check` or `doctor` is rejected. Those commands do not
 implement the connector host.
 
-## Initial implementation
+## Supported implementation
 
 ### Target definition and provenance
 
@@ -163,7 +166,7 @@ delivery, iMessage rendering or WhatsApp rate-limit fidelity.
 
 ### Extensions
 
-The first target supports these existing extensions, with separate provenance:
+Both targets support these extensions, with separate provenance:
 
 | Extension | CATT behavior available to Instinct tests | Unproven part |
 | --- | --- | --- |
@@ -173,22 +176,27 @@ The first target supports these existing extensions, with separate provenance:
 | `custom_connector` | Allowlisted HTTP requests and host-owned credentials | Instinct's API discovery and credential broker |
 | `scheduler` | Deterministic background work at scripted idle points | Instinct's scheduler, timing and notification delivery |
 | `content_trust` | Planted untrusted data, deterministic filters and checks | Instinct's classifier, coverage and monitor |
+| `routes` | Connector discovery/consent, competing routes, phone fixtures and duplicates | Instinct's route selection and real phone execution |
+| `memory` | Neutral standing context, stale facts, data minimization, scoped index and unlink/delete fixtures | Instinct's indexing, retrieval, storage and deletion implementation |
+| `wallet` | Approval-bound test cards, local issuer, bank verification and merchant settlement checks | Stripe/Instinct payment rails and live financial behavior |
 
 Existing browser/HTTP request restrictions and approval checks remain in
 force. Browser tests can declare no MCP connectors and use oracle checks.
 The browser extension still needs Node, Chromium and its existing setup.
 No additional provider or service dependency is introduced.
 
-Unported extensions fail validation for Instinct. In particular, Muse's
-Memory.md/Soul.md/Identity.md treatment, route discovery, wallet flow and
-simulated-user extension are not automatically rebranded as Instinct.
-They remain available for Muse.
+Memory uses neutral headings for Instinct. Routes, wallet and memory retain
+their local algorithms with assumed provenance in locks, events and checks.
+`user_simulator` is available as the same exploratory, agent-only extension;
+neither target qualifies it through deterministic tests. Registered developer
+extensions use the same API for both targets; their implementations are not
+part of CATT's qualified capability list.
 
 ### Evidence and comparison
 
 - `result.json`, run locks, event envelopes and model sub-run manifests use
   the selected interface profile.
-- The run lock adds `emulation_target`; Instinct also seals its source-policy
+- The run lock adds `emulation_target` and `surrogate_contract`; Instinct also seals its source-policy
   digest. CLI overrides include target selection.
 - CI summaries and JUnit properties name the target. Unknown/setup-error
   values remain nullable under the summary contract. The target field is
@@ -243,16 +251,18 @@ The completed tests must cover:
 8. Scaffolded target selection, generated JSON schemas, sealed replay and
    exported evidence.
 
-CI adds a deterministic Instinct run beside the existing Muse connector
-examples. Before pushing, run lint, schema regeneration and drift checks,
+The parity matrix covers both targets under `native` and `cli`, including
+positive and adverse routing, memory and payment cases. Installed-wheel smoke
+tests verify separate runs, readiness and exports for each combination. The
+`surrogate-parity` release gate requires exact named cases for every target.
+Before pushing, run lint, schema regeneration and drift checks,
 repository checks, the full test collection, and all connector-lane CI
 commands locally. Browser changes also require repeated affected tests and
 a run under CPU load. No paid trial is part of validation.
 
 ## Follow-on specifications
 
-These need separate implementation work and evidence; they are not shipped
-by selecting the initial target:
+These need work beyond the shared surrogate contract:
 
 - **Trusted network:** immutable peer identities, explicit connection
   approval, invitation revocation, per-peer/per-operation disclosure grants,
@@ -265,19 +275,18 @@ by selecting the initial target:
   clock, code freshness/reuse checks, origin-bound credential use and
   explicit user handoff. No bypass of phone approval or service security
   checks. Specify how this differs from Muse credential surrogates.
-- **Payments:** model spend request, approval, denial, expiry, single-use
-  credentials and independent merchant settlement. Distinguish approval
-  from payment success. Add local fixtures for changed amounts, duplicate
-  attempts, expiry and uncertain settlement. Treat Stripe, Shop Pay and
-  Instinct as separate contracts.
+- **Live payment rails:** the local wallet now covers approval, denial,
+  expiry, single-use credentials and independent settlement. Real Stripe,
+  Shop Pay and Instinct integrations would need their own contracts and
+  authorized observations.
 - **Email and calls:** scripted delivery adapters, sender identity,
   recipient-bound approval, incoming untrusted content and independent
   delivery receipts. Real outbound communication is outside local tests.
 - **Files:** private/public access transitions, sharing consent, revocation,
   file limits, hostile HTML and downloads. Do not treat Files as MCP Apps.
-- **Memory and revocation:** distinguish account unlinking, stopping future
-  access, retained indexed context and deleting that context. Test stale
-  facts and cross-account isolation with a specified data model.
+- **Live memory integration:** the local index now separates unlinking,
+  retained context, deletion and account isolation. Live ingestion, storage,
+  OAuth revocation and deletion receipts remain unimplemented.
 - **Calibration:** authorized real-Instinct observations paired with local
   runs, recording versions, dates and differences. Until then, keep
   compatibility and admission claims out of the results.

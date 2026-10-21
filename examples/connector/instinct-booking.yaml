@@ -1,4 +1,4 @@
-# Experimental Instinct surrogate. MCP and the approval policy are CATT assumptions.
+# Supported Instinct surrogate. MCP and the approval policy are CATT assumptions.
 # Shares fixture-booking.calls.json; no Instinct account or model is needed.
 version: 1
 kind: connector

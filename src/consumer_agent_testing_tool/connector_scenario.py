@@ -31,7 +31,7 @@ from pydantic import (
     model_validator,
 )
 
-from .emulation import EmulationTarget, validate_instinct
+from .emulation import CLI_PROJECTIONS, EmulationTarget, ProjectionMode, validate_instinct
 from .errors import LabError
 from .evidence import MARKERS, MIN_SECRET_LENGTH, admissible_secret, credential_key, private_key
 from .serialization import digest, load
@@ -552,7 +552,7 @@ class ConnectorScenario(Strict):
     emulation_target: EmulationTarget = "muse"
     # None only when an enabled extension provides the agent's service (Factory.provides_surface).
     connectors: list[ConnectorSpec] = Field(max_length=8)
-    projection: Literal["native", "muse-cli"] = "native"
+    projection: ProjectionMode = "native"
     exposure: Literal["in-prompt", "search-only"] = "in-prompt"
     profile: ProfileSpec = Field(default_factory=ProfileSpec)
     private: dict[str, Any] = Field(default_factory=dict)
@@ -679,8 +679,8 @@ class ConnectorScenario(Strict):
         if not surface:
             raise ValueError("connectors: declare at least one connector, or enable an extension that provides the "
                              "agent's service itself (one whose factory sets provides_surface)")
-        if self.projection == "muse-cli":
-            raise ValueError("projection muse-cli runs connectors' command-line clients; a scenario without "
+        if self.projection in CLI_PROJECTIONS:
+            raise ValueError(f"projection {self.projection} runs connectors' command-line clients; a scenario without "
                              "connectors uses native")
         for what, entries in (("expected.tools", self.expected.tools),
                               ("permissions.important_reads", self.permissions.important_reads),

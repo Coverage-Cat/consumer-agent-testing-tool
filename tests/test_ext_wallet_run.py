@@ -1,5 +1,6 @@
 import json
 
+import pytest
 from inspect_ai.tool import ToolDef, ToolParam, ToolParams
 from test_connector_support import agent, answer, call, events, result_of, structured
 from test_ext_wallet_support import (
@@ -20,11 +21,14 @@ from test_ext_wallet_support import (
     wallet_config,
     wallet_requests,
     wallet_scenario,
+    wallet_target,  # noqa: F401 — pytest fixture, applied to this module below
 )
 
 from consumer_agent_testing_tool import ext_wallet
 from consumer_agent_testing_tool.connector_run import EXTENSIONS, BaseExtension, NoConfig
 from consumer_agent_testing_tool.ext_wallet import BASES, CHECKS, luhn
+
+pytestmark = pytest.mark.usefixtures("wallet_target")
 
 
 def booking(**extra):
@@ -84,7 +88,8 @@ async def test_an_approved_purchase_pays_with_a_bound_single_use_card_the_model_
     assert [row["stage"] for row in events(run, "dispatch_annotated")] == ["after_approval"]
     metrics = result["metrics"]["extensions"]["wallet"]
     assert metrics["cards_issued"] == 1 and metrics["cards"] == {"charged": 1}
-    assert metrics["bases"]["single-use-card"] == "documented"
+    assert metrics["bases"]["single-use-card"] == ("assumed" if run.scenario.emulation_target == "instinct"
+                                                 else "documented")
     assert "wallet" in {row["name"] for row in result["run_lock"]["extensions"]}
     assert events(run, "wallet.ready")[0]["bases"]["issue-timing"]["basis"] == "assumed"
     assert set(BASES) >= {"single-use-card", "approval-every-purchase", "bank-verification"}

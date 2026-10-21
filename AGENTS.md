@@ -6,7 +6,7 @@ Guidance for coding agents that use this tool to test a service, or that change 
 ## What the tool does
 
 It runs a consumer agent (a model, or a scripted replay with no model) against your real MCP server
-through a labeled surrogate of a Muse-like host or the experimental Instinct target, then checks the
+through a labeled Muse or Instinct surrogate host, then checks the
 outcome your server recorded rather than what the agent said. It is not either hosted assistant and
 proves nothing about admission: every report says "surrogate".
 
@@ -144,11 +144,14 @@ it or commit it. To share a run, use the output of `consumer-agent-testing-tool 
   no needless words or promotional filler. Apply this to the README, CLI help, errors and reports.
   Keep safety caveats and evidence labels; do not change machine-readable fields or model-facing
   prompts during a copy edit.
-- Muse is the default emulation and testing target. Instinct is experimental: select
+- Muse and Instinct are supported surrogate emulation targets; Muse is the default. Select
   `emulation_target: instinct` or `--emulation-target instinct` for the connector lane. Its supported
   extensions, research and unimplemented features are in [the spec](docs/instinct-emulation.md).
   Keep the assistant target distinct from the model that drives a trial. Do not present shared
   CATT algorithms or Muse sources as documented Instinct behavior.
+  Both targets support `native` and `cli` projection and `check --suite surrogate`.
+  `muse-cli`, the unofficial Muse client and app widgets remain Muse-specific.
+  See the [shared contract](docs/surrogate-contract.md) for capability and qualification requirements.
 - Code is in `src/consumer_agent_testing_tool/` (CLI entry: `cli.py`). The connector lane is in
   `connector*.py`.
 - Tests and lint: run them locally before every push. See
