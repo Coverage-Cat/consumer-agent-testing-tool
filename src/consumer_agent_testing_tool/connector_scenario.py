@@ -31,6 +31,7 @@ from pydantic import (
     model_validator,
 )
 
+from .emulation import EmulationTarget, validate_instinct
 from .errors import LabError
 from .evidence import MARKERS, MIN_SECRET_LENGTH, admissible_secret, credential_key, private_key
 from .serialization import digest, load
@@ -548,6 +549,7 @@ class ConnectorScenario(Strict):
     kind: Literal["connector"]
     id: str = Field(pattern=IDENTIFIER)
     goal: str = Field(min_length=1, max_length=8000)
+    emulation_target: EmulationTarget = "muse"
     # None only when an enabled extension provides the agent's service (Factory.provides_surface).
     connectors: list[ConnectorSpec] = Field(max_length=8)
     projection: Literal["native", "muse-cli"] = "native"
@@ -566,6 +568,8 @@ class ConnectorScenario(Strict):
 
     @model_validator(mode="after")
     def contract(self, info: ValidationInfo):
+        if self.emulation_target == "instinct":
+            validate_instinct(self.projection, [item.client_profile for item in self.connectors], self.extensions)
         names = [connector.name for connector in self.connectors]
         if len(set(names)) != len(names):
             raise ValueError("connector names must be unique")
@@ -844,6 +848,8 @@ def published_digest(scenario) -> str:
     """The scenario's evidence digest, private values masked: an unsalted digest over them would let an
     export test guesses of a low-entropy private value. Changing only a private value keeps it."""
     document = scenario.model_dump(mode="json", by_alias=True)
+    if document.get("emulation_target") == "muse":
+        document.pop("emulation_target")  # Existing Muse scenarios keep their published digest.
     document["private"] = _masked(document.get("private") or {})
     for connector in document.get("connectors") or []:
         for key in ("exposure", "limits", "output_schema"):
@@ -991,7 +997,7 @@ def _example_arguments(tool):
 
 
 def scaffold_document(*, endpoint, name, server_info, tools, classifications, auth, client_profile,
-                      fetched_at) -> str:
+                      fetched_at, emulation_target="muse") -> str:
     """A connector-v1 skeleton from a live catalog; the developer completes every TODO(scaffold).
 
     Server text appears only in comments, sanitized (comment), and tool names with control characters
@@ -1012,6 +1018,7 @@ def scaffold_document(*, endpoint, name, server_info, tools, classifications, au
     document = {
         "version": 1, "kind": "connector", "id": re.sub(r"[^A-Za-z0-9_-]", "-", f"{name}-task")[:64],
         "goal": f"{SCAFFOLD_MARKER}: the user's request, in their own words.",
+        "emulation_target": emulation_target,
         "connectors": [{
             "name": name, "endpoint": endpoint, "allowed_origins": [origin_of(endpoint)], "auth": auth,
             "client_profile": client_profile, "tools": {"allow": names},
@@ -1050,7 +1057,8 @@ def scaffold_document(*, endpoint, name, server_info, tools, classifications, au
             lines.append(f"#     {comment(tool, 64)}: {field(item, 'tool_class')}  "
                          f"# {comment(field(item, 'basis'), 20)}: {comment(reasons, 200)}")
     lines += ["#", "# The scripted user allows reads for the task and denies every write: add rules for the",
-              "# writes this task should approve (guidelines 3.3: sensitive writes ask on every use)."]
+              "# writes this task should approve (sensitive writes ask on every use"
+              + ("; Muse guidelines 3.3)." if emulation_target == "muse" else "; CATT assumption for Instinct).")]
     def properties(tool):
         schema = tool.get("inputSchema")
         found = schema.get("properties") if isinstance(schema, dict) else None
@@ -1150,7 +1158,7 @@ def script_document(steps, *, run_id, scenario_id, scenario_sha256, written_at, 
     return "\n".join(lines) + "\n" + yaml.safe_dump(steps, sort_keys=False, allow_unicode=True, width=100)
 
 
-def checks_document(*, run_id, scenario_id, writes, reads, recorded) -> str:
+def checks_document(*, run_id, scenario_id, writes, reads, recorded, emulation_target="muse") -> str:
     """A checks skeleton for the recorded trial: an outcome check per write the agent sent (none: one), a
     claim, and the run's own check results as comments; every judgment is a TODO(scaffold)."""
     import yaml
@@ -1161,7 +1169,8 @@ def checks_document(*, run_id, scenario_id, writes, reads, recorded) -> str:
                                      + (f"what {tool} changed" if tool else "the outcome")},
                "expect": {"op": "eq", "value": f"{SCAFFOLD_MARKER}: the value that field holds after a correct run"}}
               for name, tool in zip(names, writes or [None], strict=True)]
-    document = {"checks": checks, "answer": {"claims": [
+    document = {**({"emulation_target": emulation_target} if emulation_target != "muse" else {}),
+                "checks": checks, "answer": {"claims": [
         {"state": f"{SCAFFOLD_MARKER}: the outcome a truthful final answer reports", "true_when": names[0]}]}}
     lines = [f"# Checks skeleton for {comment(scenario_id, 64)} from connector run {comment(run_id, 80)}.",
              f"# Merge it into the scenario and replace every {SCAFFOLD_MARKER}, which connector-run refuses."]

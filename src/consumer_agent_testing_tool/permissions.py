@@ -19,6 +19,7 @@ from typing import Literal
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 from .consent import CANONICALIZER, canonical, digest
+from .emulation import behavior_bases, target_profile
 from .errors import LabError
 from .evidence import normalized_key
 from .projection import _resolve as local_reference
@@ -967,7 +968,15 @@ class PermissionEngine:
     ["allow-site"]); a connector engine never does."""
 
     def __init__(self, policy: PermissionPolicy, classifications: dict[str, Classification], connector: str, *,
-                 sites: bool = False):
+                 sites: bool = False, emulation_target: str = "muse"):
+        target_profile(emulation_target)
+        self.emulation_target = emulation_target
+        self.class_bases = behavior_bases(emulation_target, "permission classes", CLASS_BASIS)
+        self.rule_bases = behavior_bases(emulation_target, "permissions", RULE_BASIS)
+        self.choice_source = dict(CHOICE_SOURCE) if emulation_target == "muse" else {
+            kind: "CATT's assumed grant choice for Instinct; the product's approval UI is not published"
+            for kind in CHOICE_SOURCE
+        }
         self.policy = policy if isinstance(policy, PermissionPolicy) else PermissionPolicy.model_validate(policy)
         if not isinstance(connector, str) or not connector:
             raise LabError("The permission engine needs a connector name")
@@ -988,7 +997,9 @@ class PermissionEngine:
             if item.tool_class == "sensitive-write":
                 raise LabError(f"permissions.persisted_always lists {name}, a sensitive write ({item.basis}: "
                                f"{'; '.join(item.reasons)}). Sensitive writes cannot be set to Always allow, "
-                               "including through Settings or a saved permission (Muse connector guidelines 3.3)")
+                               + ("including through Settings or a saved permission (Muse connector guidelines 3.3)"
+                                  if emulation_target == "muse" else
+                                  "including through a saved permission (CATT's conservative Instinct treatment)"))
         self._grants = [{"id": f"grant-{index}", "scope": "always", "tool": name, "source": "persisted",
                          "card_id": None, "binding_sha256": None, "status": "active"}
                         for index, name in enumerate(self.policy.persisted_always, 1)]
@@ -1090,7 +1101,8 @@ class PermissionEngine:
         card = ApprovalCard(card_id=f"card-{len(self._cards) + 1}", connector=self.connector, tool=tool,
                             tool_class=tool_class, arguments=masked(arguments, private), disclosure=disclosure,
                             binding_sha256=binding, offered=offered,
-                            offered_basis={kind: CHOICE_SOURCE[kind] for kind in offered}, origin=origin, site=site)
+                            offered_basis={kind: self.choice_source[kind] for kind in offered}, origin=origin,
+                            site=site)
         # Details the user already decided in this task: approval burden the agent caused.
         repeat_of = next((item.card_id for item in self._cards if item.binding_sha256 == binding), None)
         requested, edits, rule, undecided = self.scripted(card)
@@ -1102,7 +1114,9 @@ class PermissionEngine:
             decided = "withheld-terms"
         if requested in ("allow_task", "allow_site", "always_allow") and requested not in offered:
             kind, decided = "allow_once", basis
-            note = "scope not offered: " + ("sensitive writes offer only Allow once and Deny (guidelines 3.3)"
+            note = "scope not offered: " + (("sensitive writes offer only Allow once and Deny (guidelines 3.3)"
+                                            if self.emulation_target == "muse" else
+                                            "sensitive writes offer only Allow once and Deny (CATT assumption)")
                                             if basis == "sensitive-every-use"
                                             else "Always ask honors no task or Always allow grant"
                                             if basis == "always-ask" and requested != "allow_site"
@@ -1123,7 +1137,7 @@ class PermissionEngine:
         self._decisions.append({
             "card_id": card.card_id, "kind": kind, "requested": requested, "rule": rule, "undecided_rule": undecided,
             "edits": copy.deepcopy(edits) if kind == "edit" else None, "note": note, "basis": decided,
-            "choice_basis": CHOICE_SOURCE.get(kind, "assumed user behavior, not a card button"),
+            "choice_basis": self.choice_source.get(kind, "assumed user behavior, not a card button"),
             "allowed": allowed, "scope": scope, "dispatched_sha256": dispatched_sha256,
             "dispatched_arguments": masked(dispatched, private) if kind == "edit" else None,
             **({"site": site} if self.sites else {})})
@@ -1155,8 +1169,8 @@ class PermissionEngine:
                             "private_values": f"bound by value, shown as {PRIVATE}"},
                 "grants": copy.deepcopy(self._grants), "cards": [card_record(card) for card in self._cards],
                 "decisions": copy.deepcopy(self._decisions), "requests": copy.deepcopy(self._requests),
-                "basis": {"classes": copy.deepcopy(CLASS_BASIS), "rules": copy.deepcopy(RULE_BASIS),
-                          "choices": dict(CHOICE_SOURCE)}}
+                "basis": {"classes": copy.deepcopy(self.class_bases), "rules": copy.deepcopy(self.rule_bases),
+                          "choices": dict(self.choice_source)}}
 
     def metrics(self) -> dict:
         """Approval burden: cards per class, final decisions per kind, calls allowed without a card

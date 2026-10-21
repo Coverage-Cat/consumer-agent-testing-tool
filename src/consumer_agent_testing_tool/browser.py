@@ -333,7 +333,10 @@ class BrowserBroker:
                   "detail": detail, "driver": getattr(self, "driver", "scripted"),
                   "surface": "restricted snapshot browser surrogate", "compatibility_pass": False,
                   "run_lock": {"policy": digest(self.policy.model_dump()),
-                               "harness": self.harness_lock,
+                                **({"emulation_target": self.emulation_target,
+                                    "interface_profile": self.evidence_profile}
+                                   if getattr(self, "emulation_target", "muse") != "muse" else {}),
+                                "harness": self.harness_lock,
                                "model": self.model_lock, "browser": self.browser_version,
                                "browser_backend": self.browser_backend,
                                **({"browser_worker": self.worker_runtime} if self.worker_runtime else {}),
@@ -351,7 +354,8 @@ class BrowserBroker:
                   **({"model_preflight_runs": self.preflight_runs} if self.preflight_runs else {}),
                   # This result's evidence-limits list (report.html "Limits").
                   "limits": ["Browser observations alone do not verify backend outcomes.",
-                             "OS isolation and actual Muse calibration are not established.",
+                              (f"OS isolation and actual {getattr(self, 'emulation_target', 'muse').title()} "
+                               "calibration are not established."),
                              *([WEBMCP_LIMIT] if webmcp else [])]}
         return finalize(self.path, self.redactor.clean_evidence(result))
 

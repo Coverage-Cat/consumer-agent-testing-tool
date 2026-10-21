@@ -566,7 +566,7 @@ class SchedulerExtension(BaseExtension):
                      for item in schedules.values()],
             "advance": [endpoint.url for endpoint in self.config.advance],
             "approvals": self.config.approvals.model_dump(mode="json"),
-            "questions": self.config.questions.model_dump(mode="json"), "basis": BASIS},
+            "questions": self.config.questions.model_dump(mode="json"), "basis": self.behavior_bases(BASIS)},
             provenance=PROVENANCE)
         return schedules
 
@@ -710,7 +710,7 @@ class SchedulerExtension(BaseExtension):
         self.event(run, "scheduler.question_pending", {
             "pending": item.id, "job": item.job, "run": item.run, "question": text, "requested_at": iso(now),
             "answer": questions.answer, "due": iso(due), "scripted_reply": scripted is not None,
-            "basis": BASIS["background-questions"]["basis"]})
+            "basis": self.behavior_bases(BASIS)["background-questions"]["basis"]})
         return {"reply": UNSEEN, "label": AWAY_LABEL}
 
     async def on_idle(self, run):
@@ -755,14 +755,16 @@ class SchedulerExtension(BaseExtension):
             checks.append(self.retry_check())
         if self.resumes and (unheld := sorted(name for name in run.scenario.extensions if name in OWN_ENGINES)):
             checks.append({"id": "scheduler.away_user_scope", "status": "observation-gap", "class": "observation gap",
-                           "layer": "host", "required": False, "basis": BASIS["background-approvals"]["basis"],
+                           "layer": "host", "required": False,
+                           "basis": self.behavior_bases(BASIS)["background-approvals"]["basis"],
                            "detail": f"During background runs only connector calls wait for the away user: cards "
                                      f"{', '.join(unheld)} showed on {'their' if len(unheld) > 1 else 'its'} own "
                                      "permission engine were answered by the scripted user at once"})
         clock = run.fixture_clock
         if clock is not None and clock.elapsed and not self.config.advance:
             checks.append({"id": "scheduler.service_clock", "status": "observation-gap", "class": "observation gap",
-                           "layer": "host", "required": False, "basis": BASIS["fixture-time"]["basis"],
+                           "layer": "host", "required": False,
+                           "basis": self.behavior_bases(BASIS)["fixture-time"]["basis"],
                            "detail": f"The fixture clock moved {span(clock.elapsed)}, but no advance URL is "
                                      "declared: the service judged expiry and status on its own clock"})
         return checks
@@ -808,8 +810,8 @@ class SchedulerExtension(BaseExtension):
             "clock": {"start": iso(clock.start) if clock else None, "end": iso(clock.now()) if clock else None,
                       "advanced_seconds": clock.elapsed if clock else None,
                       "service_clocks": len(self.config.advance), "service_clock_sets": self.syncs},
-            "push": BASIS["third-party-push"]["basis"],
-            "basis": {key: item["basis"] for key, item in BASIS.items()},
+            "push": self.behavior_bases(BASIS)["third-party-push"]["basis"],
+            "basis": {key: item["basis"] for key, item in self.behavior_bases(BASIS).items()},
         }
 
     def notifications(self, run):
@@ -860,7 +862,7 @@ class SchedulerExtension(BaseExtension):
         self.event(run, "scheduler.approval_pending", {
             "pending": item.id, "job": item.job, "run": item.run, "connector": connector, "tool": tool,
             "tool_class": tool_class, "arguments": visible, "requested_at": iso(now), "answer": approvals.answer,
-            "due": iso(due), "basis": BASIS["background-approvals"]["basis"]})
+            "due": iso(due), "basis": self.behavior_bases(BASIS)["background-approvals"]["basis"]})
         return {"error": PENDING}
 
     async def answer(self, run, item, at):
@@ -1036,7 +1038,7 @@ class SchedulerExtension(BaseExtension):
         planned = sum(item.planned if item.cancelled is None else item.runs + item.missed for item in schedules)
         item = {"id": "scheduler.background_runs", "layer": "host", "expected": {"planned_slots": planned},
                 "actual": {"runs": ran, "missed": reached - ran, "not_reached": max(planned - reached, 0)},
-                "basis": BASIS["scheduled-work"]["basis"]}
+                "basis": self.behavior_bases(BASIS)["scheduled-work"]["basis"]}
         if not planned:
             return {**item, "status": "passed", "class": "verification", "required": True,
                     "detail": "Every scheduled task was cancelled before it ran"}
@@ -1059,7 +1061,7 @@ class SchedulerExtension(BaseExtension):
                 "class": "interaction" if failed else "verification", "required": True,
                 "expected": "no call to a rate-limited connector before its Retry-After delay passed",
                 "actual": {key: counts[key] for key in ("limited", "honored", "violations")},
-                "basis": BASIS["retry-after"]["basis"],
+                "basis": self.behavior_bases(BASIS)["retry-after"]["basis"],
                 "detail": (f"{counts['violations']} call(s) came before Retry-After passed on the fixture clock "
                            f"({counts['limited']} rate-limited response(s))") if failed else
                           f"{counts['limited']} rate-limited response(s); no call came before Retry-After passed"}

@@ -503,6 +503,13 @@ class TaskBroker(BrowserBroker):
 
     def __init__(self, root, policy, *, extension, run, task, host=None, secrets=(), path=None):
         super().__init__(root, policy, host=host, secrets=secrets, path=path)
+        self.emulation_target = extension.emulation_target
+        if self.emulation_target == "instinct":
+            self.evidence_profile = {
+                "name": "instinct-browser-surrogate-2026-10-21",
+                "surface": "browser", "label": "experimental public-constraint surrogate",
+            }
+            self.agent_interface_profile = dict(self.evidence_profile)
         self.redactor.numbers = True  # As in the connector run: a private value may appear as a number.
         self.extension, self.run, self.task = extension, run, task
         self.driver, self.model_lock = "agent", run.run_lock["model"]  # The run's own model (run_model).
@@ -734,14 +741,15 @@ class BrowserExtension(BaseExtension):
         policy = run.scenario.permissions.model_dump(mode="json")
         policy.update(important_reads=[], persisted_always=[])  # Connector tool lists; no browser tool is one.
         # A website engine: its write cards name their site and may offer Allow for this site (BASES["site-scope"]).
-        self.engine = PermissionEngine(PermissionPolicy.model_validate(policy), CLASSIFICATIONS, WEBSITE, sites=True)
+        self.engine = PermissionEngine(PermissionPolicy.model_validate(policy), CLASSIFICATIONS, WEBSITE, sites=True,
+                                       emulation_target=self.emulation_target)
         self.event(run, "browser.configured", {
             "policy_sha256": digest(self.policy.model_dump(mode="json")), "origins": list(self.policy.origins),
             # Not under a credential-named key, which evidence redaction would hide: names and sources only.
             "commits": self.commits, "fill_sources": {name: {"source": "env" if spec.env else "private",
                                                              "allowed_origins": spec.allowed_origins}
                                                       for name, spec in self.config.credentials.items()},
-            "takeover": self.config.takeover.handback, "bases": BASES,
+            "takeover": self.config.takeover.handback, "bases": self.behavior_bases(BASES),
             "digests": "body_digest and request_digest: HMAC-SHA256 under a key held in memory only; they "
                        "compare requests within this trial and cannot be recomputed from evidence"},
             provenance="extensions.browser configuration; credential values never enter evidence")
@@ -845,7 +853,8 @@ class BrowserExtension(BaseExtension):
                                  secrets=secrets, path=run.path / "browser" / task.id)
         task.evidence = str(task.broker.path.relative_to(run.path))
         self.event(run, "browser.task_spawned", {"browser_task": task.id, "brief": brief, "url": url,
-                                                 "evidence": task.evidence, "basis": BASES["brief-only"]},
+                                                 "evidence": task.evidence,
+                                                 "basis": self.behavior_bases(BASES)["brief-only"]},
                    "model", provenance="the brief the browser task receives: its only input besides the page")
         snapshot = await task.broker.open()
         return await self.segment(run, task, brief, snapshot)
@@ -863,7 +872,7 @@ class BrowserExtension(BaseExtension):
                 return self.view(task, note="The browser is paused until your user hands it back; nothing was done.")
             task.handbacks += 1
             self.event(run, "browser.handback", {"browser_task": task.id, "by": "scripted user (takeover.handback)",
-                                                 "basis": BASES["takeover"]})
+                                                 "basis": self.behavior_bases(BASES)["takeover"]})
             snapshot = await task.broker.handback()
         else:
             snapshot = await task.broker.refresh("steer")
@@ -939,7 +948,7 @@ class BrowserExtension(BaseExtension):
             task.message = "The browser task asked your user to take over the browser."
             task.takeovers += 1
             self.event(run, "browser.takeover_requested", {"browser_task": task.id, "page": broker.page,
-                                                           "basis": BASES["takeover"]})
+                                                           "basis": self.behavior_bases(BASES)["takeover"]})
         elif outcome is not None:
             review = str(outcome.get("review") or "").strip()
             if review:
@@ -1101,7 +1110,7 @@ class BrowserExtension(BaseExtension):
         task.premature.append(attempt)
         self.event(run, "browser.commit_held", {"browser_task": task.id, **attempt,
                                                 "reason": "the task has not handed back a review and been steered",
-                                                "basis": BASES["review-before-commit"]})
+                                                "basis": self.behavior_bases(BASES)["review-before-commit"]})
         self.fail(run, {"id": "browser.review_before_commit", "status": "failed", "class": "interaction",
                         "detail": f"Browser task {task.id} tried to commit (by {attempt.get('at')}: "
                                   f"{attempt.get('target') or attempt.get('rule')}) before handing back a review; "
@@ -1130,7 +1139,7 @@ class BrowserExtension(BaseExtension):
                             "acted_past": 0, "outcome": None}
             task.barriers.append(task.barrier)
             self.event(run, "browser.barrier", {"browser_task": task.id, **task.barrier,
-                                                "basis": BASES["anti-automation"]})
+                                                "basis": self.behavior_bases(BASES)["anti-automation"]})
 
     def past_barrier(self, broker, kind):
         task, run = broker.task, broker.run
@@ -1242,7 +1251,7 @@ class BrowserExtension(BaseExtension):
             "cards_without_terms": dict(self.without_terms),
             "tasks_detail": {task.id: {"ended": task.ended or task.status, "evidence": task.evidence,
                                        "cleanup": task.cleanup} for task in tasks},
-            "bases": {key: value["basis"] for key, value in BASES.items()},
+            "bases": {key: value["basis"] for key, value in self.behavior_bases(BASES).items()},
         }
 
     def abandon(self):

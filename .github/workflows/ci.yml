@@ -151,6 +151,13 @@ jobs:
           --start "python -m consumer_agent_testing_tool.connector_fixture --port {port} --variant good --auth none"
           --junit reports/fixture-booking-cli.xml
 
+      - name: Scripted booking through the experimental Instinct target
+        run: >-
+          uv run --no-sync consumer-agent-testing-tool connector-run examples/connector/instinct-booking.yaml
+          --driver scripted --script examples/connector/fixture-booking.calls.json
+          --start "python -m consumer_agent_testing_tool.connector_fixture --port {port} --variant good --auth none"
+          --junit reports/instinct-booking.xml --summary-json reports/instinct-booking.json
+
       - name: Scripted weather question against the locked MCP reference server
         run: >-
           uv run --no-sync consumer-agent-testing-tool connector-run examples/connector/everything-weather.yaml

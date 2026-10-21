@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+- Experimental Instinct emulation target for connector trials and selected
+  extensions, with source research, plain-text checks, separate provenance,
+  a scripted example and CI coverage.
+
 ## 0.1.0 - 2026-10-20
 
 First public release.

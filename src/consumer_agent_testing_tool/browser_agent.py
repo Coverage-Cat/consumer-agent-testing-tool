@@ -253,13 +253,16 @@ def agent_evidence(broker, secrets=None):
     """The agent sub-run's evidence. `secrets` replaces the broker's registered values as what its redactor
     (and the provider-boundary credential guard) treats as credentials: a continued browser task passes
     the host's own secrets, never the text the agent typed earlier and sees again in its history."""
-    profile = {"name": "muse-browser-public-constraint-surrogate",
+    profile = getattr(broker, "agent_interface_profile", None) or {
+               "name": "muse-browser-public-constraint-surrogate",
                "surface": "browser", "label": "public-constraint surrogate",
                "serializer": {"value": None, "basis": "unknown", "source": None}}
     # A scenario ID gives the sub-run its per-attempt metrics, as in the other agent lanes.
     evidence = Evidence(broker.path / "agent", lane="browser behavioral", label="surrogate behavior",
         profile=profile, scenario_id=broker.policy.task_id,
         lock={"harness": broker.harness_lock, "model": broker.model_lock,
+                              **({"emulation_target": broker.emulation_target, "interface_profile": profile}
+                                 if getattr(broker, "agent_interface_profile", None) else {}),
                               "policy": broker.policy.model_dump(exclude={"diagnostics"}),
                               "diagnostic_policy_sha256": digest(broker.policy.diagnostics.model_dump()),
                               "browser": broker.browser_version,

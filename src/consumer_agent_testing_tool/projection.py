@@ -410,10 +410,12 @@ class Projection:
     names native functions <connector>__<tool>; a run fixes it from its declared connectors, so a
     connector connected later (add) never renames another's tools (BASES["connector-prefix"])."""
 
-    def __init__(self, mode, exposure, connectors: list[ConnectorView], *, prefix=None, reserved=()):
+    def __init__(self, mode, exposure, connectors: list[ConnectorView], *, prefix=None, reserved=(),
+                 emulation_target="muse"):
         if mode not in ("native", "muse-cli") or exposure not in ("in-prompt", "search-only"):
             raise LabError(f"Unknown projection {mode}/{exposure}")
         self.mode, self.exposure = mode, exposure
+        self.emulation_target = emulation_target
         self.prefix = len(connectors) > 1 if prefix is None else bool(prefix)
         self.connectors, self.exposures = {}, {}
         self.entries, self.visible, self.diffs = {}, {}, {}
@@ -511,6 +513,8 @@ class Projection:
         return self.visible[(connector, server)]
 
     def record(self) -> dict:
+        from .emulation import behavior_bases
+
         # Each connector's own exposure, when there are several or one differs from the default.
         mixed = self.prefix or any(exposure != self.exposure for exposure in self.exposures.values())
         return {"projection": self.mode, "exposure": self.exposure, "tools": self.specs(),
@@ -522,12 +526,12 @@ class Projection:
                                       "allowed_tools": [entry["name"] for entry in view.tools],
                                       **({"exposure": self.exposures[name]} if mixed else {})}
                                for name, view in self.connectors.items()},
-                "basis": {key: BASES[key] for key in (
+                "basis": behavior_bases(self.emulation_target, "projection", {key: BASES[key] for key in (
                     self.mode, "untrusted-results", "result-bound", "model-view-masking",
                     *((("search-only" if self.mode == "native" else "search-only-cli"),)
                       if self.searchable else ()),
                     *(("provider-names", "schema-bounds") if self.mode == "native" else ()),
-                    *(("connector-prefix",) if self.prefix and self.mode == "native" else ()))}}
+                    *(("connector-prefix",) if self.prefix and self.mode == "native" else ()))})}
 
     def lost_keywords(self) -> int:
         return sum(len(diff.get("lost_keywords", [])) for diff in self.diffs.values())

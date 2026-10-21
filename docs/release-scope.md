@@ -6,6 +6,11 @@ not a claim that missing external qualifications have passed.
 
 ## Supported paths
 
+- The experimental Instinct target in `connector-run`: native MCP as an
+  assumed adapter, text presentation and the selected extensions listed in
+  [the Instinct spec](instinct-emulation.md). This adds no real-Instinct
+  calibration, admission or private-protocol claim. It does not qualify
+  Instinct's Vault, payment rails, Files or trusted-network protocol.
 - The Muse connector surrogate lane: `connector-run` with connector-v1
   scenarios against a developer's MCP server over Streamable HTTP (https, or
   plain http on loopback). It covers the `native` and `muse-cli` projections;

@@ -155,7 +155,7 @@ async def test_summary_json_on_stdout_is_the_only_stdout_output(workspace, capsy
                                                                                                 None)
     assert summary["pass_hat_k"] == {"1": 1.0, "2": 1.0} and Path(summary["summary_run"]).is_dir()
     assert summary["treatment"] == {"projection": "native", "exposure": "in-prompt", "client_profile": "generic-sdk",
-                                    "output_schema": "lenient"}
+                                    "output_schema": "lenient", "emulation_target": "muse"}
     for trial in summary["trials"]:
         assert trial["run"] in captured.err and Path(trial["run"], "result.json").is_file()
         assert trial["checks"][0] == {"id": "execution", "status": "passed", "required": True}

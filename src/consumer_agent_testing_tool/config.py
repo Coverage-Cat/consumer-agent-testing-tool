@@ -569,6 +569,13 @@ def enforce_offline(config: Config, model: ModelProfile | None, targets: list[Ta
 
 
 def interface_profile(name: str) -> dict:
+    if name == "instinct-connector-surrogate-2026-10-21":
+        from .emulation import policy_record, target_profile
+        return {**target_profile("instinct"), "source_policy": policy_record("instinct"),
+                "constraints": {
+                    "instinct_fidelity": Constraint(value=None, basis="unknown", source=None,
+                        checked_at="2026-10-21",
+                        evidence_gap="No real-Instinct calibration; MCP is an assumed CATT adapter").model_dump()}}
     if name == "muse-connector-surrogate-2026-10":
         from .connector_run import (
             PROFILE,  # Defined with the lane; resolvable here for replay and diff.

@@ -1148,8 +1148,8 @@ def write_report(path: Path):
                         if isinstance(manifest.get(key), str))
     body = [f"<h1>Consumer Agent Testing Tool</h1><p>run <code>{escape(manifest.get('run_id', path.name))}</code>"
             + (f" · scenario <code>{escape(manifest['scenario_id'])}</code>" if manifest.get("scenario_id") else "")
-            + "</p><p>Test your integration against documented Muse interface constraints and an assistant "
-            f'surrogate.</p><p class="label">{labels}</p>', verdict(rows, status),
+            + "</p><p>Recorded service test through a consumer-assistant surrogate."
+            f'</p><p class="label">{labels}</p>', verdict(rows, status),
             f"<p class=muted>{html.escape(DISCLAIMER)}</p>", "<h2>Checks</h2>",
             checks_table(manifest.get("checks")), "<h2>Timeline</h2>", steps_section(path, groups),
             views_section(path, groups, manifest), metrics_section(manifest.get("metrics"))]

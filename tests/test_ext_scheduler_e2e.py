@@ -6,6 +6,7 @@ import json
 import shutil
 from pathlib import Path
 
+import pytest
 from test_connector_e2e_support import (
     EXAMPLES,
     FRAMING,
@@ -47,14 +48,15 @@ def test_the_scheduled_examples_load():
     assert sum("idle" in step for step in ScriptedDriver(load(EXAMPLES / SMOKE)).steps) == 2
 
 
+@pytest.mark.parametrize("emulation_target", ["muse", "instinct"])
 async def test_a_scripted_smoke_run_of_the_confirmation_example_runs_its_task_at_idle_steps(
-        tmp_path, monkeypatch, capsys):
+        tmp_path, monkeypatch, capsys, emulation_target):
     monkeypatch.chdir(tmp_path)  # CLI paths stay inside the workspace.
     shutil.copytree(EXAMPLES, tmp_path / "examples")
     async with fixture(variant="slow-confirm") as running:
         code = await execute(parser().parse_args([
             "connector-run", f"examples/{CONFIRMATION}", "--driver", "scripted", "--script", f"examples/{SMOKE}",
-            "--set", f"PORT={running.port}"]))
+            "--set", f"PORT={running.port}", "--emulation-target", emulation_target]))
         state = oracle(running)
     captured = capsys.readouterr()
     assert code == 0, captured.err

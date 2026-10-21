@@ -1,7 +1,7 @@
-"""Muse connector surrogate runner: the developer's real MCP catalog, a projected tool surface,
+"""Assistant connector surrogate runner: the developer's real MCP catalog, a projected tool surface,
 host-owned credentials and approvals, independent outcome checks and sealed evidence.
 
-The host plays Muse's trusted control plane: it links accounts and holds credentials, shows
+The host approximates the selected assistant's control plane: it links accounts and holds credentials, shows
 approval cards to a scripted user (never to the model), keeps private user data out of model
 context, speaks MCP with a selected client profile and checks outcomes against an oracle after
 the agent stops. Every Muse-specific behavior carries a basis (documented / unofficial /
@@ -59,6 +59,14 @@ from .connector_scenario import (
     scenario_context,
     substitute,
 )
+from .emulation import (
+    INSTINCT_FIRST_LINE,
+    behavior_bases,
+    host_bases,
+    policy_record,
+    target_profile,
+    validate_instinct,
+)
 from .errors import LabError, LimitExhausted, Unsupported, normalize_error
 from .evidence import HARNESS_NUMBERS, PersonalValue, Redactor, admissible_secret
 from .evidence import NUMBER as NUMBER_TEXT
@@ -99,9 +107,7 @@ from .projection import (
 )
 from .serialization import digest, load, recordable
 
-PROFILE = {"name": "muse-connector-surrogate-2026-10", "surface": "mcp", "label": "public-constraint surrogate",
-           "adapter": "consumer-agent-testing-tool-connector-v1",
-           "mapping_provenance": "the developer's MCP catalog, projected by the host (native or muse-cli)"}
+PROFILE = target_profile("muse")  # Backward-compatible name for callers selecting the original target.
 # Meta-published first line of Muse's system prompt (https://introducing.muse.ai/), byte for byte
 # (U+2019 apostrophe); the rest is assumed.
 FIRST_LINE = "Your purpose is to make your user\u2019s life better."
@@ -216,7 +222,7 @@ RUNNER_PREFIXES = ("approval.", "answer.", "client.", "connector.", "reconcile."
 RUNNER_LOCK = frozenset({"lane", "scenario_sha256", "python", "harness", "driver", "model", "projection", "exposure",
                          "connectors", "client_profile", "connector_exposure", "server", "overrides", "extensions",
                          "limits", "bases", "variables", "prompt_sha256", "agent", "decision_contract",
-                         "connector_limits", "model_lineage", "service"})
+                         "connector_limits", "model_lineage", "service", "emulation_target", "emulation_policy"})
 # Call outcomes that reached the service (on_tool_result's call["dispatched"]).
 DISPATCHED = frozenset({"result", "service-error", "uncertain"})
 TOOL_CLASSES = ("read", "write", "sensitive-write")
@@ -527,9 +533,14 @@ class BaseExtension:
     """No-op hooks, so an extension implements only what it needs."""
     name = "base"
     config_model: type[BaseModel] = NoConfig
+    emulation_target = "muse"
 
     def __init__(self, config):
         self.config = config
+
+    def behavior_bases(self, originals):
+        """Evidence for a shared extension's algorithms under the selected target."""
+        return behavior_bases(self.emulation_target, f"{self.name} extension", originals)
 
     def system_context(self, run):
         return []
@@ -701,6 +712,8 @@ def extension_entry(extension) -> dict:
 def make_extensions(scenario: ConnectorScenario):
     configs = dict(scenario.extensions)
     configs.setdefault("clock", {})  # Built in: always supplies the standing context's date and time.
+    if scenario.emulation_target == "instinct":
+        configs["presentation"] = {"channel": "text", "widget_fields": [], **configs.get("presentation", {})}
     result = []
     for name in sorted(configs):
         factory = discover(name)
@@ -713,6 +726,10 @@ def make_extensions(scenario: ConnectorScenario):
             raise LabError(f"Invalid extensions.{name}: {validation_message(error)}") from None
         extension = factory(config)
         extension.name = name
+        if scenario.emulation_target == "instinct":
+            extension.emulation_target = "instinct"
+            if getattr(extension, "bases", None):
+                extension.bases = behavior_bases("instinct", f"{name} extension", extension.bases)
         result.append(extension)
     return result
 
@@ -978,7 +995,7 @@ class ConnectorRun:
 
     def __init__(self, loaded: LoadedScenario, *, driver, root=None, output="runs", services=None,
                  projection=None, exposure=None, client_profile=None, trial=None, preflight_run=None,
-                 config_path=None, output_schema=None, service=None):
+                 config_path=None, output_schema=None, service=None, emulation_target=None):
         from .serialization import implementation_lock
         from .surface import inside
         self.loaded, self.driver, self.services = loaded, driver, services
@@ -986,7 +1003,10 @@ class ConnectorRun:
         # profiles from the same file; None for scripted replays and library callers.
         self.config_path = Path(config_path) if config_path is not None else None
         self.scenario = effective_scenario(loaded.scenario, projection=projection, exposure=exposure,
-                                           client_profile=client_profile, output_schema=output_schema)
+                                           client_profile=client_profile, output_schema=output_schema,
+                                           emulation_target=emulation_target)
+        self.interface_profile = target_profile(self.scenario.emulation_target)
+        self.bases = host_bases(self.scenario.emulation_target, BASES)
         specs = self.scenario.connectors
         # Several connectors (or none, when an extension provides the agent's service): evidence, metrics
         # and lock entries name each, and native names carry it.
@@ -1040,6 +1060,9 @@ class ConnectorRun:
             "lane": "connector-v1", "scenario_sha256": loaded.sha256, "python": platform.python_version(),
             "harness": implementation_lock(self.root), "driver": driver.name, "model": driver.lock(),
             "projection": self.scenario.projection, "exposure": self.exposure,
+            "emulation_target": self.scenario.emulation_target,
+            **({"emulation_policy": policy_record("instinct")} if self.scenario.emulation_target == "instinct"
+               else {}),
             **({"connectors": {spec.name: {"client_profile": {"name": spec.client_profile},
                                            "exposure": self.connections[spec.name].exposure, "server": None}
                                for spec in specs}} if self.multi else
@@ -1048,9 +1071,10 @@ class ConnectorRun:
                else {}),
             "overrides": {key: value for key, value in (("projection", projection), ("exposure", exposure),
                                                         ("client_profile", client_profile),
-                                                        ("output_schema", output_schema)) if value},
+                                                        ("output_schema", output_schema),
+                                                        ("emulation_target", emulation_target)) if value},
             "extensions": entries,
-            "limits": self.scenario.limits.model_dump(mode="json"), "bases": BASES,
+            "limits": self.scenario.limits.model_dump(mode="json"), "bases": self.bases,
             "variables": sorted(loaded.variables),
             # A service connector-run --start launched for these trials (service_start.Service.record).
             **({"service": service} if service else {}),
@@ -1062,7 +1086,8 @@ class ConnectorRun:
         if (chosen := getattr(driver, "model_profile", None)) is not None and (lineage := model_lineage(chosen)):
             # What the agent's model is derived from (P1.8): never read as the model Muse runs.
             self.run_lock["model_lineage"] = lineage
-            self.observation_gaps.append(SPARK_OPEN_GAP)
+            if self.scenario.emulation_target == "muse":
+                self.observation_gaps.append(SPARK_OPEN_GAP)
 
     def lock_entry(self, connection) -> dict:
         """Where the run lock records one connector: the lock itself with one connector, else its entry."""
@@ -1089,7 +1114,7 @@ class ConnectorRun:
             raise LabError(f"Event audiences are {' or '.join(AUDIENCES)}, not {str(audience)[:32]!r}")
         self.events += 1
         row = record(self.path, self.redactor, self.events, kind, recordable(payload), scenario_id=self.scenario.id,
-                     profile=PROFILE, clock_id=self.clock_id, driver=self.driver.name)
+                     profile=self.interface_profile, clock_id=self.clock_id, driver=self.driver.name)
         # record() marks only agent_observation as model-visible; this lane names its own audiences.
         row["visibility"] = audience
         if provenance:
@@ -1281,7 +1306,7 @@ class ConnectorRun:
         for key in ("important_reads", "persisted_always"):
             policy[key] = self.scenario.scoped(policy[key], connection.name)
         connection.engine = PermissionEngine(PermissionPolicy.model_validate(policy), dict(connection.classifications),
-                                             connection.name)
+                                             connection.name, emulation_target=self.scenario.emulation_target)
 
     def observations(self):
         """(observation, connector it reads) for every check and reconcile declaration."""
@@ -1346,7 +1371,8 @@ class ConnectorRun:
                    provenance="MCP initialize and paginated tools/list through the selected client profile")
         if instructions:
             self.observation_gaps.append(f"{who} sent initialize instructions; they are recorded but not shown "
-                                         "to the model (Muse's handling is not public)")
+                                         f"to the model ({self.scenario.emulation_target.title()}'s handling is "
+                                         "not public)")
         tools_spec, declared, scoped = connection.tools, set(names), self.scenario.scoped
         named = {*(tools_spec.allow or []), *tools_spec.classes, *tools_spec.host_arguments, *tools_spec.disclosure,
                  *tools_spec.reconcile, *(pick.source for pick in tools_spec.capture.values()),
@@ -1372,16 +1398,17 @@ class ConnectorRun:
             name = tool["name"]
             connection.classifications[name] = classify_tool(tool, tools_spec.classes.get(name),
                                                              important_read=name in important)
-        try:
-            connection.sheet = classification_sheet(connection.catalog, dict(tools_spec.classes))
-        except LabError as error:
-            of = f" of {connection.name}" if self.multi else ""
-            self.observation_gaps.append(f"The classification sheet{of} is unavailable: {error}")
+        if self.scenario.emulation_target == "muse":
+            try:
+                connection.sheet = classification_sheet(connection.catalog, dict(tools_spec.classes))
+            except LabError as error:
+                of = f" of {connection.name}" if self.multi else ""
+                self.observation_gaps.append(f"The classification sheet{of} is unavailable: {error}")
         self.event("classification", {"connector": connection.name,
                                       "classes": [item.model_dump(mode="json")
                                                   for item in connection.classifications.values()],
                                       "declared": dict(tools_spec.classes), "sheet": connection.sheet,
-                                      "basis": BASES["permission-classes"]})
+                                      "basis": self.bases["permission-classes"]})
 
     def check_joins(self, connection):
         """A write's disclosure says which result it shows (BASES["disclosure-join"]): a pick from another
@@ -1415,7 +1442,8 @@ class ConnectorRun:
                     f"No reviewed tools.allow list for {connection.name}: every catalog tool is exposed to the model"
                     if self.multi else "No reviewed tools.allow list: every catalog tool is exposed to the model")
             views.append(self.view(connection, connection.exposure))
-        self.projection = Projection(self.scenario.projection, self.exposure, views, prefix=self.multi)
+        self.projection = Projection(self.scenario.projection, self.exposure, views, prefix=self.multi,
+                                     emulation_target=self.scenario.emulation_target)
         if lost := self.projection.lost_keywords():
             self.observation_gaps.append(f"Inspect's tool parameters are a JSON Schema subset: {lost} schema "
                                          "keyword(s) were not shown to the model (see the projection diff)")
@@ -1451,7 +1479,7 @@ class ConnectorRun:
 
     def system_prompt(self) -> str:
         scenario, projection = self.scenario, self.projection
-        lines = [FIRST_LINE, "", *PROMPT]
+        lines = [FIRST_LINE if scenario.emulation_target == "muse" else INSTINCT_FIRST_LINE, "", *PROMPT]
         views = projection.connectors.values()
         # Connectors in context, and connectors behind tool_search; a disconnected one is in neither.
         direct = [view for view in views if projection.exposures[view.name] == "in-prompt"]
@@ -2439,7 +2467,7 @@ class ConnectorRun:
             "connector": name, "by": source, "turn": self.turns, "exposure": exposure,
             "model_tools": names if native else [], "command": None if native else name,
             "name_map": self.projection.model_names(name), "server": connection.server,
-            "basis": BASES["connect-mid-run"]},
+            "basis": self.bases["connect-mid-run"]},
             provenance="run.connect: linked, connected and listed mid-run; offered from the next model turn")
         self.event("projection_update", {"connector": name, "exposure": exposure, "model_tools": [
             self.redactor.mask_credentials(spec) for spec in self.projection.specs()
@@ -2635,8 +2663,9 @@ class ConnectorRun:
                 "actual": {"dispatched": len(self.dispatches), "verified": len(by_wire["captured"]) - len(mismatched),
                            "mismatched_requests": mismatched, "unverified_requests": unverified,
                            "not_sent_requests": by_wire["not sent"], **({"swapped_tools": swapped} if swapped else {})},
-                "basis": "guidelines 3.4: Allow once covers only the action and details shown; compared: the "
-                         "tools/call name and arguments the MCP client serialized for the wire"}
+                "basis": ("guidelines 3.4" if self.scenario.emulation_target == "muse" else "CATT assumption")
+                + ": Allow once covers only the action and details shown; compared: the "
+                  "tools/call name and arguments the MCP client serialized for the wire"}
         if status != "passed":
             item["detail"] = ("; ".join(f"request {row['request']} sent {row['sent']}, but its approval covered "
                                         f"{row['approved']}" for row in swapped) if swapped
@@ -2678,7 +2707,8 @@ class ConnectorRun:
                 "class": "policy/approval" if failed else "verification",
                 "expected": "each approved card shows the result its call names (match pointers)",
                 "actual": {"verified": len(rows) - len(mismatched), "mismatched": mismatched, "unbound": unbound},
-                "basis": "guidelines 3.4: show the details and execute only what the user approved"}
+                "basis": ("guidelines 3.4" if self.scenario.emulation_target == "muse" else "CATT assumption")
+                + ": show the details and execute only what the user approved"}
         if failed:
             item["detail"] = "; ".join(filter(None, [
                 mismatched and ("cards showed details from a result the sent call does not name: "
@@ -2805,7 +2835,8 @@ class ConnectorRun:
             self.event("check", item)
             return [item]
         score = score_answer(self.final_text, AnswerSpec.model_validate(spec.model_dump(mode="json")),
-                             {check["id"]: check for check in checks}, dict(self.captured)).model_dump(mode="json")
+                             {check["id"]: check for check in checks}, dict(self.captured),
+                             emulation_target=self.scenario.emulation_target).model_dump(mode="json")
         self.event("answer_score", {"answer": self.final_text, "score": score},
                    provenance="deterministic answer scoring against the independent checks")
         items = []
@@ -3143,15 +3174,19 @@ class ConnectorRun:
                 if gaps := missing_disclosure(card, DISCLOSURE_FIELDS):
                     missing[self.label(connection.name, card.card_id)] = gaps
         for card_id, gaps in missing.items():
-            self.observation_gaps.append(f"Sensitive approval card {card_id} shows no {', '.join(gaps)} (host "
-                                         "assumption: guidelines 4.7 asks tools to return these terms before "
-                                         "commitment, so the card should show them); check tools.disclosure "
-                                         "pointers and what the connector returns")
+            basis = ("guidelines 4.7 asks tools to return these terms before commitment, so the card should "
+                     "show them" if self.scenario.emulation_target == "muse" else
+                     "CATT's conservative Instinct treatment expects purchase terms before commitment")
+            self.observation_gaps.append(f"Sensitive approval card {card_id} shows no {', '.join(gaps)} "
+                                         f"(host assumption: {basis}); check tools.disclosure pointers and "
+                                         "what the connector returns")
         return missing
 
     def guideline_review(self):
         """guidelines.static_findings over each catalog and the live responses the agent received (P1.7:
         steering and credentials in responses as well as descriptions); developer evidence only."""
+        if self.scenario.emulation_target != "muse":
+            return None
         reviews = {}
         for connection in self.connections.values():
             if not connection.catalog:
@@ -3208,7 +3243,8 @@ class ConnectorRun:
             self.event("run_finished", {"status": status, "exit_code": code})
         except Exception:  # noqa: BLE001 — sealing below still records the outcome
             self.observation_gaps.append("The run_finished event could not be recorded")
-        recorded = metadata(self.path, scenario_id=self.scenario.id, profile=PROFILE, driver=self.driver.name,
+        recorded = metadata(self.path, scenario_id=self.scenario.id, profile=self.interface_profile,
+                            driver=self.driver.name,
                             locations=self.locations())
         agent = self.driver.name == "agent"
         recorded.update(lane="connector surrogate behavior" if agent else "connector scripted replay",
@@ -3232,6 +3268,7 @@ class ConnectorRun:
         execution = next((check for check in checks if check.get("id") == "execution"), {})
         report = self.redactor.clean_evidence({
             **recorded, "schema_version": 1, "kind": "connector-run", "scenario_id": self.scenario.id,
+            "emulation_target": self.scenario.emulation_target,
             "scenario_sha256": self.loaded.sha256, "status": status,
             "detail": reason(lead) if lead else None,
             "failure_class": (lead or {}).get("class") if lead else None,
@@ -3256,7 +3293,10 @@ class ConnectorRun:
             "compatibility_pass": status == "completed" and not agent and bool(outcome_checks(checks)),
             "compatibility_scope": "scripted connector runs with independent outcome checks only",
             "evidence_limits": [
-                "This is not Muse certification and claims no equivalence to Muse's private behavior.",
+                (f"This is not {self.scenario.emulation_target.title()} certification and claims no equivalence to "
+                 f"{self.scenario.emulation_target.title()}'s private behavior."),
+                *(self.run_lock["emulation_policy"]["limits"]
+                  if self.scenario.emulation_target == "instinct" else []),
                 "Independent checks observe only what the scenario's oracle or read tools report.",
                 "The scripted user follows declared rules; it does not model a real person.",
                 self.basis_limit(),
@@ -3290,7 +3330,8 @@ class ConnectorRun:
         listed = [entry["name"] for entry in self.run_lock["extensions"] if entry.get("bases")]
         others = [extension.name for extension in self.extensions
                   if extension.name not in listed and extension.name != "clock"]
-        line = ("Muse-specific behavior is labeled by basis (documented, unofficial, assumed or unknown): the host's "
+        line = (f"{self.scenario.emulation_target.title()}-specific behavior is labeled by basis "
+                "(documented, unofficial, assumed or unknown): the host's "
                 "in run_lock.bases and the projection event's basis" + (
                     f", {', '.join(listed)}'s in run_lock.extensions[].bases" if listed else ""))
         if others:
@@ -3415,14 +3456,16 @@ ASK_USER = {
 
 
 def effective_scenario(scenario, *, projection=None, exposure=None, client_profile=None,
-                       output_schema=None) -> ConnectorScenario:
+                       output_schema=None, emulation_target=None) -> ConnectorScenario:
     """Apply CLI treatments and revalidate, so an override cannot bypass a scenario rule. An exposure
     override sets every connected connector's exposure; a disconnected one stays disconnected (that is
     the scenario's family, not a treatment). An output-schema override sets every connector's."""
-    if not (projection or exposure or client_profile or output_schema):
+    if not (projection or exposure or client_profile or output_schema or emulation_target):
         return scenario
     from .config import validation_message
     document = scenario.model_dump(mode="json", by_alias=True)
+    if emulation_target:
+        document["emulation_target"] = emulation_target
     if projection:
         document["projection"] = projection
     if exposure:
@@ -3484,7 +3527,8 @@ class AgentDriver:
         prompt = run.system_prompt()
         limits = run.scenario.limits
         quiet_display()
-        evidence = Evidence(run.path / "agent", lane="connector agent", label="surrogate behavior", profile=PROFILE,
+        evidence = Evidence(run.path / "agent", lane="connector agent", label="surrogate behavior",
+                            profile=run.interface_profile,
                             scenario_id=run.scenario.id, redactor=run.redactor, locations=run.locations(),
                             lock={**run.run_lock, "agent": "inspect_ai.agent.react",
                                   "prompt_sha256": digest(run.redactor.clean_evidence(prompt))})
@@ -3665,7 +3709,7 @@ def _script_refs(value, results, index):
 # Trials -------------------------------------------------------------------------------------------
 async def run_trials(loaded, *, driver, trials=1, root=None, output="runs", services=None, projection=None,
                      exposure=None, client_profile=None, preflight_run=None, report=None, config_path=None,
-                     output_schema=None, service=None):
+                     output_schema=None, service=None, emulation_target=None):
     """N independent trials (fresh service state is the scenario's job: its reset URL)."""
     if type(trials) is not int or trials < 1:
         raise LabError("--trials must be a positive integer")
@@ -3674,7 +3718,8 @@ async def run_trials(loaded, *, driver, trials=1, root=None, output="runs", serv
         run = ConnectorRun(loaded, driver=driver, root=root, output=output, services=services,
                            projection=projection, exposure=exposure, client_profile=client_profile,
                            trial={"index": index + 1, "of": trials}, preflight_run=preflight_run,
-                           config_path=config_path, output_schema=output_schema, service=service)
+                           config_path=config_path, output_schema=output_schema, service=service,
+                           emulation_target=emulation_target)
         codes.append(await run.run())
         runs.append(run)
         if report:
@@ -3823,6 +3868,7 @@ def treatment(run) -> dict:
     def joined(values):
         return "+".join(sorted(set(values))) or None
     return {"projection": run.scenario.projection, "exposure": run.exposure,
+            "emulation_target": run.scenario.emulation_target,
             "client_profile": joined(spec.client_profile for spec in specs),
             "output_schema": joined(spec.output_schema or "lenient" for spec in specs)}
 
@@ -3843,8 +3889,15 @@ async def _run_from_cli(args, root, outputs) -> int:
         variables.setdefault("PORT", str(port))  # The scenario's ${PORT}, unless --set PORT=... chose one.
     loaded = load_scenario(within(root, args.scenario, "The scenario"), variables=variables)
     outputs.scenario_id = loaded.scenario.id
+    chosen_target = getattr(args, "emulation_target", None)
     outputs.treatment = {"projection": args.projection, "exposure": args.exposure,
-                         "client_profile": args.client_profile, "output_schema": getattr(args, "output_schema", None)}
+                         "client_profile": args.client_profile, "output_schema": getattr(args, "output_schema", None),
+                         "emulation_target": chosen_target or loaded.scenario.emulation_target}
+    # Validate all treatments together before model preflight, authentication or service startup.
+    effective = effective_scenario(loaded.scenario, projection=args.projection, exposure=args.exposure,
+                                   client_profile=args.client_profile,
+                                   output_schema=getattr(args, "output_schema", None),
+                                   emulation_target=chosen_target)
     if args.trials > 1 and not loaded.scenario.reset:
         print(f"warning: {args.trials} trials and no reset URL in the scenario: every trial shares the service "
               "state the previous one left (declare reset: to start each trial fresh)", file=sys.stderr)
@@ -3861,7 +3914,7 @@ async def _run_from_cli(args, root, outputs) -> int:
         if args.script:
             raise LabError("--script applies only to --driver scripted")
         args.config = args.config or Path("consumer-agent-testing-tool.yaml")
-        driver, preflight_run = await _agent_driver(args, root)
+        driver, preflight_run = await _agent_driver(args, root, emulation_target=effective.emulation_target)
         if isinstance(driver, int):
             outputs.stopped = f"The model preflight did not pass (exit {driver}); see its evidence path and line"
             return driver
@@ -3886,7 +3939,8 @@ async def _run_from_cli(args, root, outputs) -> int:
         return await run_trials(
             loaded, driver=driver, trials=args.trials, root=root, output=args.output, projection=args.projection,
             exposure=args.exposure, client_profile=args.client_profile, preflight_run=preflight_run, report=report,
-            config_path=config_path, output_schema=getattr(args, "output_schema", None), service=service)
+            config_path=config_path, output_schema=getattr(args, "output_schema", None), service=service,
+            emulation_target=chosen_target)
 
     lock = {}
     if start:
@@ -3911,7 +3965,9 @@ async def _run_from_cli(args, root, outputs) -> int:
         outputs.pass_hat_k = summary["pass_hat_k"]
         suite = Evidence(within(root, args.output, "--output"), lane="connector trials",
                          label="surrogate behavior summary",
-                         profile=PROFILE, lock={"scenario_sha256": loaded.sha256, "trials": args.trials,
+                         profile=target_profile(effective.emulation_target),
+                         lock={"scenario_sha256": loaded.sha256, "trials": args.trials,
+                                                "emulation_target": effective.emulation_target,
                                                 "child_runs": summary["child_runs"],
                                                 **({"service": lock} if lock else {})},
                          locations={"inference": "see child runs", "browser": "none", "target": "see child runs",
@@ -3936,7 +3992,7 @@ def pass_line(values) -> str:
     return ", ".join(f"pass^{k} {value:.2f}" for k, value in values.items()) if values else "pass^k n/a"
 
 
-async def _agent_driver(args, root):
+async def _agent_driver(args, root, *, emulation_target="muse"):
     from .cli import report_outcome, statuses, warn_unqualified
     from .config import read_config
     from .evidence import Evidence, run_lock
@@ -3954,9 +4010,12 @@ async def _agent_driver(args, root):
     profile = config.model_profiles[name]
     require_supported(experimental=getattr(args, "development_extensions", False), config=config, model=profile)
     warn_unqualified(name, profile)
+    interface_profile = target_profile(emulation_target)
     # Prove native tool calling before linking or any service action (review finding I14).
     gate = Evidence(within(root, args.output, "--output"), lane="model preflight", label="provider capability probe",
-                    profile=PROFILE, lock=run_lock(profile=PROFILE, model=profile.model_dump(mode="json")),
+                    profile=interface_profile,
+                    lock={**run_lock(profile=interface_profile, model=profile.model_dump(mode="json")),
+                          "emulation_target": emulation_target},
                     locations={"inference": "selected adapter", "browser": "none", "target": "none",
                                "telemetry": "disabled", "egress": "selected inference adapter"})
     try:
@@ -4028,6 +4087,13 @@ async def scaffold_from_cli(args, services=None) -> int:
     if output.exists():
         raise LabError(f"{args.output} already exists; scaffold never overwrites a scenario")
     profile_name = args.client_profile or "generic-sdk"
+    emulation_target = getattr(args, "emulation_target", None) or "muse"
+    target_profile(emulation_target)
+    if emulation_target == "instinct":
+        try:
+            validate_instinct("native", [profile_name], {})
+        except ValueError as error:
+            raise LabError(str(error)) from None
     endpoint_rules(args.endpoint, profile_name)
     auth = scaffold_auth(args, root)
     services = services or default_services()
@@ -4059,7 +4125,7 @@ async def scaffold_from_cli(args, services=None) -> int:
         name = "connector"
     text = scaffold_document(endpoint=args.endpoint, name=name, server_info=as_dict(server_info), tools=tools,
                              classifications=classifications, auth=auth, client_profile=profile_name,
-                             fetched_at=datetime.now(UTC).date().isoformat())
+                             fetched_at=datetime.now(UTC).date().isoformat(), emulation_target=emulation_target)
     output.parent.mkdir(parents=True, exist_ok=True)
     output.write_text(redactor.mask_credentials(text))
     print(output, flush=True)
@@ -4086,6 +4152,7 @@ def scaffold_from_run(args, root) -> int:
     if stray := [flag for flag, value in (("ENDPOINT", args.endpoint), ("--name", args.name),
                                           ("--auth-from", getattr(args, "auth_from", None)),
                                           ("--auth-env", getattr(args, "auth_env", None)),
+                                          ("--emulation-target", getattr(args, "emulation_target", None)),
                                           ("--client-profile", getattr(args, "client_profile", None))) if value]:
         raise LabError(f"{', '.join(stray)} does not apply to --from-run, which reads a recorded run")
     run, output = within(root, args.from_run, "--from-run"), within(root, args.output, "--output")
@@ -4134,7 +4201,8 @@ def scaffold_from_run(args, root) -> int:
     output.write_text(script_document(steps, **identity, scenario_sha256=result.get("scenario_sha256") or "unknown",
                                       written_at=datetime.now(UTC).date().isoformat(),
                                       as_json=output.suffix.lower() == ".json"))
-    checks.write_text(checks_document(**identity, writes=writes, reads=reads, recorded=recorded))
+    checks.write_text(checks_document(**identity, writes=writes, reads=reads, recorded=recorded,
+                                     emulation_target=result.get("emulation_target", "muse")))
     print(output, flush=True)
     print(checks, flush=True)
     return 0

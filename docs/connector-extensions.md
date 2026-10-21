@@ -1,5 +1,12 @@
 # Connector lane extensions
 
+Muse is the default target for these extensions. The experimental Instinct
+target supports `clock`, `presentation`, `browser`, `custom_connector`,
+`scheduler` and `content_trust`. Their algorithms are CATT assumptions for
+Instinct. Its default presentation is text with no character cap or widget
+checks. Other extensions are rejected for Instinct; see the
+[Instinct specification](instinct-emulation.md).
+
 A connector-run trial can enable lane extensions. An extension adds one
 Muse-like behavior to the connector surrogate host without changing the runner:
 route choice, standing memory, a custom HTTP connection, browser tasks, a

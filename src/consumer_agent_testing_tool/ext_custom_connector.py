@@ -473,7 +473,8 @@ def path_words(template: str) -> set[str]:
     return words
 
 
-def classify_operation(operation: str, method: str, template: str, declared=None) -> Classification:
+def classify_operation(operation: str, method: str, template: str, declared=None, *,
+                       emulation_target="muse") -> Classification:
     """BASES["http-classes"]: the method decides read or write; DELETE and booking or payment paths are
     sensitive; a declared class wins."""
     if declared is not None:
@@ -488,7 +489,8 @@ def classify_operation(operation: str, method: str, template: str, declared=None
                               reasons=[*reasons, "method DELETE deletes: sensitive write"])
     if found := sorted(path_words(template) & SENSITIVE_WORDS):
         return Classification(tool=operation, tool_class="sensitive-write", basis="heuristic", reasons=[
-            *reasons, f"the path names {', '.join(found)} (a booking or payment): sensitive write (guidelines 2)"])
+            *reasons, f"the path names {', '.join(found)} (a booking or payment): sensitive write"
+            + (" (guidelines 2)" if emulation_target == "muse" else " (CATT assumption)")])
     return Classification(tool=operation, tool_class="write", basis="heuristic", reasons=reasons)
 
 
@@ -816,8 +818,10 @@ class CustomConnector(BaseExtension):
         self.operations = Operations.from_bundle(self.bundle)
         policy = run.scenario.permissions.model_dump(mode="json")
         policy.update(important_reads=[], persisted_always=[])  # They name MCP connector tools.
-        self.engine = PermissionEngine(PermissionPolicy.model_validate(policy), {ACCESS_TOOL: ACCESS_CLASSIFICATION},
-                                       config.service)
+        access_class = ACCESS_CLASSIFICATION if self.emulation_target == "muse" else ACCESS_CLASSIFICATION.model_copy(
+            update={"reasons": ["host: granting service access changes permissions (CATT assumption)"]})
+        self.engine = PermissionEngine(PermissionPolicy.model_validate(policy), {ACCESS_TOOL: access_class},
+                                       config.service, emulation_target=self.emulation_target)
         self.proxy = EgressProxy(config.allowed_origins or [origin_of(config.url)], config.limits,
                                  transport=type(self).transport, resolver=type(self).resolver)
         credential = config.credential
@@ -838,17 +842,20 @@ class CustomConnector(BaseExtension):
                                                       "files": [{"path": path, "bytes": size} for path, size
                                                                 in self.bundle.sizes.items()]},
             "operations": sorted({template for _, _, template in self.operations.templates}),
-            "limits": config.limits.model_dump(mode="json"), "bases": BASES},
+            "limits": config.limits.model_dump(mode="json"), "bases": self.behavior_bases(BASES)},
             provenance="custom connector setup: the documentation bundle, egress allowlist and credential source")
         if credential.scheme not in SUPPORTED:
             label = SCHEME_LABELS[credential.scheme]
             self.finding(run, "auth.declined-scheme", "fail", f"The {self.title} API authenticates with {label}, which "
-                         "Muse custom connectors decline: no credential can be granted", basis="request-api-access")
+                         "this custom connector treatment declines: no credential can be granted",
+                         basis="request-api-access")
             self.add_check(run, {"id": f"{NAME}.auth_compatibility", "layer": "host", "status": "unsupported",
                                  "class": "unsupported", "required": True, "scheme": credential.scheme,
                                  "detail": f"The {self.title} API authenticates with {label}; custom connectors take "
-                                           "API keys and OAuth sign-in only (unofficial: credentials."
-                                           "request_api_access), so this route cannot connect"})
+                                           "API keys and OAuth sign-in only"
+                                           + (" (unofficial: credentials.request_api_access)"
+                                              if self.emulation_target == "muse" else " (CATT assumption)")
+                                           + ", so this route cannot connect"})
         self.complete = True
 
     def finding(self, run, rule, severity, detail, *, basis, **extra):
@@ -947,8 +954,9 @@ class CustomConnector(BaseExtension):
                            "class": "verification", "expected": "every request sent is the request its approval "
                                                                 "or grant covered",
                            "actual": {"sent": len(sent), "verified": len(sent)},
-                           "basis": "guidelines 3.4; compared: the method, URL, headers and JSON body the egress "
-                                    "proxy serialized, before the credential swap"})
+                           "basis": ("guidelines 3.4" if self.emulation_target == "muse" else "CATT assumption")
+                           + "; compared: the method, URL, headers and JSON body the egress "
+                             "proxy serialized, before the credential swap"})
         if bound := self.disclosure_check():
             checks.append(bound)
         if self.config.credential.scheme in SUPPORTED:
@@ -1206,7 +1214,8 @@ class CustomConnector(BaseExtension):
             return self.refuse(run, row, refused)
         path = server_path(urlsplit(url).path)[1]  # The path as the service reads it (parse sent it so).
         operation, template, documented = self.operations.match(method, path)
-        classification = classify_operation(operation, method, template, by_operation(self.config.classes, operation))
+        classification = classify_operation(operation, method, template, by_operation(self.config.classes, operation),
+                                              emulation_target=self.emulation_target)
         # The engine meets each operation on first use; its class never changes within the task.
         tool_class = self.engine.add_classification(operation, classification).tool_class
         row.update(origin=origin, operation=operation, documented=documented, **{"class": tool_class},
@@ -1466,7 +1475,7 @@ class CustomConnector(BaseExtension):
         if redirect and row.get("authenticated"):
             # Refused, never followed: a credential must not travel on to wherever the service points.
             self.finding(run, "auth.redirect-refused", "warn", f"{row['operation']} answered {status} with a redirect "
-                         "to a request that carried the granted credential; Muse-like clients follow no redirects",
+                         "to a request that carried the granted credential; this client follows no redirects",
                          basis="egress")
             return self.shown(run, render_host("http_request", (
                 f"{origin} answered {status} and redirected this request; the app follows no redirects for requests "
@@ -1573,7 +1582,8 @@ class CustomConnector(BaseExtension):
                 "class": "policy/approval" if failed else "verification",
                 "expected": "each approved card shows the response its request names (match pointers)",
                 "actual": {"verified": len(rows) - len(mismatched), "mismatched": mismatched, "unbound": unbound},
-                "basis": "guidelines 3.4: show the details and execute only what the user approved"}
+                "basis": ("guidelines 3.4" if self.emulation_target == "muse" else "CATT assumption")
+                + ": show the details and execute only what the user approved"}
         if failed:
             item["detail"] = "; ".join(filter(None, [
                 mismatched and ("cards showed terms from a response the sent request does not name: "

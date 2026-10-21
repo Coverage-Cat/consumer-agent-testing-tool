@@ -20,7 +20,8 @@ JSON object:
                      "failure_class", "reason", "checks": [{"id", "status", "required"}]}
     pass_hat_k      {"1": float, ..., "k": float} when trials > 1, else null
     summary_run     the trials summary run directory when trials > 1, else null
-    treatment       {"projection", "exposure", "client_profile", "output_schema"} (null fields when unknown)
+    treatment       {"projection", "exposure", "client_profile", "output_schema", "emulation_target"}
+                    (null fields when unknown; older version 1 reports omit emulation_target)
     service         the --start service ({"command", "port", "pid", "log", "ready_url"}) or null
 
 With --summary-json -, stdout carries this one document and nothing else: everything the command would
@@ -51,9 +52,9 @@ _nullable = {"type": ["string", "null"]}
 _code = {"type": "integer", "minimum": 0, "maximum": 3}
 
 
-def _closed(properties):
+def _closed(properties, *, optional=()):
     return {"type": "object", "additionalProperties": False, "properties": properties,
-            "required": list(properties)}
+            "required": [name for name in properties if name not in optional]}
 
 
 SUMMARY_SCHEMA = {
@@ -86,7 +87,8 @@ SUMMARY_SCHEMA = {
                                                                              "maximum": 1}}]},
         "summary_run": _nullable,
         "treatment": _closed({"projection": _nullable, "exposure": _nullable, "client_profile": _nullable,
-                              "output_schema": _nullable}),
+                              "output_schema": _nullable, "emulation_target": {"enum": ["muse", "instinct", None]}},
+                             optional=("emulation_target",)),
         "service": {"oneOf": [{"type": "null"}, _closed({
             "command": {"type": "array", "items": _text}, "port": {"type": "integer", "minimum": 1,
                                                                   "maximum": 65535},
@@ -144,7 +146,8 @@ class CiOutputs:
         self.stdout = str(summary) == "-"
         self.summary = within(root, summary, "--summary-json") if summary is not None and not self.stdout else None
         self.scenario_id, self.trials, self.pass_hat_k, self.summary_run, self.service = None, [], None, None, None
-        self.treatment = {"projection": None, "exposure": None, "client_profile": None, "output_schema": None}
+        self.treatment = {"projection": None, "exposure": None, "client_profile": None, "output_schema": None,
+                          "emulation_target": None}
         self.real_stdout, self.stopped = sys.stdout, None  # stopped: why no trial ran, when the command says
 
     @property
@@ -232,7 +235,8 @@ class CiOutputs:
             properties = ElementTree.SubElement(suite, "properties")
             for key, value in (("run_directory", row["run"]), ("status", row["status"]),
                                ("exit_code", row["exit_code"]), ("failure_class", row["failure_class"]),
-                               ("treatment", result.get("treatment"))):
+                               ("treatment", result.get("treatment")),
+                               ("emulation_target", result.get("emulation_target"))):
                 if value is not None:
                     ElementTree.SubElement(properties, "property", name=key, value=_clip(value, MESSAGE))
             checks = [check for check in result.get("checks") or [] if isinstance(check, dict)]

@@ -1,5 +1,21 @@
 # Connector examples (connector-v1)
 
+[`instinct-booking.yaml`](instinct-booking.yaml) runs the same booking flow
+under the experimental Instinct target. It shares
+[`fixture-booking.calls.json`](fixture-booking.calls.json), uses native MCP
+as an assumed adapter and checks a plain-text answer:
+
+```sh
+uv run consumer-agent-testing-tool connector-run examples/connector/instinct-booking.yaml \
+  --driver scripted --script examples/connector/fixture-booking.calls.json \
+  --start "python -m consumer_agent_testing_tool.connector_fixture --port {port} --variant good --auth none" \
+  --summary-json reports/instinct-booking.json
+```
+
+The remaining examples default to Muse. See the
+[Instinct spec](../../docs/instinct-emulation.md) before applying
+`--emulation-target instinct` to one: only its listed extensions are ported.
+
 These scenarios test whether a Muse-like agent can discover, choose and
 correctly use an MCP connector's real tools. They check that it asks the user
 when it must, stays within approvals, avoids duplicate effects and reports the
