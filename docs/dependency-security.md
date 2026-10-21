@@ -1,11 +1,21 @@
 # Dependency security review
 
-Reviewed 19 October 2026. GitHub's Dependency Graph reports the optional API lockfile
-twice: once under `tooling/api/`, and once in the packaged copy under `src/`.
-Both copies must stay in sync.
+Reviewed 21 October 2026. GitHub's Dependency Graph reports the optional Node
+lockfiles twice: once under `tooling/`, and once in the packaged copies under `src/`.
+Each pair must stay in sync.
 
 ## Applied fixes
 
+- Pin `certifi` to 2026.10.19 in the runtime requirements and lockfile. This removes
+  the `emSign ECC Root CA - G3` root affected by compromised intermediate CA keys
+  (GHSA-6q48-6c7w-9gw2). A regression test checks the actual CA bundle for the
+  affected root's fingerprint.
+- Pin workflow `uv` to 0.13.4, whose own CA bundle removes the same root
+  (GHSA-hq85-5cpj-mr62). This covers CI, platform diagnostics and release setup.
+- Update optional MCP Inspector to 2.11.0 and its compatible MCP SDK and Vite
+  dependencies to patched versions. Keep the packaged initialization manifests
+  synchronized. `npm audit` reports no findings for `tooling`,
+  `tooling/payment-ui` or `tooling/ci`.
 - Pin `aiohttp` to 3.14.4. This fixes GHSA-5wr8-gcqf-gqf3, GHSA-2g87-pp6c-29x5
   and GHSA-494j-54xm-rwp3 in the supported Python runtime.
 - Remove Postman's pinned Lodash 4.17.21 (GHSA-r5fr-rjxr-66jc, GHSA-f23m-r3pf-42rh and

@@ -14,6 +14,8 @@
 - Update optional MCP Inspector to 2.11.0 and its locked MCP SDK and Vite
   dependencies to patched versions. Fresh `init` projects receive the same
   manifests as the repository.
+- Pin certifi to 2026.10.19 and workflow uv to 0.13.4 to remove the emSign
+  trust root affected by compromised intermediate CA keys.
 
 ## 0.1.0 - 2026-10-20
 
