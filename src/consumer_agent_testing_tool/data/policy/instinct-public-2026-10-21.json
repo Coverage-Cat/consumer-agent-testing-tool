@@ -1,0 +1,191 @@
+{
+  "id": "instinct-public-2026-10-21",
+  "target": "instinct",
+  "checked_at": "2026-10-21",
+  "status": "experimental public-constraint surrogate",
+  "sources": [
+    {
+      "id": "homepage",
+      "url": "https://instinct.com/",
+      "checked_at": "2026-10-21",
+      "sha256": "4f0b195544474da96b16e8ae1f7df3b4c4cabb01cd4b27d1ec14d25d239f5300",
+      "status": 200
+    },
+    {
+      "id": "privacy",
+      "url": "https://instinct.com/privacy-policy",
+      "checked_at": "2026-10-21",
+      "sha256": "e529373f7218d5a73225aded56effca3b434422113197b4d24adbd21e2d8512a",
+      "status": 200
+    },
+    {
+      "id": "terms",
+      "url": "https://instinct.com/terms",
+      "checked_at": "2026-10-21",
+      "sha256": "10fcf0e6a169586eb61fb8a4987651a3298192219a24c8f277462bc8328863cf",
+      "status": 200
+    },
+    {
+      "id": "acceptable-use",
+      "url": "https://instinct.com/acceptable-use-policy",
+      "checked_at": "2026-10-21",
+      "sha256": "39d90ff92c565f76bf1c18f1fca0dfeb0eb138cac600c63c77b5f9dcff2a48b6",
+      "status": 200
+    },
+    {
+      "id": "launch",
+      "url": "https://x.com/noahrshinn/status/2092691344456351744",
+      "checked_at": "2026-10-21",
+      "sha256": "f15df0460a72a61888c7ff8728c5d3581580af08e8fab43327d0fe1151f47c9b",
+      "status": 200
+    },
+    {
+      "id": "network-launch",
+      "url": "https://x.com/noahrshinn/status/2097794967574028448",
+      "checked_at": "2026-10-21",
+      "sha256": "b29eb9dad995513e5b7f8a02541485d155dc967e40dfde15b7b279a819d587d7",
+      "status": 200
+    },
+    {
+      "id": "network-update",
+      "url": "https://x.com/noahrshinn/status/2102896414514688212",
+      "checked_at": "2026-10-21",
+      "sha256": "59afca160213395f501f3eca37a9dec6b90c1ec55fab6548f236bcc5a97fec78",
+      "status": 200
+    },
+    {
+      "id": "security",
+      "url": "https://x.com/noahrshinn/status/2102896837522804954",
+      "checked_at": "2026-10-21",
+      "sha256": "6b90e39c43fb17bdd9fb9a869c26279f6e3cfe8acc62d512125517b34ee5e884",
+      "status": 200
+    },
+    {
+      "id": "vault-totp",
+      "url": "https://x.com/noahrshinn/status/2098466184912089143",
+      "checked_at": "2026-10-21",
+      "sha256": "7ff57412c1129e4500c55ddc117aceb100a5d3f0f6a3420b190e4cb4d4671046",
+      "status": 200
+    },
+    {
+      "id": "email",
+      "url": "https://x.com/noahrshinn/status/2097443132816396649",
+      "checked_at": "2026-10-21",
+      "sha256": "2fde1d9438048697af03a1eb82bb21d047bfa9c9e240cbc09a56606914b19693",
+      "status": 200
+    },
+    {
+      "id": "files",
+      "url": "https://x.com/noahrshinn/status/2101080443667767385",
+      "checked_at": "2026-10-21",
+      "sha256": "ebcbd4e1065253453addadce333ae1ee6ed78390febcf6aa9e52daaf46c1186d",
+      "status": 200
+    },
+    {
+      "id": "web-client",
+      "url": "https://instinct.com/assets/app-D0eDWfwq.js",
+      "checked_at": "2026-10-21",
+      "sha256": "885609421eb9969d4f903f99c356ef73102ff0abf2be9c91ce0e091ac0f4d7d3",
+      "status": 200
+    },
+    {
+      "id": "stripe-wallet",
+      "url": "https://docs.stripe.com/agentic-commerce/agents/link-agent-wallet/use-link-wallet-pay-online.md",
+      "checked_at": "2026-10-21",
+      "sha256": "30f17af004fcbf53b644cd9c7eea1e333d7a827a90c77757cc7b2b05c4d8e214",
+      "status": 200
+    },
+    {
+      "id": "interview",
+      "url": "https://colossus.com/episode/instinct-the-personal-agent/",
+      "checked_at": "2026-10-21",
+      "scope": "Public description and chapter list only; full transcript requires login."
+    }
+  ],
+  "observations": [
+    {
+      "id": "communication",
+      "basis": "documented",
+      "sources": [
+        "homepage",
+        "launch",
+        "email"
+      ],
+      "detail": "Instinct describes text and phone interaction, computer and phone use, and agent-owned email. Exact delivery and tool contracts are not published."
+    },
+    {
+      "id": "connected-context",
+      "basis": "documented",
+      "sources": [
+        "privacy",
+        "terms"
+      ],
+      "detail": "Connected accounts can supply indexed context and authorize actions. Disconnecting future account access and deleting indexed data are distinct controls."
+    },
+    {
+      "id": "trusted-network",
+      "basis": "documented",
+      "sources": [
+        "network-launch",
+        "network-update"
+      ],
+      "detail": "The founder describes communication restricted to trusted people, explicit approval of connection requests, invitation revocation and encrypted file delivery. No communication or cryptographic protocol is specified."
+    },
+    {
+      "id": "vault",
+      "basis": "documented",
+      "sources": [
+        "terms",
+        "vault-totp"
+      ],
+      "detail": "Vault holds account information and can support authenticator enrollment and TOTP use. Some initial or phone security checks still require the user."
+    },
+    {
+      "id": "files",
+      "basis": "documented",
+      "sources": [
+        "files"
+      ],
+      "detail": "Instinct Files are private or public interactive pages shareable by link. They are not documented as MCP Apps or Muse widgets."
+    },
+    {
+      "id": "security-claims",
+      "basis": "documented",
+      "sources": [
+        "security"
+      ],
+      "detail": "The founder describes isolated sandboxes, short-lived credentials, signed tool execution and an active hallucination monitor. These vendor statements are not independent verification or implementations shipped by CATT."
+    },
+    {
+      "id": "client-observations",
+      "basis": "documented",
+      "sources": [
+        "web-client"
+      ],
+      "detail": "The delivered browser client references Vault, trusted networks, account connections, Workspace, Link, 1Password and local-browser features. Client references do not establish availability or server behavior."
+    },
+    {
+      "id": "payment-provider",
+      "basis": "documented",
+      "sources": [
+        "stripe-wallet"
+      ],
+      "detail": "Stripe documents customer-approved spend requests and single-use payment credentials. This is the provider contract, not proof of the flow used by every Instinct purchase."
+    },
+    {
+      "id": "mcp",
+      "basis": "unknown",
+      "sources": [
+        "homepage",
+        "web-client"
+      ],
+      "detail": "No public Instinct MCP integration contract was found. CATT uses its generic MCP adapter as an explicit assumption."
+    }
+  ],
+  "limits": [
+    "No Instinct account, live message, purchase, private API or paid inference was used for research.",
+    "No real-Instinct calibration, compatibility certification or admission claim.",
+    "Text formatting, permissions, transport, browser task APIs and supported extensions are local CATT assumptions.",
+    "The private model, system prompt, security monitor, isolation, Vault, payment and trusted-network protocols are not reproduced."
+  ]
+}

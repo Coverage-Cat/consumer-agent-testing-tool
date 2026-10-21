@@ -9,24 +9,26 @@ Run a scripted or model-driven agent against an MCP server, an MCP app, a
 website or an HTTP API. Check what the service did, inspect the evidence, and
 compare results across builds.
 
-**Muse is the initial emulation and testing target.** CATT models Meta's Muse
-through a local test host. **Instinct and other assistants are planned for
-later releases.** CATT does not yet emulate them. The model that drives a trial
-is separate from the assistant platform being emulated.
+**Muse is the default emulation and testing target.** CATT models Meta's Muse
+through a local test host. **Instinct is an experimental target** for the
+connector lane and its supported browser, HTTP, scheduling and presentation
+extensions. See the [Instinct spec and research](docs/instinct-emulation.md)
+for scope and limits. The model that drives a trial is separate from the
+assistant platform being emulated.
 
 [Contributing](CONTRIBUTING.md) | [Security](SECURITY.md) | [Changelog](CHANGELOG.md) | [MIT license](LICENSE)
 
-> **A test host, not Muse.** CATT is a surrogate: it approximates an assistant's
+> **A test host.** CATT is a surrogate: it approximates an assistant's
 > host, not its private implementation. A passing test does not certify
 > compatibility with Muse or any hosted assistant. Each Muse-specific behavior
 > has a recorded basis: `documented`, `unofficial`, `assumed` or `unknown`.
-> This project is not affiliated with or endorsed by Meta, OpenAI or Anthropic.
+> This project is not affiliated with or endorsed by Meta, Instinct, OpenAI or Anthropic.
 
 ## What you can test today
 
 | Lane | Command | What it checks | Status and scope |
 | --- | --- | --- | --- |
-| MCP connectors | `connector-run SCENARIO` | Use the server's tools, apply account and approval rules, protect private values, and check the service's recorded outcome and the agent's answer. | Supported. Muse-like surrogate; see [connector lane](docs/connector-lane.md). |
+| MCP connectors | `connector-run SCENARIO` | Use the server's tools, apply account and approval rules, protect private values, and check the service's recorded outcome and the agent's answer. | Muse surrogate; experimental Instinct target with `--emulation-target instinct`. See [connector lane](docs/connector-lane.md). |
 | Connector extensions | `connector-run SCENARIO` with `extensions:` | Routes, memory, custom API clients, browser actions, wallet cards, background jobs, untrusted content, channel limits and simulated users. | Supported with the lane. `user_simulator` is exploratory and cannot run in scripted tests or decision contracts. See [extensions](docs/connector-extensions.md). |
 | Scenario scaffolding | `scaffold URL --output FILE`, `scaffold --from-run RUN --output FILE` | Read a tool catalog or turn an agent run into scripted calls. Calls no service tools. Replace every `TODO(scaffold)` before running. | Supported. One Streamable HTTP connector; no OpenAPI input. |
 | Muse connector readiness | `check URL --suite muse-guidelines` | Review the catalog and optional manifest against the pinned connector guidelines without calling tools. | Documented constraints, not admission. See [readiness checks](docs/readiness-checks.md). |
@@ -42,7 +44,23 @@ is separate from the assistant platform being emulated.
 The connector lane records the basis for each Muse-specific behavior. Tool classes
 and approval prompts follow documented guidelines. The `muse-cli` projection and
 template client follow unofficial mirrors; the native projection is an assumed
-generic baseline. These labels do not imply support for another assistant.
+generic baseline. Instinct runs have a separate source record and label the
+shared host algorithms as assumptions. Native MCP is CATT's test adapter;
+no public Instinct MCP integration contract was found.
+
+Run the local booking example under Instinct without a model or account:
+
+```sh
+uv run consumer-agent-testing-tool connector-run examples/connector/instinct-booking.yaml \
+  --driver scripted --script examples/connector/fixture-booking.calls.json \
+  --start "python -m consumer_agent_testing_tool.connector_fixture --port {port} --variant good --auth none"
+```
+
+Set `emulation_target: instinct` in your scenario or pass
+`--emulation-target instinct`. Instinct uses native projection and the generic
+MCP client. It defaults to plain-text replies and does not run Muse guideline
+checks. Its trusted-network protocol, Vault, payment rails and Files are not
+implemented; the [spec](docs/instinct-emulation.md) records those gaps.
 
 Three quickstarts follow. The [connector lane](#quickstart-connector-lane) and
 the [popular MCP server](#quickstart-a-popular-mcp-server) quickstarts run on

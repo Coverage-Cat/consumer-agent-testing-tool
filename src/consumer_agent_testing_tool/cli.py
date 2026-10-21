@@ -43,9 +43,10 @@ REASON_CHARACTERS = 300
 
 def parser(*, development=False):
     root = argparse.ArgumentParser(prog="consumer-agent-testing-tool", description=(
-        "Test your service with a local consumer-agent surrogate. Muse is the first emulation target."),
-        epilog="Instinct and other assistants are planned for later releases; those emulations are not "
-               "implemented yet. This tool does not certify compatibility with any hosted assistant.")
+        "Test your service with a local consumer-agent surrogate. Muse is the default emulation target."),
+        epilog="Instinct is an experimental target for connector-run and its supported extensions. "
+               "The inference model is a separate choice. This tool does not certify compatibility with "
+               "any hosted assistant.")
     root.add_argument("--development-extensions", action="store_true",
                       default=development,
                       help="Enable experiments outside the supported release")
@@ -142,12 +143,16 @@ def parser(*, development=False):
     export.add_argument("--output", type=Path,
                         help="Export directory (default: exports/<run-id>)")
     export.add_argument("--redact", action="store_true", default=True)
-    connector = commands.add_parser("connector-run", help="Test an MCP server through the Muse-like surrogate",
+    connector = commands.add_parser("connector-run", help="Test a service through a Muse or Instinct surrogate",
                                     description="Run a scenario with a model or replay scripted calls without "
                                     "one. Check the outcome in the service and save a sealed report. "
-                                    "This is a surrogate, not Muse.",
+                                    "Select Muse (default) or the experimental Instinct target. "
+                                    "This is a surrogate, not the hosted assistant.",
                                     epilog=CONNECTOR_EXIT_CODES, formatter_class=argparse.RawDescriptionHelpFormatter)
     connector.add_argument("scenario", type=Path, help="A connector-v1 scenario file (see examples/connector)")
+    connector.add_argument("--emulation-target", choices=["muse", "instinct"],
+                           help="Override the assistant host being emulated; separate from the model provider "
+                                "(default: scenario target, or muse)")
     connector.add_argument("--projection", choices=["native", "muse-cli"],
                            help="Override the scenario's projection (recorded as a treatment)")
     connector.add_argument("--exposure", choices=["in-prompt", "search-only"],
@@ -194,6 +199,8 @@ def parser(*, development=False):
                           help="The YAML scenario to write; with --from-run, the calls file (YAML, or JSON when it "
                                "ends in .json; its checks skeleton is written beside it as <name>.checks.yaml)")
     scaffold.add_argument("--name", help="Connector name (default: derived from serverInfo.name)")
+    scaffold.add_argument("--emulation-target", choices=["muse", "instinct"],
+                          help="Assistant target to record in the scenario (default: muse; not with --from-run)")
     scaffold.add_argument("--from-run", type=Path, metavar="RUN",
                           help="A sealed, shareable connector-run trial of the agent driver: its model's tool calls "
                                "become a --driver scripted calls file; values its evidence hides become "

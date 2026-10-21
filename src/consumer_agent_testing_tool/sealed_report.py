@@ -39,8 +39,8 @@ max-height:30rem;overflow:auto}a{color:#005c99}.label{background:#eaf1ed;padding
 .muted{color:#5b6b78}.badge{font-size:.78rem;padding:0 .3rem;border:1px solid #c3ced6;border-radius:3px}
 h3{font-size:1rem;margin:1.2rem 0 .3rem}.step{border-left:4px solid #d5dde3;padding-left:.7rem;margin:.9rem 0}
 .step.failed{border-left-color:#b3261e}.step.blocked{border-left-color:#b26a00}.step th{white-space:nowrap}"""
-DISCLAIMER = ("This is a surrogate test, not Muse certification. "
-              "It does not reproduce Muse's private context or decisions, or expose hidden reasoning.")
+DISCLAIMER = ("This is a surrogate test, not Muse or Instinct certification. "
+              "It does not reproduce either assistant's private context or decisions, or expose hidden reasoning.")
 
 
 def atomic_text(path, text):
@@ -720,7 +720,8 @@ def document(path, result):
                         if isinstance(result.get(key), str))
     identity = " · ".join(f"{name} <code>{escape(result[key])}</code>"
                           for name, key in (("run", "run_id"), ("scenario", "scenario_id"),
-                                            ("driver", "driver"), ("treatment", "treatment"))
+                                            ("driver", "driver"), ("target", "emulation_target"),
+                                            ("treatment", "treatment"))
                           if isinstance(result.get(key), (str, int)))
     body = [f"<h1>Consumer Agent Testing Tool evidence</h1><p>{identity}</p>",
             f'<p class="label">{labels}</p>' if labels else "",

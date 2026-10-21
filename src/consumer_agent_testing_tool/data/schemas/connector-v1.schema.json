@@ -24,6 +24,15 @@
       "title": "Goal",
       "type": "string"
     },
+    "emulation_target": {
+      "default": "muse",
+      "enum": [
+        "muse",
+        "instinct"
+      ],
+      "title": "Emulation Target",
+      "type": "string"
+    },
     "connectors": {
       "items": {
         "$ref": "#/$defs/ConnectorSpec"
@@ -2045,6 +2054,7 @@
           "default": "app",
           "enum": [
             "app",
+            "text",
             "whatsapp",
             "voice"
           ],

@@ -1,5 +1,11 @@
 # Connector lane
 
+Muse is the default target described below. Set `emulation_target: instinct`
+or pass `--emulation-target instinct` for the experimental Instinct target.
+Its [spec and research](instinct-emulation.md) define the supported extensions,
+default text channel, native MCP adapter and evidence limits. Shared host
+rules are assumptions for Instinct; its runs do not apply Muse guidelines.
+
 `connector-run` tests a developer's MCP connector the way a Muse-like personal
 agent would use it. An agent, either a model or a scripted replay, works with
 the server's real `tools/list` catalog through a host. The host plays a
@@ -97,6 +103,7 @@ service state stays unresolved.
 | Option | Default | Effect |
 |---|---|---|
 | `SCENARIO` | | A connector-v1 file |
+| `--emulation-target {muse,instinct}` | scenario's target, or `muse` | Selects the assistant host, independently of the inference model. Instinct requires native projection and generic-sdk. |
 | `--projection {native,muse-cli}` | the scenario's | Replaces `projection` |
 | `--exposure {in-prompt,search-only}` | the scenario's | Replaces `exposure` and every connector's exposure except `disconnected` |
 | `--client-profile {generic-sdk,muse-template-unofficial-2026-10}` | each connector's | Replaces every connector's `client_profile` |

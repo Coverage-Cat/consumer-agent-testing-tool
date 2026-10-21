@@ -662,7 +662,8 @@ def _checks(checks):
     return checks if isinstance(checks, dict) else {}
 
 
-def score_answer(text: str, spec: AnswerSpec, checks: dict[str, dict], captured: dict[str, Any]) -> AnswerScore:
+def score_answer(text: str, spec: AnswerSpec, checks: dict[str, dict], captured: dict[str, Any], *,
+                 emulation_target="muse") -> AnswerScore:
     """Compare the claimed states with their true_when checks and relay facts with the answer.
 
     A claimed state is false when one of its rules' checks failed, true when all passed and unjudged
@@ -670,6 +671,8 @@ def score_answer(text: str, spec: AnswerSpec, checks: dict[str, dict], captured:
     spec has no rule for is unscored. A relay fact is covered when any of its patterns matches and its
     value_from value appears, and unjudged when that value is not available.
     """
+    from .emulation import behavior_bases
+    state_bases = behavior_bases(emulation_target, "answer state scoring", STATE_BASIS)
     text = text if isinstance(text, str) else ""
     checks = _checks(checks)
     captured = captured if isinstance(captured, dict) else {}
@@ -689,7 +692,7 @@ def score_answer(text: str, spec: AnswerSpec, checks: dict[str, dict], captured:
             verdict = "true"
         else:
             verdict = "unjudged"
-        judgments.append({"state": state, "checks": statuses, "claim": verdict, **STATE_BASIS[state],
+        judgments.append({"state": state, "checks": statuses, "claim": verdict, **state_bases[state],
                           **({"unavailable": sorted(name for name, status in statuses.items()
                                                     if status not in ("passed", "failed"))}
                              if verdict == "unjudged" else {})})

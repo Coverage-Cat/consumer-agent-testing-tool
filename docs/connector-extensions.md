@@ -1,5 +1,12 @@
 # Connector lane extensions
 
+Muse is the default target for these extensions. The experimental Instinct
+target supports `clock`, `presentation`, `browser`, `custom_connector`,
+`scheduler` and `content_trust`. Their algorithms are CATT assumptions for
+Instinct. Its default presentation is text with no character cap or widget
+checks. Other extensions are rejected for Instinct; see the
+[Instinct specification](instinct-emulation.md).
+
 A connector-run trial can enable lane extensions. An extension adds one
 Muse-like behavior to the connector surrogate host without changing the runner:
 route choice, standing memory, a custom HTTP connection, browser tasks, a
@@ -1503,11 +1510,16 @@ replaces MCP Apps UI resources with a note, which this extension counts; MCP
 Apps host evidence from `surface-run` is generic MCP Apps evidence, not Muse
 evidence.
 
+`text` is an optional CATT treatment for Muse and the default for Instinct.
+It checks plain-text formatting without a default character cap. It does not
+claim either product's exact rendering or message delivery.
+
 Basis (labels in `run_lock.extensions[i].bases`; full entries in
 `metrics.extensions.presentation.bases`):
 
 | Behavior | Label | Source |
 |---|---|---|
+| `text` | assumed | CATT's plain-text treatment; no default character cap. |
 | `channels` | documented | launch post: the Muse app or WhatsApp. How either renders a reply is not public. |
 | `whatsapp-text` | assumed | Plain text with WhatsApp's light formatting. The 4096-character default follows the WhatsApp Business Platform's text body limit, not a Muse limit. |
 | `voice` | assumed | No Muse voice channel is documented; the launch post says "coming soon to AI glasses". |
@@ -1518,12 +1530,12 @@ Config:
 
 | Field | Default | Meaning |
 |---|---|---|
-| `channel` | `app` | `app`, `whatsapp` or `voice`. |
-| `announce` | `true` | Name the channel in the standing context (WhatsApp and voice). |
+| `channel` | Muse: `app`; Instinct: `text` | `app`, `text`, `whatsapp` or `voice`. Instinct rejects `app`. |
+| `announce` | `true` | Name the channel in the standing context (text, WhatsApp and voice). |
 | `enforce` | `true` | A channel finding fails the trial; `false` reports it as an observation gap with `required: false`. |
-| `max_characters` | WhatsApp 4096, voice 500 | The answer's length limit. With `app`, setting it adds the length check. |
+| `max_characters` | WhatsApp 4096, voice 500 | The answer's length limit. With `app` or `text`, setting it adds the length check. |
 | `speakable_ids` | none | Id fields a voice reply may read out. |
-| `widget_fields` | `title`, `price`, `status`, `id`, `link` | Fields every record of a list result should carry. |
+| `widget_fields` | Muse: `title`, `price`, `status`, `id`, `link`; Instinct: none | Fields every record of a list result should carry. Instinct rejects nonempty widget fields. |
 
 Model tools: none.
 
@@ -1531,12 +1543,13 @@ Checks:
 
 | Check | When | Result |
 |---|---|---|
+| `presentation.text_format` | `text`, with a final answer | Failed (exit 1) on a markdown table, HTML, a heading, or a markdown link or image. |
 | `presentation.whatsapp_format` | `whatsapp`, with a final answer | Failed (exit 1) on a markdown table, HTML, a heading, or a markdown link or image. |
 | `presentation.length` | `whatsapp` or `voice`, or `max_characters` set, with a final answer | Failed (exit 1) over the limit. |
 | `presentation.voice_speakable` | `voice`, with a final answer | Failed (exit 1) on URLs, identifiers from results, machine identifiers or markup. |
 | `presentation.widget_fields` | A list result lacks a configured field | An observation gap with `required: false`. |
 
-With `enforce: false` the first three report findings as observation gaps with
+With `enforce: false` the channel checks report findings as observation gaps with
 `required: false`. Their failure class is `presentation`.
 
 Metrics (`metrics.extensions.presentation`): `channel`, `limit`, `answer`

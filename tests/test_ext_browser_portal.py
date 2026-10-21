@@ -142,7 +142,8 @@ def sha256(text):
     return hashlib.sha256(text.encode()).hexdigest()
 
 
-async def test_ext_browser_portal_saved_credentials_sign_in_then_an_approved_checkout(portal, tmp_path):
+@pytest.mark.parametrize("emulation_target", ["muse", "instinct"])
+async def test_ext_browser_portal_saved_credentials_sign_in_then_an_approved_checkout(portal, tmp_path, emulation_target):
     main = [main_call("browser_task_spawn", brief="Sign in with my saved Pine Lodge member login, then buy the $125 "
                                                   "gift card at checkout with the card on file. Nothing else."),
             main_call("browser_task_steer", task_id="browser-1", message="Go ahead and place the order."),
@@ -150,7 +151,10 @@ async def test_ext_browser_portal_saved_credentials_sign_in_then_an_approved_che
     sub = [fill_field("Member number", "member-number"), fill_field("Password", "member-password"), on("click", "Sign in"),
            Until("Signed in"), on("click", "Go to checkout", role="link"), Until("Place order"), say(FOUND),
            on("click", "Place order"), Until("Order placed"), say("Order placed: PL-5001 for $125.00 USD.")]
-    run, code, api, sub_api = await run_portal(portal, tmp_path, scenario_for(portal), main=main, sub=sub)
+    document = {**scenario_for(portal), "emulation_target": emulation_target}
+    if emulation_target == "instinct":
+        document["connectors"] = []  # The website is the only service; MCP is not required.
+    run, code, api, sub_api = await run_portal(portal, tmp_path, document, main=main, sub=sub)
     assert code == 0, run.summary()
     oracle = await portal.oracle()
     # The site received exactly the saved values (the oracle keeps digests) and exactly one charge.
@@ -172,13 +176,27 @@ async def test_ext_browser_portal_saved_credentials_sign_in_then_an_approved_che
     assert [row["via"] for row in events(run, "browser.commit_sent")] == ["the approved action that sent it"]
     assert events(run, "browser.approval_unused") == []
     assert {check["id"]: check["status"] for check in result_of(run)["checks"]} == {
-        "execution": "passed", "browser.review_before_commit": "passed", "browser.commits_approved": "passed"}
+        "execution": "passed", "browser.review_before_commit": "passed", "browser.commits_approved": "passed",
+        **({"presentation.text_format": "passed"} if emulation_target == "instinct" else {})}
     assert browser_results(api)[1]["review"] == "Order placed: PL-5001 for $125.00 USD."
     assert run.leaked() == set() and playback(run.path / "browser" / "browser-1")["result"]["status"] == "completed"
+    if emulation_target == "instinct":
+        child = playback(run.path / "browser" / "browser-1")
+        assert child["result"]["interface_profile"]["name"] == "instinct-browser-surrogate-2026-10-21"
+        assert child["result"]["run_lock"]["emulation_target"] == "instinct"
+        assert not any("Muse" in limit for limit in child["result"]["limits"])
+        assert all(row["profile"] == "instinct-browser-surrogate-2026-10-21" for row in child["events"])
+        state = events(run, "browser.approvals")[0]
+        assert state["basis"]["rules"]["sensitive-every-use"]["basis"] == "assumed"
+        for name in child["result"]["agent_runs"]:
+            manifest = json.loads((run.path / "browser" / "browser-1" / name / "manifest.json").read_text())
+            assert manifest["run_lock"]["emulation_target"] == "instinct"
 
 
-async def test_ext_browser_portal_a_declined_checkout_charges_nothing(portal, tmp_path):
+@pytest.mark.parametrize("emulation_target", ["muse", "instinct"])
+async def test_ext_browser_portal_a_declined_checkout_charges_nothing(portal, tmp_path, emulation_target):
     document = scenario_for(portal, url=f"{portal.origin}/case/checkout")
+    document["emulation_target"] = emulation_target
     document["permissions"]["rules"][-1]["when"]["all"][-1]["value"] = 10000
     main = [main_call("browser_task_spawn", brief="Buy the $125 gift card with the card on file."),
             main_call("browser_task_steer", task_id="browser-1", message="Go ahead."), answer("You declined; nothing bought.")]

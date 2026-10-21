@@ -11,8 +11,10 @@ review that drove the connector lane.
 
 ## Current product
 
-### Muse connector surrogate (`connector-run`, `scaffold`)
+### Assistant connector surrogates (`connector-run`, `scaffold`)
 
+- [Instinct emulation](instinct-emulation.md): primary-source research,
+  the experimental target's specification, supported treatments and gaps.
 - [Connector lane](connector-lane.md): connector-v1 scenarios, the
   `connector-run` flags, projections and exposure, several connectors,
   per-connector quotas, approvals and scripted-user rules, linking, client

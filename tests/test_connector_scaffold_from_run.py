@@ -28,13 +28,13 @@ from consumer_agent_testing_tool.serialization import load
 EMAIL = "taylor.private@example.com"  # The support scenario's private value.
 
 
-async def recorded(workspace):
+async def recorded(workspace, emulation_target="muse"):
     """An agent trial: search, quote, book, look the booking up by its (captured, so hidden) ID, then report it."""
     steps = booking_responses()[:3] + [call("ask_user", question="Shall I check the booking status too?"),
                                        call("get_booking", booking_id="BK-1000"),
                                        answer("Booked: Garden double, $420.00 total, confirmation BK-1000.")]
     driver, _ = agent(steps)
-    run, code, _ = await run_connector(workspace, driver=driver)
+    run, code, _ = await run_connector(workspace, scenario(emulation_target=emulation_target), driver=driver)
     assert code == 0, run.summary()
     return run
 
@@ -49,8 +49,10 @@ def workspace(tmp_path, monkeypatch):
     return tmp_path
 
 
-async def test_a_recorded_agent_trial_becomes_a_script_and_a_checks_skeleton(workspace, capsys):
-    run = await recorded(workspace)
+@pytest.mark.parametrize("emulation_target", ["muse", "instinct"])
+async def test_a_recorded_agent_trial_becomes_a_script_and_a_checks_skeleton(
+        workspace, capsys, emulation_target):
+    run = await recorded(workspace, emulation_target)
     output = workspace / "booking.calls.yaml"
     assert await scaffold("--from-run", run.path, "--output", output) == 0
     checks = checks_path(output)
@@ -66,6 +68,7 @@ async def test_a_recorded_agent_trial_becomes_a_script_and_a_checks_skeleton(wor
     text = output.read_text() + checks.read_text()
     assert "BK-1000" not in text and EMAIL not in text and API_KEY not in text and "[REDACTED]" not in text
     skeleton = yaml.safe_load(checks.read_text())
+    assert skeleton.get("emulation_target", "muse") == emulation_target
     assert [item["id"] for item in skeleton["checks"]] == ["create_booking-outcome"]
     assert skeleton["answer"]["claims"][0]["true_when"] == "create_booking-outcome"
     assert "one-confirmed-booking passed" in checks.read_text() and "search_rooms, get_quote" in checks.read_text()
@@ -87,6 +90,10 @@ async def test_only_a_sealed_shareable_agent_trial_is_read(workspace):
         await scaffold("--from-run", scripted.path, "--output", "a.calls.yaml")
     with pytest.raises(LabError, match="does not apply to --from-run"):
         await scaffold("http://127.0.0.1:8765/mcp", "--from-run", run.path, "--output", "b.calls.yaml")
+    for target in ("muse", "instinct"):
+        with pytest.raises(LabError, match="--emulation-target does not apply to --from-run"):
+            await scaffold("--from-run", run.path, "--emulation-target", target, "--output", "target.calls.yaml")
+    assert not (workspace / "target.calls.yaml").exists()
     (workspace / "c.calls.yaml").write_text("[]")
     with pytest.raises(LabError, match="already exists"):
         await scaffold("--from-run", run.path, "--output", "c.calls.yaml")

@@ -267,16 +267,19 @@ async def test_record_dispatch_keeps_outcome_checks_after_a_setup_failure(tmp_pa
                                                     "tool": "GET /v1/rooms", "class": "read", "source": "extension"}
 
 
-async def test_connector_run_passes_its_configuration_to_extensions(tmp_path, monkeypatch):
+@pytest.mark.parametrize("emulation_target", ["muse", "instinct"])
+async def test_connector_run_passes_its_configuration_to_extensions(tmp_path, monkeypatch, emulation_target):
     monkeypatch.chdir(tmp_path)
-    (tmp_path / "scenario.json").write_text(json.dumps(scenario()))
+    (tmp_path / "scenario.json").write_text(json.dumps(scenario(emulation_target=emulation_target)))
     captured = []
+    selected_targets = []
 
     async def trials(loaded, **options):
         captured.append(options["config_path"])
         return 0, [], None
 
-    async def driver(args, root):
+    async def driver(args, root, *, emulation_target):
+        selected_targets.append(emulation_target)
         return ScriptedDriver([{"answer": "unused"}]), None
     monkeypatch.setattr(connector_run, "run_trials", trials)
     monkeypatch.setattr(connector_run, "_agent_driver", driver)
@@ -286,6 +289,7 @@ async def test_connector_run_passes_its_configuration_to_extensions(tmp_path, mo
         args = parser().parse_args(["connector-run", "scenario.json", *arguments])
         assert await connector_run.run_from_cli(args) == 0
         assert captured[-1] == expected
+    assert selected_targets == [emulation_target]  # Only the agent path prepares a driver.
 
 
 async def test_service_requests_list_host_dispatches_and_reported_requests_in_order(tmp_path, monkeypatch):

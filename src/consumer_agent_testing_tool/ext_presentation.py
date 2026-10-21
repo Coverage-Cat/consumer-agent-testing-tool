@@ -31,6 +31,10 @@ from .serialization import loads
 
 LAUNCH_POST = "https://about.fb.com/news/2026/09/introducing-muse-personal-ai-agent/"
 BASES = {
+    "text": {
+        "basis": "assumed",
+        "detail": "Text messages use plain text and bare URLs. CATT checks for table, HTML, heading, "
+                  "Markdown link and image syntax; it imposes no default character limit."},
     "channels": {
         "basis": "documented", "source": LAUNCH_POST, "checked_at": "2026-10-15",
         "quote": "talking to it works just like messaging another person, in the Muse app or directly in WhatsApp.",
@@ -63,8 +67,11 @@ BASES = {
 ROLES = ("title", "price", "status", "id", "link")
 LIMITS = {"whatsapp": 4096, "voice": 500}
 ANNOUNCEMENTS = {"whatsapp": "Your user is messaging you in WhatsApp; your replies reach them as WhatsApp messages.",
-                 "voice": "Your user is talking to you by voice; your replies are read aloud to them."}
+                 "voice": "Your user is talking to you by voice; your replies are read aloud to them.",
+                 "text": "Your user receives your replies as text messages. Lead with the result, use plain text "
+                         "and write links as bare URLs."}
 CHECK_BASES = {"app": "assumed (ext_presentation BASES['channels'])",
+               "text": "assumed (ext_presentation BASES['text'])",
                "whatsapp": "documented channel, assumed limits (ext_presentation BASES['whatsapp-text'])",
                "voice": "assumed (ext_presentation BASES['voice'])"}
 LIST_LIMIT = 50      # list results kept for evidence (the latest of each tool and path)
@@ -102,7 +109,7 @@ class Strict(BaseModel):
 
 
 class PresentationConfig(Strict):
-    channel: Literal["app", "whatsapp", "voice"] = "app"
+    channel: Literal["app", "text", "whatsapp", "voice"] = "app"
     announce: bool = True                 # name the channel in the standing context
     enforce: bool = True                  # a channel finding fails the trial (else a non-required observation gap)
     max_characters: int | None = Field(None, ge=20, le=65536)      # default: whatsapp 4096, voice 500
@@ -268,8 +275,8 @@ class Presentation(BaseExtension):
         channel, checks = self.config.channel, []
         # No final answer (the runner calls on_final then too): nothing to judge for format or length.
         answered = final_text is not None
-        if answered and channel == "whatsapp":
-            checks.append(self.check("presentation.whatsapp_format", self.whatsapp(text),
+        if answered and channel in ("whatsapp", "text"):
+            checks.append(self.check(f"presentation.{channel}_format", self.whatsapp(text),
                                      "plain text: no markdown tables, HTML, headings, or markdown links and images"))
         if answered and (channel in LIMITS or self.config.max_characters):
             over = [f"{len(text)} characters, over the {self.limit}-character limit"] if len(text) > self.limit else []
@@ -284,7 +291,8 @@ class Presentation(BaseExtension):
         if gaps := self.widget_gaps():
             checks.append({"id": "presentation.widget_fields", "layer": "host", "status": "observation-gap",
                            "required": False, "class": "observation gap", "expected": list(self.config.widget_fields),
-                           "actual": gaps, "basis": "unofficial (ext_presentation BASES['widgets'])",
+                           "actual": gaps, "basis": "unofficial (ext_presentation BASES['widgets'])"
+                           if self.emulation_target == "muse" else "assumed CATT presentation check",
                            "detail": ("List results lack fields a list widget shows: " + "; ".join(
                                f"{where}: {', '.join(missing)}" for where, missing in gaps.items()))[:500]})
         return checks
@@ -301,7 +309,8 @@ class Presentation(BaseExtension):
         if MARKDOWN_IMAGE.search(text):
             found.append("a markdown image")
         if MARKDOWN_LINK.search(text):
-            found.append("a markdown link (WhatsApp shows links as bare URLs)")
+            found.append("a markdown link (WhatsApp shows links as bare URLs)" if self.config.channel == "whatsapp"
+                         else "a markdown link (this text treatment uses bare URLs)")
         return found
 
     def voice(self, text):
@@ -326,7 +335,8 @@ class Presentation(BaseExtension):
             status, kind = ("failed", "presentation") if self.config.enforce else ("observation-gap", "observation gap")
         item = {"id": identifier, "layer": "agent", "status": status, "class": kind, "channel": self.config.channel,
                 "expected": expected, "actual": actual if actual is not None else {"findings": findings},
-                "findings": findings, "basis": CHECK_BASES[self.config.channel]}
+                "findings": findings, "basis": CHECK_BASES[self.config.channel] if self.emulation_target == "muse"
+                else "assumed CATT channel treatment for Instinct (see the sealed emulation_policy)"}
         if not self.config.enforce:
             item["required"] = False
         if findings:
@@ -347,9 +357,10 @@ class Presentation(BaseExtension):
                     "results": self.results, "ui_resources_hidden": self.ui_hidden,
                     "widgets": {"fields": list(self.config.widget_fields), "lists": list(self.lists.values()),
                                 "incomplete": self.widget_gaps()},
-                    "bases": BASES}
+                    "bases": self.behavior_bases(BASES)}
         except Exception as error:  # noqa: BLE001 — metrics never stop the seal
-            return {"error": f"presentation metrics are unavailable ({type(error).__name__})", "bases": BASES}
+            return {"error": f"presentation metrics are unavailable ({type(error).__name__})",
+                    "bases": self.behavior_bases(BASES)}
 
 
 register("presentation", Presentation)

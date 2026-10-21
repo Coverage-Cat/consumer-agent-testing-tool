@@ -205,6 +205,13 @@
             "string",
             "null"
           ]
+        },
+        "emulation_target": {
+          "enum": [
+            "muse",
+            "instinct",
+            null
+          ]
         }
       },
       "required": [

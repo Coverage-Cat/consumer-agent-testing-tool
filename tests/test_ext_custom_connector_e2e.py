@@ -3,6 +3,7 @@ books without ever seeing the key, a service whose scheme is declined, and docum
 key's placement out."""
 import json
 
+import pytest
 from inspect_ai.model import ModelOutput
 from test_connector_e2e_support import FRAMING, Script, answer, call, framing, output
 from test_ext_custom_connector_support import (
@@ -31,10 +32,11 @@ from consumer_agent_testing_tool.rest_fixture import RestConfig, write_docs
 from consumer_agent_testing_tool.serialization import load
 
 
-async def test_the_scripted_example_books_through_a_custom_connector(tmp_path, monkeypatch):
+@pytest.mark.parametrize("emulation_target", ["muse", "instinct"])
+async def test_the_scripted_example_books_through_a_custom_connector(tmp_path, monkeypatch, emulation_target):
     monkeypatch.setenv(ENV, KEY)
     async with service() as running:
-        run, code = await run_custom(tmp_path, running)
+        run, code = await run_custom(tmp_path, running, document(lambda doc: doc.update(emulation_target=emulation_target)))
         state = running.controls.state()
     assert code == 0, run.summary()
     assert playback(run.path)["integrity"] == "verified"
@@ -54,10 +56,11 @@ async def test_the_scripted_example_books_through_a_custom_connector(tmp_path, m
     assert custom["refused_egress"]["count"] == 0 and custom["http"]["classes"] == {
         "read": 2, "write": 1, "sensitive-write": 1}
     assert custom["approval"]["prompts"] == {"read": 2, "write": 2, "sensitive-write": 1}
-    assert [entry["name"] for entry in result["run_lock"]["extensions"]] == ["clock", "custom_connector"]
+    assert [entry["name"] for entry in result["run_lock"]["extensions"]] == [
+        "clock", "custom_connector", *(["presentation"] if emulation_target == "instinct" else [])]
     setup = events(run, "custom_connector.setup")[0]
     assert setup["docs"]["files"][1] == {"path": "llms.txt", "bytes": 846}
-    assert setup["bases"]["request-api-access"]["basis"] == "unofficial"
+    assert setup["bases"]["request-api-access"]["basis"] == ("unofficial" if emulation_target == "muse" else "assumed")
     card = next(row for row in events(run, "custom_connector.approval_card") if row["tool"] == "POST /v1/bookings")
     assert card["disclosure"]["total"] == 44836 and card["disclosure_sources"]["total"]["match"]
     assert KEY not in public_text(run.path)
