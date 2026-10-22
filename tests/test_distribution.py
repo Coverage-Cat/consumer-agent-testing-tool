@@ -18,6 +18,18 @@ def packaging(monkeypatch):
         "distribution_support", "verify_distribution", "inventory"))
 
 
+@pytest.mark.parametrize("version", ["1.2.3", "2.0.0rc1"])
+def test_inventory_application_version_follows_project_metadata(
+        tmp_path, monkeypatch, packaging, version):
+    _, _, inventory = packaging
+    monkeypatch.setattr(inventory, "ROOT", tmp_path)
+    (tmp_path / "pyproject.toml").write_text(f'[project]\nversion = "{version}"\n')
+
+    document = inventory.bom("consumer-agent-testing-tool-core-installation", [])
+
+    assert document["metadata"]["component"]["version"] == version
+
+
 def test_distribution_environment_excludes_credentials_and_global_configuration(tmp_path, monkeypatch, packaging):
     support, _, _ = packaging
     for name in ("AWS_BEARER_TOKEN_BEDROCK", "OPENROUTER_API_KEY", "PYTHONPATH",

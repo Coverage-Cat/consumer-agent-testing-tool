@@ -107,8 +107,9 @@ def notice_copy(source, stage, group, component):
 
 
 def bom(name, components, **properties):
+    version = tomllib.loads((ROOT / "pyproject.toml").read_text())["project"]["version"]
     return {"bomFormat": "CycloneDX", "specVersion": "1.6", "version": 1,
-            "metadata": {"component": {"type": "application", "name": name, "version": "0.1.0"},
+            "metadata": {"component": {"type": "application", "name": name, "version": version},
                          "properties": [{"name": "consumer-agent-testing-tool:" + k, "value": str(v)}
                                         for k, v in properties.items()]},
             "components": components}
