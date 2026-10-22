@@ -176,7 +176,8 @@ class UserSimulator(BaseExtension):
                      # Of the redacted prompt, like the agent's: no guess of a value it names can be tested.
                      "prompt_sha256": digest(run.redactor.clean_evidence(self.prompt)),
                      "max_turns": self.config.max_turns, "knows": list(self.config.knows),
-                     "reply_characters": REPLY_LIMIT, "use": USE, "basis": BASIS}
+                     "reply_characters": REPLY_LIMIT, "use": USE,
+                     "basis": self.behavior_bases({"simulated-user": BASIS})["simulated-user"]}
         run.record_lock(NAME, self.lock)  # At setup: the agent sub-run's copy of the lock includes it.
         run.event(f"{NAME}.ready", {"label": LABEL, "lock": self.lock, "prompt": self.prompt},
                   provenance=f"the {LABEL}'s model, seed and prompt; the agent never sees the prompt")

@@ -193,9 +193,14 @@ class CiOutputs:
 
     # Writing -----------------------------------------------------------------------------------
     def document(self, code, error=None) -> dict:
+        code = code if code in (0, 1, 2, 3) else 2
+        if code == 2 and error is None:
+            failed = next((row for row in self.trials if row["exit_code"] == 2), {})
+            error = {"class": failed.get("failure_class") or "setup/infrastructure",
+                     "detail": failed.get("reason") or "The command could not complete setup or reporting"}
         status = "error" if error is not None else "completed" if code == 0 else "blocked" if code == 3 else "failed"
         return {"schema_version": 1, "kind": "consumer-agent-testing-tool-summary", "command": self.command,
-                "suite": self.suite, "scenario_id": self.scenario_id, "exit_code": code if code in (0, 1, 2, 3) else 2,
+                "suite": self.suite, "scenario_id": self.scenario_id, "exit_code": code,
                 "status": status, "error": error,
                 "trials": [{key: value for key, value in row.items() if key != "_result"} for row in self.trials],
                 "pass_hat_k": self.pass_hat_k if len(self.trials) > 1 else None, "summary_run": self.summary_run,

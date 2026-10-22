@@ -468,7 +468,10 @@ def test_initialization_installs_consumer_manifests_and_mapped_api_without_overw
 
 
 def test_distribution_attestation_rejects_missing_proof_and_artifact_changes(tmp_path, packaging):
+    import asyncio
     import copy
+
+    from distribution_smoke import connector_lane_smoke
 
     from consumer_agent_testing_tool.release_scope import RELEASE_SCOPE
 
@@ -515,13 +518,16 @@ def test_distribution_attestation_rejects_missing_proof_and_artifact_changes(tmp
              "browser_backend": {"name": "@playwright/mcp", "transport": "private-in-memory",
                                  "version": "fixture", "playwright_version": "fixture",
                                  "protocol_version": "fixture"}}
+    project = tmp_path / "work/project"
+    project.mkdir(parents=True)
+    smoke["connector_targets"] = asyncio.run(connector_lane_smoke(project))
     report = {"release_scope": RELEASE_SCOPE, "status": "passed",
               "phase": "offline-distribution-verification", "source_sha256": recorder.source_digest(tmp_path),
               "steps": steps, "verification_inputs": inputs, "inventory": inventories,
               "wheel": artifact.name, "wheel_sha256": support.sha(artifact),
               "source_archive": artifact.name, "source_archive_sha256": support.sha(artifact),
               "node_content": {"before": identity, "after": identity, "verified": True},
-              "packaged_workflows": smoke}
+              "packaged_workflows": smoke, "workspace": "work"}
     assert len(recorder.verify(tmp_path, report)) == 19
     for key in recorder.WORKFLOWS:
         with pytest.raises(ValueError, match="workflows"):
@@ -553,6 +559,33 @@ def test_distribution_attestation_rejects_missing_proof_and_artifact_changes(tmp
     artifact.write_bytes(b"Changed artifact")
     with pytest.raises(ValueError, match="artifact"):
         recorder.verify(tmp_path, report)
+
+
+async def test_distribution_requires_distinct_sealed_evidence_for_both_surrogate_targets(tmp_path, packaging):
+    import copy
+
+    from distribution_smoke import connector_lane_smoke
+    from local_distribution import verify_connector_targets
+
+    rows = await connector_lane_smoke(tmp_path)
+    verify_connector_targets(tmp_path, rows)
+    assert set(rows) == {"muse/native", "muse/cli", "instinct/native", "instinct/cli"}
+    for missing in rows:
+        with pytest.raises(ValueError, match="both"):
+            verify_connector_targets(tmp_path, {key: row for key, row in rows.items() if key != missing})
+    for field, value in (("emulation_target", "muse"), ("confirmed_count", True),
+                         ("confirmed_count", 0), ("result_sha256", "changed"),
+                         ("run", "../outside"), ("readiness", rows["muse/native"]["readiness"])):
+        changed = copy.deepcopy(rows)
+        changed["instinct/native"][field] = value
+        with pytest.raises(ValueError, match="surrogate"):
+            verify_connector_targets(tmp_path, changed)
+    # Reusing the Muse result while relabeling the row is not Instinct evidence.
+    changed = copy.deepcopy(rows)
+    changed["instinct/native"].update(run=rows["muse/native"]["run"],
+                                      result_sha256=rows["muse/native"]["result_sha256"])
+    with pytest.raises(ValueError, match="surrogate"):
+        verify_connector_targets(tmp_path, changed)
 
 
 

@@ -32,8 +32,6 @@ def test_instinct_is_an_explicit_target_and_muse_remains_the_default():
 
 @pytest.mark.parametrize("change", [
     {"projection": "muse-cli"},
-    {"extensions": {"memory": {}}},
-    {"extensions": {"wallet": {}}},
     {"extensions": {"presentation": {"channel": "app"}}},
     {"extensions": {"presentation": {"channel": "text", "widget_fields": ["price"]}}},
 ])

@@ -14,7 +14,9 @@ review that drove the connector lane.
 ### Assistant connector surrogates (`connector-run`, `scaffold`)
 
 - [Instinct emulation](instinct-emulation.md): primary-source research,
-  the experimental target's specification, supported treatments and gaps.
+  the target's specification, supported treatments and gaps.
+- [Shared surrogate contract](surrogate-contract.md): supported Muse/Instinct
+  capabilities, selection API, indexed memory lifecycle, readiness and release gates.
 - [Connector lane](connector-lane.md): connector-v1 scenarios, the
   `connector-run` flags, projections and exposure, several connectors,
   per-connector quotas, approvals and scripted-user rules, linking, client
@@ -35,7 +37,7 @@ review that drove the connector lane.
 
 ### Readiness checks (`check`)
 
-- [Readiness checks](readiness-checks.md): `check --suite muse-guidelines`,
+- [Readiness checks](readiness-checks.md): `check --suite surrogate`, `muse-guidelines`,
   `poppy` and `gadget`, the `mcp-contract-2026-07-28` contract profile, and
   their behavior under `--offline`.
 

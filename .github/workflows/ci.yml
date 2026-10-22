@@ -151,12 +151,31 @@ jobs:
           --start "python -m consumer_agent_testing_tool.connector_fixture --port {port} --variant good --auth none"
           --junit reports/fixture-booking-cli.xml
 
-      - name: Scripted booking through the experimental Instinct target
+      - name: Scripted booking through the Instinct surrogate
         run: >-
           uv run --no-sync consumer-agent-testing-tool connector-run examples/connector/instinct-booking.yaml
           --driver scripted --script examples/connector/fixture-booking.calls.json
           --start "python -m consumer_agent_testing_tool.connector_fixture --port {port} --variant good --auth none"
           --junit reports/instinct-booking.xml --summary-json reports/instinct-booking.json
+
+      - name: Shared CLI treatment for both surrogate targets
+        run: |
+          for target in muse instinct; do
+            uv run --no-sync consumer-agent-testing-tool connector-run examples/connector/fixture-booking-cli.yaml \
+              --emulation-target "$target" --projection cli --client-profile generic-sdk \
+              --driver scripted --script examples/connector/fixture-booking-cli.calls.json \
+              --start "python -m consumer_agent_testing_tool.connector_fixture --port {port} --variant good --auth none" \
+              --junit "reports/$target-shared-cli.xml" --summary-json "reports/$target-shared-cli.json"
+          done
+
+      - name: Local wallet and bank verification for both surrogate targets
+        run: |
+          for target in muse instinct; do
+            uv run --no-sync consumer-agent-testing-tool connector-run examples/connector/wallet-checkout.yaml \
+              --emulation-target "$target" --driver scripted --script examples/connector/wallet-checkout.calls.yaml \
+              --start "python -m consumer_agent_testing_tool.connector_fixture --port {port} --config examples/connector/wallet-checkout.fixture.yaml --auth none" \
+              --junit "reports/$target-wallet.xml" --summary-json "reports/$target-wallet.json"
+          done
 
       - name: Scripted weather question against the locked MCP reference server
         run: >-
@@ -186,6 +205,12 @@ jobs:
           fi
           uv run --no-sync consumer-agent-testing-tool check http://127.0.0.1:8765/mcp \
             --suite muse-guidelines --manifest examples/connector/readiness.yaml --junit reports/readiness.xml
+          for target in muse instinct; do
+            uv run --no-sync consumer-agent-testing-tool check http://127.0.0.1:8765/mcp \
+              --suite surrogate --emulation-target "$target" \
+              --manifest examples/connector/surrogate-readiness.yaml \
+              --junit "reports/$target-readiness.xml" --summary-json "reports/$target-readiness.json"
+          done
 
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         if: always()

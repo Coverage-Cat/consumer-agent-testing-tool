@@ -9,12 +9,11 @@ Run a scripted or model-driven agent against an MCP server, an MCP app, a
 website or an HTTP API. Check what the service did, inspect the evidence, and
 compare results across builds.
 
-**Muse is the default emulation and testing target.** CATT models Meta's Muse
-through a local test host. **Instinct is an experimental target** for the
-connector lane and its supported browser, HTTP, scheduling and presentation
-extensions. See the [Instinct spec and research](docs/instinct-emulation.md)
-for scope and limits. The model that drives a trial is separate from the
-assistant platform being emulated.
+**Muse and Instinct are supported surrogate emulation targets.** Muse remains
+the default. Both use the [shared connector testing contract](docs/surrogate-contract.md),
+including routing, memory, payments, browser/HTTP tasks and scheduling.
+See the [Instinct research](docs/instinct-emulation.md) for its sources and
+limits. The model that drives a trial is separate from the assistant being emulated.
 
 [Contributing](CONTRIBUTING.md) | [Security](SECURITY.md) | [Changelog](CHANGELOG.md) | [MIT license](LICENSE)
 
@@ -28,10 +27,11 @@ assistant platform being emulated.
 
 | Lane | Command | What it checks | Status and scope |
 | --- | --- | --- | --- |
-| MCP connectors | `connector-run SCENARIO` | Use the server's tools, apply account and approval rules, protect private values, and check the service's recorded outcome and the agent's answer. | Muse surrogate; experimental Instinct target with `--emulation-target instinct`. See [connector lane](docs/connector-lane.md). |
+| MCP connectors | `connector-run SCENARIO` | Use the server's tools, apply account and approval rules, protect private values, and check the service's recorded outcome and the agent's answer. | Muse and Instinct surrogates: `--emulation-target muse\|instinct`. See [connector lane](docs/connector-lane.md). |
 | Connector extensions | `connector-run SCENARIO` with `extensions:` | Routes, memory, custom API clients, browser actions, wallet cards, background jobs, untrusted content, channel limits and simulated users. | Supported with the lane. `user_simulator` is exploratory and cannot run in scripted tests or decision contracts. See [extensions](docs/connector-extensions.md). |
 | Scenario scaffolding | `scaffold URL --output FILE`, `scaffold --from-run RUN --output FILE` | Read a tool catalog or turn an agent run into scripted calls. Calls no service tools. Replace every `TODO(scaffold)` before running. | Supported. One Streamable HTTP connector; no OpenAPI input. |
 | Muse connector readiness | `check URL --suite muse-guidelines` | Review the catalog and optional manifest against the pinned connector guidelines without calling tools. | Documented constraints, not admission. See [readiness checks](docs/readiness-checks.md). |
+| Shared surrogate readiness | `check URL --suite surrogate --emulation-target instinct` | Check the catalog, allowlist, schema syntax and selected projection without calling tools. | CATT's contract for either target; see [shared contract](docs/surrogate-contract.md). |
 | Personal Agent Protocol | `check ORIGIN --suite poppy` | Read `poppy.json`. With a manifest, probe sessions, sign-in and one declared operation on the company's hosts. | Draft 0.1; no production Muse evidence. |
 | Muse gadget registration | `check FILE --suite gadget` | Check a `link.register` message and command specs against the pinned SDK limits. Opens no connection. | Documented limits, not admission. The SDK's terms say it is not a developer platform. |
 | MCP protocol contracts | `check TARGET` | Check schemas, version negotiation, sessions and operation contracts; run the pinned conformance suite. | Supported. Generic MCP evidence; see [readiness checks](docs/readiness-checks.md). |
@@ -44,8 +44,9 @@ assistant platform being emulated.
 The connector lane records the basis for each Muse-specific behavior. Tool classes
 and approval prompts follow documented guidelines. The `muse-cli` projection and
 template client follow unofficial mirrors; the native projection is an assumed
-generic baseline. Instinct runs have a separate source record and label the
-shared host algorithms as assumptions. Native MCP is CATT's test adapter;
+generic baseline. The neutral `cli` projection supports both targets as a CATT
+treatment. Instinct runs have a separate source record and label the
+shared host algorithms as assumptions. Native/CLI MCP is CATT's test adapter;
 no public Instinct MCP integration contract was found.
 
 Run the local booking example under Instinct without a model or account:
@@ -57,10 +58,11 @@ uv run consumer-agent-testing-tool connector-run examples/connector/instinct-boo
 ```
 
 Set `emulation_target: instinct` in your scenario or pass
-`--emulation-target instinct`. Instinct uses native projection and the generic
-MCP client. It defaults to plain-text replies and does not run Muse guideline
-checks. Its trusted-network protocol, Vault, payment rails and Files are not
-implemented; the [spec](docs/instinct-emulation.md) records those gaps.
+`--emulation-target instinct`. Both targets use `native` or `cli` projection and the generic
+MCP client. Instinct defaults to plain-text replies and does not run Muse guideline
+checks. Its local wallet fixture covers payment behavior; live payment rails,
+trusted-network protocol, Vault and Files remain outside the
+[shared contract](docs/surrogate-contract.md).
 
 Three quickstarts follow. The [connector lane](#quickstart-connector-lane) and
 the [popular MCP server](#quickstart-a-popular-mcp-server) quickstarts run on
@@ -181,7 +183,7 @@ The model preflight runs first and prints its own evidence path. The agent then
 sees the four allowed tools as native functions, with the host-private email
 removed from their schemas, and writes the other arguments itself. This uses
 paid model inference. To change the treatment without editing the scenario,
-`--projection muse-cli` offers the same tools through one `exec` command,
+`--projection cli` offers the same tools through one `exec` command for either target,
 `--exposure search-only` loads their parameters through `tool_search`,
 `--output-schema strict` refuses results that break a tool's `outputSchema` as
 the official MCP SDK does, and `--trials N` runs independent trials and prints
@@ -892,7 +894,7 @@ routing policy. It did not test streaming, independently verify retention
 practices, or establish compatibility with every consumer workflow. The Coverage
 Cat checkout failure described above remains an open integration issue.
 
-The audit requires four gates:
+The audit requires five gates:
 
 | Gate | Evidence required |
 | --- | --- |
@@ -900,6 +902,7 @@ The audit requires four gates:
 | Distribution | Fresh offline installation, original dependency notices, artifact integrity and packaged consumer workflows |
 | Transactional consent | Passing consent, continuation and effect checks in the current regression |
 | Replay/diff | Passing evidence-integrity and comparison checks in the current regression |
+| Surrogate parity | Exact Muse/Instinct native/CLI cases, memory lifecycle, routing, payment, readiness and extension coverage |
 
 To record evidence locally instead, for example before tagging, run the same
 steps as the workflow, in this order. `verify_distribution.py` regenerates the

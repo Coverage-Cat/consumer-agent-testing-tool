@@ -548,29 +548,54 @@ async def embedded_consumer_smoke(project):
 
 
 async def connector_lane_smoke(project):
-    """The Muse connector surrogate lane from the wheel: the shipped scripted booking example against the
-    packaged loopback MCP fixture, sealed, played back and exported redacted."""
+    """Both supported targets and projections from the wheel, with real local outcomes and sealed exports."""
     from consumer_agent_testing_tool.connector_fixture import FixtureConfig, serve_fixture
-    from consumer_agent_testing_tool.connector_run import ConnectorRun, ScriptedDriver
+    from consumer_agent_testing_tool.connector_run import (
+        ConnectorRun,
+        ScriptedDriver,
+        profile_named,
+    )
     from consumer_agent_testing_tool.connector_scenario import parse_scenario
-    from consumer_agent_testing_tool.serialization import load
+    from consumer_agent_testing_tool.linking import NoAuth
+    from consumer_agent_testing_tool.serialization import file_digest, load
+    from consumer_agent_testing_tool.surrogate_readiness import run_check
+
     examples = Path(__file__).resolve().parents[1] / "examples" / "connector"  # shipped in the source archive
-    async with serve_fixture(FixtureConfig()) as running:
-        loaded = parse_scenario(load(examples / "fixture-booking.yaml"), base=examples,
-                                variables={"PORT": str(running.port)})
-        run = ConnectorRun(loaded, driver=ScriptedDriver(load(examples / "fixture-booking.calls.json")),
-                           root=project, output=project / "runs")
-        code = await run.run()
-        state = running.controls.state()
-    result = json.loads((run.path / "result.json").read_text())
-    if code or result.get("status") != "completed" or state["confirmed_count"] != 1:
-        raise RuntimeError("Installed connector lane did not book exactly once through the scripted example")
-    playback(run.path)
-    public = export_public_run(run.path, project / "exports" / run.path.name)
-    if "taylor@example.com" in "".join(item.read_text(errors="ignore") for item in public.rglob("*")
-                                       if item.is_file() and item.suffix not in (".zip", ".eval")):
-        raise RuntimeError("Installed connector lane export kept a private value")
-    return str(run.path.relative_to(project))
+    rows = {}
+    for target in ("muse", "instinct"):
+        for projection in ("native", "cli"):
+            async with serve_fixture(FixtureConfig()) as running:
+                document = load(examples / ("fixture-booking-cli.yaml" if projection == "cli"
+                                            else "fixture-booking.yaml"))
+                document.update(emulation_target=target, projection=projection)
+                document["connectors"][0]["client_profile"] = "generic-sdk"
+                loaded = parse_scenario(document, base=examples, variables={"PORT": str(running.port)})
+                script = "fixture-booking-cli.calls.json" if projection == "cli" else "fixture-booking.calls.json"
+                run = ConnectorRun(loaded, driver=ScriptedDriver(load(examples / script)),
+                                   root=project, output=project / "runs")
+                code = await run.run()
+                state = running.controls.state()
+                readiness = []
+                readiness_code = await run_check(
+                    loaded.scenario.connectors[0].endpoint, auth=NoAuth(), manifest_path=None,
+                    output=project / "runs", profile=profile_named("generic-sdk"), emulation_target=target,
+                    projection=projection, store=project / ".cache/connector-links",
+                    sealed=lambda path, status, rows=readiness: rows.append((path, status)))
+            result = playback(run.path)["result"]
+            if code or readiness_code or result.get("status") != "completed" or state["confirmed_count"] != 1:
+                raise RuntimeError(f"Installed {target}/{projection} failed readiness or did not book exactly once")
+            public = export_public_run(run.path, project / "exports" / run.path.name)
+            if "taylor@example.com" in "".join(item.read_text(errors="ignore") for item in public.rglob("*")
+                                               if item.is_file() and item.suffix not in (".zip", ".eval")):
+                raise RuntimeError(f"Installed {target}/{projection} export kept a private value")
+            rows[f"{target}/{projection}"] = {
+                "emulation_target": target, "projection": projection, "confirmed_count": state["confirmed_count"],
+                "run": str(run.path.relative_to(project)), "result_sha256": file_digest(run.path / "result.json"),
+                "export": str(public.relative_to(project)), "export_sha256": file_digest(public / "result.json"),
+                "readiness": str(readiness[0][0].relative_to(project)),
+                "readiness_sha256": file_digest(readiness[0][0] / "result.json"),
+            }
+    return rows
 
 
 async def main(project, venv):
@@ -842,12 +867,14 @@ async def main(project, venv):
               "authentication_lifecycle_verified": True,
               "kernel_default_egress_denied": True,
               "inference": "scripted only; no provider request",
-              "limits": "Installation smoke, not browser isolation or real-Muse calibration"}
+              "limits": "Installation smoke, not browser isolation or real-host calibration"}
     from consumer_agent_testing_tool.release_scope import RELEASE_SCOPE
     record["embedded_consumer_run"] = await embedded_consumer_smoke(project)
     record["embedded_consumer_verified"] = True
-    record["connector_lane_run"] = await connector_lane_smoke(project)
+    record["connector_targets"] = await connector_lane_smoke(project)
+    record["connector_lane_run"] = record["connector_targets"]["muse/native"]["run"]
     record["connector_lane_verified"] = True
+    record["surrogate_targets_verified"] = True
     record["release_scope"] = RELEASE_SCOPE
     for key in list(record):
         if key.startswith("worker_") or key == "calibration_analysis_verified":

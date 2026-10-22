@@ -2,7 +2,7 @@
   "id": "instinct-public-2026-10-21",
   "target": "instinct",
   "checked_at": "2026-10-21",
-  "status": "experimental public-constraint surrogate",
+  "status": "public-constraint source register",
   "sources": [
     {
       "id": "homepage",

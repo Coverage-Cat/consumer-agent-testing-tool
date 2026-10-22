@@ -507,7 +507,8 @@ class WalletExtension(BaseExtension):
             "purchases": [{"connector": connector, "tool": tool, "registration": registration_url, "state": state_url}
                           for (connector, tool), (registration_url, state_url) in self.purchases.items()],
             "card": CARD_REF, "tolerance_minor": self.config.tolerance_minor,
-            "valid_seconds": self.config.valid_seconds, "three_ds": verify.model_dump(), "bases": BASES},
+            "valid_seconds": self.config.valid_seconds, "three_ds": verify.model_dump(),
+            "bases": self.behavior_bases(BASES)},
             provenance="wallet configuration; card numbers and bank codes never enter evidence")
 
     @staticmethod
@@ -678,9 +679,14 @@ class WalletExtension(BaseExtension):
                      "detail": f"The wallet cannot read the merchant's state: {error}"}
                     for identifier in (*CHECKS, *([ADDRESS_CHECK] if self.verified else []))]
         several = len(states) > 1
-        return [self.charge_check(states, several), self.single_use_check(states), self.stored_check(states),
-                self.extras_check(states, several), self.receipt_check(states, several),
-                *([self.address_check(states)] if self.verified else [])]
+        checks = [self.charge_check(states, several), self.single_use_check(states), self.stored_check(states),
+                  self.extras_check(states, several), self.receipt_check(states, several),
+                  *([self.address_check(states)] if self.verified else [])]
+        if self.emulation_target == "instinct":
+            for check in checks:
+                check["basis"] = ("assumed: CATT's bounded, single-use test card and merchant-state checks; "
+                                  "not Instinct's or Stripe's payment implementation")
+        return checks
 
     def metrics(self, run):
         statuses = Counter(card.status for card in self.cards)
@@ -696,7 +702,7 @@ class WalletExtension(BaseExtension):
                 **({"address_verification": dict(sorted(Counter(card.avs or "not verified" for card in self.cards
                                                                 if card.state_url in self.verified).items()))}
                    if self.verified else {}),
-                "bases": {key: item["basis"] for key, item in BASES.items()}}
+                "bases": {key: item["basis"] for key, item in self.behavior_bases(BASES).items()}}
 
     # Cards -------------------------------------------------------------------------------------
     def forms(self):

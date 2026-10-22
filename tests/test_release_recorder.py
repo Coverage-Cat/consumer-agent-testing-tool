@@ -192,6 +192,29 @@ def test_release_recorder_missing_gate_cases_cannot_pass(tmp_path, recorder, mon
     assert ledger["gates"]["replay-diff"]["status"] == "failed"
 
 
+def test_surrogate_gate_requires_exact_target_projection_and_module(recorder):
+    required = {"tests.test_surrogate_parity::test_payment[instinct-cli]"}
+    for module, name in (("tests.test_surrogate_parity", "test_payment[muse-cli]"),
+                         ("tests.test_surrogate_parity", "test_payment[instinct-native]"),
+                         ("tests.test_elsewhere", "test_payment[instinct-cli]"),
+                         ("tests.test_surrogate_parity", "test_payment")):
+        case = ElementTree.Element("testcase", classname=module, name=name)
+        assert recorder.required_case(case, required) is None
+    exact = ElementTree.Element("testcase", classname="tests.test_surrogate_parity",
+                                name="test_payment[instinct-cli]")
+    assert recorder.required_case(exact, required) == next(iter(required))
+
+
+def test_surrogate_gate_cannot_pass_from_unparameterized_family_coverage(tmp_path, recorder, monkeypatch):
+    report = fixture(tmp_path)
+    required = {"tests.test_synthetic::test_effect[muse-native]",
+                "tests.test_synthetic::test_effect[instinct-native]"}
+    monkeypatch.setattr(recorder, "REQUIRED", {"surrogate-parity": required})
+    result = recorder.record(tmp_path, report, now=NOW)["surrogate-parity"]
+    assert result["status"] == "failed"
+    assert set(result["missing_cases"]) == required
+
+
 def test_recorded_results_start_from_the_committed_policy_and_the_policy_alone_qualifies_nothing(tmp_path):
     policy = tmp_path / "docs/release-gates.json"
     policy.parent.mkdir()

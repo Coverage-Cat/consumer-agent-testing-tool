@@ -1,0 +1,11 @@
+# CATT's shared readiness contract. This lists tools only; no tool or model is called.
+version: 1
+kind: surrogate-readiness
+allow: [search_rooms, get_quote, create_booking, get_booking]
+classes:
+  search_rooms: read
+  get_quote: read
+  create_booking: sensitive-write
+  get_booking: read
+host_arguments:
+  create_booking: [guest_email]

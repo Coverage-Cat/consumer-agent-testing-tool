@@ -50,6 +50,7 @@ from .browser_agent import (
 from .browser_network import NetworkRule
 from .connector_run import SECURITY_POST, BaseExtension, discover, pick, register
 from .connector_scenario import check_url, origin_of, provided_private
+from .emulation import target_profile
 from .errors import LabError, LimitExhausted, Unsupported
 from .evidence import admissible_secret
 from .permissions import (
@@ -507,7 +508,7 @@ class TaskBroker(BrowserBroker):
         if self.emulation_target == "instinct":
             self.evidence_profile = {
                 "name": "instinct-browser-surrogate-2026-10-21",
-                "surface": "browser", "label": "experimental public-constraint surrogate",
+                "surface": "browser", "label": target_profile(self.emulation_target)["label"],
             }
             self.agent_interface_profile = dict(self.evidence_profile)
         self.redactor.numbers = True  # As in the connector run: a private value may appear as a number.

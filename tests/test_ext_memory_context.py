@@ -45,7 +45,7 @@ async def test_memory_files_are_standing_context_after_the_date_line(tmp_path):
 
 
 @pytest.mark.parametrize(("memory", "message"), [
-    ({}, "configure memory, soul, identity, stale or needs"),
+    ({}, "configure memory, soul, identity, stale, needs or index"),
     ({"memory": ""}, "at least 1 character"),
     ({"stale": [QUOTE_FACT, QUOTE_FACT]}, "stale fact ids must be unique"),
     ({"stale": [{**QUOTE_FACT, "value": "  "}]}, "stale.saved-quote.value must not be blank"),

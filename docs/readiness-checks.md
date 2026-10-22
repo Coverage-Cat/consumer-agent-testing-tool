@@ -1,10 +1,12 @@
 # Readiness checks
 
-`check` has three readiness suites. Each compares what a developer publishes with a pinned
-source, and every finding quotes the sentence it rests on. None of them runs a model.
+`check` has four readiness suites. The shared surrogate suite checks CATT's
+testing contract; the others compare published information with pinned sources.
+None runs a model.
 
 | Suite | TARGET | What it reads | Network | Label |
 | --- | --- | --- | --- | --- |
+| `surrogate` | An MCP endpoint URL, or a configured target with `base_url` | `initialize`, `tools/list`, optional `surrogate-readiness` manifest; actual native/CLI projection | The endpoint and its authorization server | `surrogate contract, not hosted-assistant compatibility` |
 | `muse-guidelines` | An MCP endpoint URL, or a configured target with `base_url` | The MCP handshake (`server/discover` or `initialize`) and `tools/list`; an optional readiness manifest | The endpoint and its authorization server | `documented constraint, not admission` |
 | `poppy` | A company's origin | `poppy.json` and the metadata it names; with `--manifest`, active probes | The company's hosts only | `draft 0.1; no production Muse evidence` |
 | `gadget` | A local JSON or YAML file | A device's `link.register` message, with optional captured results and timings | None | `documented SDK limits, not admission (the Gadget SDK is not a developer platform)` |
@@ -12,18 +14,30 @@ source, and every finding quotes the sentence it rests on. None of them runs a m
 A clean result is not an admission, an approval or proof of Muse compatibility. Every report
 sets `compatibility_pass: false`. This page also covers the contract lane's
 [MCP 2026-07-28 profile](#mcp-2026-07-28-contract-profile), which is generic MCP evidence, and
-how all four behave [under `--offline`](#offline-behavior).
+their behavior [under `--offline`](#offline-behavior).
+
+Use `--suite surrogate --emulation-target muse|instinct` for either supported
+surrogate. `--projection native|cli` selects its shared projection. The suite
+checks catalog names, credential exposure, reviewed allowlists, schema syntax
+and projection limits. It never calls a service tool. It accepts `--junit` and
+`--summary-json`; offline mode is refused because the catalog must be read.
+See the [shared contract](surrogate-contract.md#shared-readiness) for the
+manifest, limitations and exit codes. `muse-guidelines` remains Muse-specific.
 
 ## Shared behavior
 
 Each run writes a sealed evidence directory under `--output` (default `runs/`):
-`guidelines-<id>`, `poppy-<id>` or `gadget-<id>`. It holds `result.json`, `events.jsonl`,
+`surrogate-<id>`, `guidelines-<id>`, `poppy-<id>` or `gadget-<id>`. It holds `result.json`, `events.jsonl`,
 `report.html` and `evidence.sha256.json`. The command prints the directory on stdout. On
 stderr it prints one outcome line with the finding counts, each failing rule and its subject,
 and the evidence path. `report`, `export` and `replay` read these directories like other
 sealed runs.
 
-`result.json` records `lane: readiness`, the suite's `label`, `findings`, a `summary` of
+The surrogate suite records its target, projection, contract and catalog checks.
+It and Muse guidelines reuse linked credentials from the workspace's
+`.cache/connector-links/`, outside sealed runs.
+
+Each published-source suite's `result.json` records `lane: readiness`, its `label`, `findings`, a `summary` of
 counts by severity, `checks`, `run_lock` and `evidence_limits`. Each finding has a `rule`, a
 `severity` (`fail`, `warn` or `info`; Poppy adds `blocked`), its `evidence`, a `basis`, and the
 `quote` with its `source`. `checks` has one row per finding, plus one `no-finding` row for each

@@ -42,6 +42,11 @@ BASES = {
     "native": {
         "basis": "assumed", "label": "generic function-calling baseline",
         "detail": "One provider function per allowed tool; not a claim about how Muse exposes connectors."},
+    "cli": {
+        "basis": "assumed", "label": "shared connector CLI treatment",
+        "detail": "CATT parses an exec command for list-tools, describe-tool, call-tool or cat without "
+                  "starting a shell. Service discovery, output shapes and exit statuses are CATT's "
+                  "contract, not a claim about either hosted assistant's command runner."},
     "muse-cli": {
         "basis": "unofficial", "label": "unofficial mirror; Muse reaches MCP servers through a CLI",
         "source": "https://github.com/rallat/muse-skills (custom-connector-setup/references/mcp-cli.md, "
@@ -84,6 +89,10 @@ BASES = {
                   "closest source is an unofficial, unlicensed prompt mirror "
                   "(RomanSlack/Meta_Muse_Agent_System_Prompt_Tools, 2026-09-08) in which tool namespaces ship "
                   "deferred with only a short description in context until tool_search loads them."},
+    "search-only-shared-cli": {
+        "basis": "assumed",
+        "detail": "CATT keeps service names and summaries visible; tool_search loads the service's "
+                  "CLI and documentation. Commands for unloaded services send no service request."},
     "untrusted-results": {
         "basis": "documented", "source": "https://research.meta.ai/blog/security-and-safety-for-ai-agents-our-"
                                          "approach-with-muse",
@@ -412,7 +421,7 @@ class Projection:
 
     def __init__(self, mode, exposure, connectors: list[ConnectorView], *, prefix=None, reserved=(),
                  emulation_target="muse"):
-        if mode not in ("native", "muse-cli") or exposure not in ("in-prompt", "search-only"):
+        if mode not in ("native", "cli", "muse-cli") or exposure not in ("in-prompt", "search-only"):
             raise LabError(f"Unknown projection {mode}/{exposure}")
         self.mode, self.exposure = mode, exposure
         self.emulation_target = emulation_target
@@ -528,7 +537,8 @@ class Projection:
                                for name, view in self.connectors.items()},
                 "basis": behavior_bases(self.emulation_target, "projection", {key: BASES[key] for key in (
                     self.mode, "untrusted-results", "result-bound", "model-view-masking",
-                    *((("search-only" if self.mode == "native" else "search-only-cli"),)
+                    *((("search-only" if self.mode == "native" else
+                        "search-only-shared-cli" if self.mode == "cli" else "search-only-cli"),)
                       if self.searchable else ()),
                     *(("provider-names", "schema-bounds") if self.mode == "native" else ()),
                     *(("connector-prefix",) if self.prefix and self.mode == "native" else ()))})}

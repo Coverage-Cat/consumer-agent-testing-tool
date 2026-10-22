@@ -60,10 +60,12 @@ from .connector_scenario import (
     substitute,
 )
 from .emulation import (
+    CLI_PROJECTIONS,
     INSTINCT_FIRST_LINE,
     behavior_bases,
     host_bases,
     policy_record,
+    surrogate_contract,
     target_profile,
     validate_instinct,
 )
@@ -222,7 +224,8 @@ RUNNER_PREFIXES = ("approval.", "answer.", "client.", "connector.", "reconcile."
 RUNNER_LOCK = frozenset({"lane", "scenario_sha256", "python", "harness", "driver", "model", "projection", "exposure",
                          "connectors", "client_profile", "connector_exposure", "server", "overrides", "extensions",
                          "limits", "bases", "variables", "prompt_sha256", "agent", "decision_contract",
-                         "connector_limits", "model_lineage", "service", "emulation_target", "emulation_policy"})
+                         "connector_limits", "model_lineage", "service", "emulation_target", "emulation_policy",
+                         "surrogate_contract"})
 # Call outcomes that reached the service (on_tool_result's call["dispatched"]).
 DISPATCHED = frozenset({"result", "service-error", "uncertain"})
 TOOL_CLASSES = ("read", "write", "sensitive-write")
@@ -1061,6 +1064,7 @@ class ConnectorRun:
             "harness": implementation_lock(self.root), "driver": driver.name, "model": driver.lock(),
             "projection": self.scenario.projection, "exposure": self.exposure,
             "emulation_target": self.scenario.emulation_target,
+            "surrogate_contract": surrogate_contract(self.scenario.emulation_target),
             **({"emulation_policy": policy_record("instinct")} if self.scenario.emulation_target == "instinct"
                else {}),
             **({"connectors": {spec.name: {"client_profile": {"name": spec.client_profile},
@@ -1485,7 +1489,7 @@ class ConnectorRun:
         # Connectors in context, and connectors behind tool_search; a disconnected one is in neither.
         direct = [view for view in views if projection.exposures[view.name] == "in-prompt"]
         deferred = [view for view in views if projection.exposures[view.name] == "search-only"]
-        if projection.mode == "muse-cli":
+        if projection.mode in CLI_PROJECTIONS:
             lines += ["", ("Find your user's connected services with tool_search, then run their command-line "
                            "clients with the exec tool:" if deferred and not direct else
                            "Your user's connected services are command-line clients that you run with the exec "
@@ -2093,7 +2097,7 @@ class ConnectorRun:
                 return await self.ask_user(arguments.get("question"))
             if name == "tool_search" and self.projection.searchable:
                 return self.tool_search(arguments.get("query"))
-            if name == "exec" and self.projection.mode == "muse-cli":
+            if name == "exec" and self.projection.mode in CLI_PROJECTIONS:
                 text = await self.exec_command(arguments.get("command"), arguments.get("stdin"))
             elif target := self.projection.native_tool(name):
                 info = {}
@@ -3256,6 +3260,9 @@ class ConnectorRun:
         if self.projection and self.projection.mode == "muse-cli":
             self.observation_gaps.append("The CLI projection follows an unofficial mirror (rallat/muse-skills "
                                          "@3b5ae2c160); it is labeled, not a documented Muse interface")
+        elif self.projection and self.projection.mode == "cli":
+            self.observation_gaps.append("The CLI projection is CATT's command parser; it does not establish "
+                                         "compatibility with a hosted assistant's command runner")
         # A strict output-schema treatment is part of the client treatment (mcp_clients.OUTPUT_SCHEMA).
         profiles = "+".join(sorted({spec.client_profile + (":strict-output-schema" if spec.output_schema == "strict"
                                                            else "") for spec in self.scenario.connectors})) or "none"
@@ -4211,17 +4218,30 @@ def scaffold_from_run(args, root) -> int:
 
 
 async def guidelines_from_cli(args, services=None) -> int:
-    """check TARGET --suite muse-guidelines: read-only readiness (guidelines.run_check owns the check).
-    With --drift-check, only the opt-in comparison of the live guidelines with the pinned hash runs:
-    exit 0 unchanged, 1 drifted, 2 not fetched. The client profile defaults to generic-sdk: the
-    unofficial template is opt-in, and its refusals are that profile's limits (exit 3)."""
+    """Catalog readiness for the surrogate and muse-guidelines suites, using their own run_check.
+    Muse guidelines alone support --drift-check: opt-in comparison with the pinned hash, exit 0
+    unchanged, 1 drifted, 2 not fetched. The default client profile is generic-sdk; the unofficial
+    Muse template is opt-in, and its refusals are that profile's limits (exit 3)."""
     from .gadget import ignored_options
+    suite = args.suite
+    emulation_target = getattr(args, "emulation_target", None) or "muse"
+    projection = getattr(args, "projection", None) or "native"
+    profile_name = args.client_profile or "generic-sdk"
+    if suite == "muse-guidelines" and (emulation_target != "muse" or getattr(args, "projection", None)):
+        raise LabError("Muse guidelines apply only to Muse; use --suite surrogate for target/projection readiness")
+    if suite == "surrogate" and getattr(args, "drift_check", False):
+        raise LabError("--drift-check applies only to --suite muse-guidelines")
+    if suite == "surrogate" and emulation_target == "instinct":
+        try:
+            validate_instinct(projection, [profile_name], {})
+        except ValueError as error:
+            raise LabError(str(error)) from None
     if stray := [flag for flag, value in ignored_options(args) if value]:
         # Its interface, inference (none) and placement are fixed: a requested worker run must not run here.
-        raise LabError(f"{', '.join(stray)} does not apply to --suite muse-guidelines, which reads one MCP server's "
+        raise LabError(f"{', '.join(stray)} does not apply to --suite {suite}, which reads one MCP server's "
                        "catalog from here")
     if getattr(args, "offline", False):
-        raise Unsupported("--offline does not apply to --suite muse-guidelines, which connects to the network")
+        raise Unsupported(f"--offline does not apply to --suite {suite}, which connects to the network")
     if getattr(args, "drift_check", False):
         from .guidelines import drift_check
         result = await drift_check()
@@ -4235,17 +4255,16 @@ async def guidelines_from_cli(args, services=None) -> int:
         from .config import read_config
         config_path = within(root, args.config, "--config")
         if not config_path.is_file():
-            raise LabError("--suite muse-guidelines needs the MCP endpoint: pass it as TARGET (a URL) or "
+            raise LabError(f"--suite {suite} needs the MCP endpoint: pass it as TARGET (a URL) or "
                            f"--endpoint URL (no configuration at {args.config} names target {args.target!r})")
         config = read_config(config_path)
         target = config.targets.get(args.target)
         if target is None or not target.base_url:
-            raise LabError(f"--suite muse-guidelines needs --endpoint URL, a URL target, or a configured MCP target "
+            raise LabError(f"--suite {suite} needs --endpoint URL, a URL target, or a configured MCP target "
                            f"with base_url (got {args.target!r})")
         endpoint = target.base_url
         if target.auth.mode == "api_key" and target.auth.env:
             auth = {"mode": "api_key", "env": target.auth.env, "placement": "bearer_header"}
-    profile_name = args.client_profile or "generic-sdk"
     endpoint_rules(endpoint, profile_name)
     if getattr(args, "auth_env", None) or getattr(args, "auth_from", None) or auth is None:
         auth = scaffold_auth(args, root)
@@ -4258,6 +4277,16 @@ async def guidelines_from_cli(args, services=None) -> int:
     from .guidelines import run_check  # Resolved at call time, like every CLI command module.
     if outputs := getattr(args, "ci_outputs", None):  # check --junit / --summary-json (cli.check_ci_outputs)
         outputs.treatment["client_profile"] = profile_name
+    if suite == "surrogate":
+        from .surrogate_readiness import run_check
+        if outputs:
+            outputs.treatment.update(emulation_target=emulation_target, projection=projection)
+        return await run_check(
+            endpoint, auth=auth, manifest_path=within(root, args.manifest, "--manifest") if args.manifest else None,
+            output=within(root, args.output, "--output"), profile=services.client_profile(profile_name),
+            emulation_target=emulation_target, projection=projection, services=services,
+            store=root / ".cache" / "connector-links",
+            **({"sealed": outputs.add_trial} if outputs else {}))
     return await run_check(endpoint, auth=auth,
                            manifest_path=within(root, args.manifest, "--manifest") if args.manifest else None,
                            output=within(root, args.output, "--output"), profile=services.client_profile(profile_name),
