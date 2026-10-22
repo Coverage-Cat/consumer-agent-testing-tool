@@ -48,6 +48,22 @@ def test_committed_inventory_matches_the_package_version_and_archive(name):
             (root / "uv.lock").read_bytes()).hexdigest()
 
 
+def test_committed_notice_archive_matches_sources_and_canonical_metadata():
+    root = (Path.cwd() / "third_party").resolve()
+    with zipfile.ZipFile(root / "notices.zip") as archive:
+        names = archive.namelist()
+
+        # scripts/inventory.py sorts archive names and fixes metadata for repeatable release bytes.
+        assert names == sorted(set(names))
+        for info in archive.infolist():
+            source = root / info.filename
+            assert source.resolve().is_relative_to(root)
+            assert info.date_time == (2026, 1, 1, 0, 0, 0)
+            assert info.compress_type == zipfile.ZIP_DEFLATED
+            assert info.external_attr == 0o600 << 16
+            assert archive.read(info) == source.read_bytes()
+
+
 def test_distribution_environment_excludes_credentials_and_global_configuration(tmp_path, monkeypatch, packaging):
     support, _, _ = packaging
     for name in ("AWS_BEARER_TOKEN_BEDROCK", "OPENROUTER_API_KEY", "PYTHONPATH",
