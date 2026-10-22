@@ -13,6 +13,9 @@
   distribution verification checks distinct installed-wheel runs, readiness and exports.
 - CI summaries report sealed setup/reporting failures as `status: error` with
   an error detail, consistent with exit code 2.
+- Shared CLI reports use target-neutral provenance. Surrogate readiness detects
+  escaped credentials and hides them even in schema keys. Indexed source names
+  have the same constraints in the published schema and scenario loader.
 - Connector run locks, CI summaries and JUnit now record the emulation
   target. Comparing older Muse evidence with a new run can report lock
   changes; published Muse scenario digests and older summary validity are

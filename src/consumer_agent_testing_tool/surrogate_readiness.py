@@ -13,7 +13,7 @@ from .emulation import policy_record, surrogate_contract, validate_instinct
 from .errors import LabError, normalize_error
 from .evidence import Redactor
 from .permissions import classify_tool
-from .projection import ConnectorView, Projection, credential_shapes
+from .projection import ConnectorView, Projection, credential_shapes, mask_for_model
 from .serialization import digest, load
 
 SUITE = "surrogate"
@@ -35,6 +35,22 @@ def check(identifier, status, detail, *, required=True):
             "detail": detail, "basis": BASIS}
 
 
+def contains_secret(value, secrets):
+    """Search JSON string values and keys without escaping or joining unrelated strings."""
+    secrets = tuple(secret for secret in secrets if isinstance(secret, str) and secret)
+    pending = [value]
+    while pending:
+        item = pending.pop()
+        if isinstance(item, dict):
+            pending.extend(item.keys())
+            pending.extend(item.values())
+        elif isinstance(item, list):
+            pending.extend(item)
+        elif isinstance(item, str) and any(secret in item for secret in secrets):
+            return True
+    return False
+
+
 def catalog_checks(tools, manifest, *, target, projection, secrets=(), instructions=None):
     """Check the actual projection as well as catalog syntax; never retrieve schema references."""
     checks, classified = [], []
@@ -46,8 +62,7 @@ def catalog_checks(tools, manifest, *, target, projection, secrets=(), instructi
     checks.append(check("catalog.names", "passed" if unique and tools else "failed",
                         "Tools need unique, nonempty names without control characters, and a nonempty catalog."))
     # Scan before recording catalog evidence, so newly found credentials are also registered by the caller.
-    text = json.dumps([tools, instructions], ensure_ascii=False)
-    leaked = any(secret and secret in text for secret in secrets) or credential_shapes([tools, instructions])
+    leaked = contains_secret([tools, instructions], secrets) or credential_shapes([tools, instructions])
     checks.append(check("catalog.credentials", "failed" if leaked else "passed",
                         "A credential appears in catalog text." if leaked else
                         "No linked credential or recognized bearer credential appears in catalog text."))
@@ -162,11 +177,16 @@ async def run_check(endpoint, *, auth, manifest_path, output, profile, emulation
         checks, classified = catalog_checks(tools, manifest, target=emulation_target, projection=projection,
                                              secrets=credential.secrets, instructions=instructions)
         redactor.add(credential_shapes([tools, instructions]))
-        server = {"server_info": client.server_info, "protocol_version": client.protocol_version,
-                  "tools_sha256": digest(redactor.clean_evidence(tools)),
+        # Catalog keys are untrusted too: the connector masker reaches schema property names, while
+        # the general evidence redactor preserves them. Hash and record the same safe catalog.
+        catalog, _ = mask_for_model(
+            {"tools": tools, "instructions": instructions, "server_info": client.server_info}, redactor.secrets)
+        catalog = redactor.clean_evidence(catalog)
+        server = {"server_info": catalog["server_info"], "protocol_version": client.protocol_version,
+                  "tools_sha256": digest(catalog["tools"]),
                   "tool_count": len(tools) if isinstance(tools, list) else None,
                   "digest_basis": "sha256 of redacted catalog evidence"}
-        event("catalog", {**server, "tools": tools, "instructions": instructions})
+        event("catalog", {**server, "tools": catalog["tools"], "instructions": catalog["instructions"]})
         event("readiness_checks", {"checks": checks, "classifications": classified})
         code = 1 if any(row["status"] == "failed" for row in checks) else \
             3 if any(row["required"] and row["status"] == "unsupported" for row in checks) else 0

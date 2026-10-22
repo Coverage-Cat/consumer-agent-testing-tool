@@ -1304,6 +1304,12 @@
           },
           "maxProperties": 20,
           "minProperties": 1,
+          "propertyNames": {
+            "not": {
+              "pattern": "\\s"
+            },
+            "pattern": "^[A-Za-z][A-Za-z0-9_-]{0,63}$"
+          },
           "title": "Sources",
           "type": "object"
         },

@@ -27,13 +27,17 @@ manifest, limitations and exit codes. `muse-guidelines` remains Muse-specific.
 ## Shared behavior
 
 Each run writes a sealed evidence directory under `--output` (default `runs/`):
-`guidelines-<id>`, `poppy-<id>` or `gadget-<id>`. It holds `result.json`, `events.jsonl`,
+`surrogate-<id>`, `guidelines-<id>`, `poppy-<id>` or `gadget-<id>`. It holds `result.json`, `events.jsonl`,
 `report.html` and `evidence.sha256.json`. The command prints the directory on stdout. On
 stderr it prints one outcome line with the finding counts, each failing rule and its subject,
 and the evidence path. `report`, `export` and `replay` read these directories like other
 sealed runs.
 
-`result.json` records `lane: readiness`, the suite's `label`, `findings`, a `summary` of
+The surrogate suite records its target, projection, contract and catalog checks.
+It and Muse guidelines reuse linked credentials from the workspace's
+`.cache/connector-links/`, outside sealed runs.
+
+Each published-source suite's `result.json` records `lane: readiness`, its `label`, `findings`, a `summary` of
 counts by severity, `checks`, `run_lock` and `evidence_limits`. Each finding has a `rule`, a
 `severity` (`fail`, `warn` or `info`; Poppy adds `blocked`), its `evidence`, a `basis`, and the
 `quote` with its `source`. `checks` has one row per finding, plus one `no-finding` row for each

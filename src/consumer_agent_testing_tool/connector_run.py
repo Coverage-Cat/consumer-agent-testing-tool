@@ -3257,9 +3257,12 @@ class ConnectorRun:
         if not self.scenario.checks:
             self.observation_gaps.append("No independent outcome checks are declared; task success is not "
                                          "established")
-        if self.projection and self.projection.mode in CLI_PROJECTIONS:
+        if self.projection and self.projection.mode == "muse-cli":
             self.observation_gaps.append("The CLI projection follows an unofficial mirror (rallat/muse-skills "
                                          "@3b5ae2c160); it is labeled, not a documented Muse interface")
+        elif self.projection and self.projection.mode == "cli":
+            self.observation_gaps.append("The CLI projection is CATT's command parser; it does not establish "
+                                         "compatibility with a hosted assistant's command runner")
         # A strict output-schema treatment is part of the client treatment (mcp_clients.OUTPUT_SCHEMA).
         profiles = "+".join(sorted({spec.client_profile + (":strict-output-schema" if spec.output_schema == "strict"
                                                            else "") for spec in self.scenario.connectors})) or "none"
@@ -4215,10 +4218,10 @@ def scaffold_from_run(args, root) -> int:
 
 
 async def guidelines_from_cli(args, services=None) -> int:
-    """check TARGET --suite muse-guidelines: read-only readiness (guidelines.run_check owns the check).
-    With --drift-check, only the opt-in comparison of the live guidelines with the pinned hash runs:
-    exit 0 unchanged, 1 drifted, 2 not fetched. The client profile defaults to generic-sdk: the
-    unofficial template is opt-in, and its refusals are that profile's limits (exit 3)."""
+    """Catalog readiness for the surrogate and muse-guidelines suites, using their own run_check.
+    Muse guidelines alone support --drift-check: opt-in comparison with the pinned hash, exit 0
+    unchanged, 1 drifted, 2 not fetched. The default client profile is generic-sdk; the unofficial
+    Muse template is opt-in, and its refusals are that profile's limits (exit 3)."""
     from .gadget import ignored_options
     suite = args.suite
     emulation_target = getattr(args, "emulation_target", None) or "muse"
@@ -4282,6 +4285,7 @@ async def guidelines_from_cli(args, services=None) -> int:
             endpoint, auth=auth, manifest_path=within(root, args.manifest, "--manifest") if args.manifest else None,
             output=within(root, args.output, "--output"), profile=services.client_profile(profile_name),
             emulation_target=emulation_target, projection=projection, services=services,
+            store=root / ".cache" / "connector-links",
             **({"sealed": outputs.add_trial} if outputs else {}))
     return await run_check(endpoint, auth=auth,
                            manifest_path=within(root, args.manifest, "--manifest") if args.manifest else None,

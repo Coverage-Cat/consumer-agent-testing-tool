@@ -151,7 +151,9 @@ class IndexChange(Strict):
 class IndexedContext(Strict):
     """A fixture snapshot and changes applied before this trial, not an external account mutation."""
     account: str = Field(pattern=IDENTIFIER)
-    sources: dict[str, MemorySource] = Field(min_length=1, max_length=20)
+    # JSON Schema's $ can match before a final newline; reject whitespace explicitly, as fullmatch does.
+    sources: dict[str, MemorySource] = Field(min_length=1, max_length=20, json_schema_extra={
+        "propertyNames": {"pattern": IDENTIFIER, "not": {"pattern": r"\s"}}})
     records: list[IndexedRecord] = Field(default_factory=list, max_length=100)
     changes: list[IndexChange] = Field(default_factory=list, max_length=40)
 
@@ -494,7 +496,7 @@ class MemoryExtension(BaseExtension):
             if len(self.uses[fact.id]) < LIST_LIMIT and carries(arguments, fact.value):
                 self.uses[fact.id].append({"step": self.step, "via": "arguments",
                                            "tool": self.label(run, connector, tool)})
-        # No verdict: memory observes, it never vetoes or annotates a call.
+        # Standing-memory observations do not veto or annotate calls; the indexed source guard above does.
 
     async def on_tool_result(self, run, connector, tool, result):
         self.bind(run)
@@ -545,8 +547,11 @@ class MemoryExtension(BaseExtension):
                 "id": "memory.source_access", "layer": "host", "status": "failed" if sent else "passed",
                 "class": "policy/approval", "expected": "no tool dispatch through an unavailable indexed source",
                 "actual": {"unauthorized_dispatches": len(sent), "blocked_calls": self.index.blocked_calls},
-                "detail": f"{len(sent)} tool requests reached an unlinked or other-account source",
-                "basis": "assumed: CATT's per-trial indexed source access boundary",
+                "detail": (f"{len(sent)} recorded tool requests used an unlinked or other-account source" if sent
+                           else "No recorded tool request used an unlinked or other-account source; "
+                           f"the source guard blocked {self.index.blocked_calls} calls"),
+                "basis": "assumed: CATT checks its service-request ledger, including extension dispatch records, "
+                         "against the per-trial indexed source boundary",
             })
         return checks
 

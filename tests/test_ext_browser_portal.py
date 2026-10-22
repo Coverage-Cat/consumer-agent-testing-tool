@@ -179,9 +179,10 @@ async def test_ext_browser_portal_saved_credentials_sign_in_then_an_approved_che
         "execution": "passed", "browser.review_before_commit": "passed", "browser.commits_approved": "passed",
         **({"presentation.text_format": "passed"} if emulation_target == "instinct" else {})}
     assert browser_results(api)[1]["review"] == "Order placed: PL-5001 for $125.00 USD."
-    assert run.leaked() == set() and playback(run.path / "browser" / "browser-1")["result"]["status"] == "completed"
+    child = playback(run.path / "browser" / "browser-1")
+    assert run.leaked() == set() and child["result"]["status"] == "completed"
+    assert child["result"]["interface_profile"]["label"] == "public-constraint surrogate"
     if emulation_target == "instinct":
-        child = playback(run.path / "browser" / "browser-1")
         assert child["result"]["interface_profile"]["name"] == "instinct-browser-surrogate-2026-10-21"
         assert child["result"]["run_lock"]["emulation_target"] == "instinct"
         assert not any("Muse" in limit for limit in child["result"]["limits"])

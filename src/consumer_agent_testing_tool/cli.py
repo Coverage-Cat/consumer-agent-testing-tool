@@ -941,7 +941,7 @@ async def execute(args):
 
 async def check_ci_outputs(args):
     """check --junit / --summary-json: the suite runs as without them, then both outputs are written from its
-    sealed run (ci_outputs); the contract, static and muse-guidelines suites only."""
+    sealed run (ci_outputs); the contract, static, surrogate and muse-guidelines suites only."""
     from .ci_outputs import CiOutputs
     if args.suite in ("poppy", "gadget") or args.drift_check:
         raise LabError("--junit and --summary-json apply to check --suite contract, static, surrogate and muse-guidelines"

@@ -104,7 +104,7 @@ def behavior_bases(target: str, component: str, originals: dict) -> dict:
             "basis": "unknown" if value == "unknown" or isinstance(value, dict)
             and value.get("basis") == "unknown" else "assumed", "source": None,
             "detail": f"CATT's {component} rule '{key}' is a local test treatment. "
-                      "Instinct's corresponding implementation is not published; "
+                      "The reviewed public sources do not establish Instinct's corresponding implementation; "
                       "see docs/instinct-emulation.md for the implemented behavior and limits.",
         }
         for key, value in originals.items()
@@ -131,7 +131,11 @@ def host_bases(target: str, originals: dict) -> dict:
 
 
 def validate_instinct(projection, client_profiles, extensions):
-    """Scenario and CLI validation, before any model, service startup or authentication."""
+    """Target-specific constraints, before any model, service startup or authentication.
+
+    Both targets accept the same registered developer extensions. Discovery and each extension's
+    config model validate those; only the shipped SHARED_EXTENSIONS have parity qualification.
+    """
     if projection not in ("native", "cli"):
         raise ValueError("Instinct supports projection native or cli; muse-cli is a Muse-specific treatment")
     if any(profile != "generic-sdk" for profile in client_profiles):

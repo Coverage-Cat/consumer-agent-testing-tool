@@ -4,7 +4,7 @@ import json
 from datetime import timedelta
 
 import pytest
-from test_connector_multi_support import PINE, STAY, multi_services
+from test_connector_multi_support import PINE, STAY, Wallet, multi_services
 from test_connector_support import events, public_text, result_of, run_connector, scenario
 from test_ext_memory_run import OLD_PRICE, SAVED_QUOTE, memory_check, remembering
 from test_ext_routes_run import FRONT_DESK, booked, count, pine_disconnected
@@ -17,7 +17,9 @@ from test_ext_wallet_support import (
 )
 
 from consumer_agent_testing_tool import emulation
-from consumer_agent_testing_tool.connector_run import ScriptedDriver
+from consumer_agent_testing_tool.connector_run import EXTENSIONS, ScriptedDriver
+from consumer_agent_testing_tool.connector_scenario import parse_scenario
+from consumer_agent_testing_tool.errors import LabError
 from consumer_agent_testing_tool.replay import playback
 
 TREATMENTS = [
@@ -72,8 +74,46 @@ def test_both_targets_publish_the_same_supported_connector_contract():
         assert {"routes", "memory", "wallet"} <= set(contract["shared"]["extensions"])
         assert "experimental" not in emulation.target_profile(target)["label"]
     assert contracts[0]["shared"] == contracts[1]["shared"]
+    assert "experimental" not in emulation.policy_record("instinct")["status"]
     contracts[1]["shared"]["extensions"].clear()
     assert emulation.surrogate_contract("instinct")["shared"]["extensions"]  # No mutable global returned.
+
+
+@pytest.mark.parametrize(("target", "projection"), [
+    *TREATMENTS, pytest.param("muse", "muse-cli", id="muse-legacy-cli"),
+])
+async def test_surrogate_cli_provenance_matches_its_treatment(tmp_path, target, projection):
+    document = scenario(emulation_target=target, projection=projection, checks=[], answer=None)
+    run, code, _ = await run_connector(
+        tmp_path, document, driver=ScriptedDriver(projected([quote(), {"answer": "Done."}], projection)))
+    assert code == 0, run.summary()
+    result = result_of(run)
+    mirror_gap = any("rallat/" in gap for gap in result["observation_gaps"])
+    assert mirror_gap == (projection == "muse-cli")
+    if target == "instinct":
+        assert "rallat/" not in json.dumps(result)
+
+
+@pytest.mark.parametrize(("target", "projection"), TREATMENTS)
+async def test_surrogate_developer_extensions_keep_host_approval_and_checks(tmp_path, monkeypatch, target, projection):
+    monkeypatch.setitem(EXTENSIONS, "probe-wallet", Wallet)
+    monkeypatch.setattr(Wallet, "outcomes", [])
+    document = scenario(emulation_target=target, projection=projection, extensions={"probe-wallet": {}})
+    steps = [quote(), {"tool": "pay_with_wallet", "arguments": {
+        "quote_id": {"$ref": "/results/0/result/structuredContent/quote_id"}}},
+        {"answer": "Booked for $420.00, confirmation BK-1000."}]
+    run, code, hotel = await run_connector(
+        tmp_path, document, driver=ScriptedDriver(projected(steps, projection)))
+    assert code == 0, run.summary()
+    assert Wallet.outcomes[0]["kind"] == "result"
+    assert [name for name, _ in hotel.calls] == ["get_quote", "create_booking"]
+    assert any(row["tool"] == "create_booking" for row in events(run, "approval_card"))
+    result = result_of(run)
+    assert checks_of(result)["one-confirmed-booking"]["status"] == "passed"
+    assert "probe-wallet" not in result["run_lock"]["surrogate_contract"]["shared"]["extensions"]
+    assert "not qualified" in result["run_lock"]["surrogate_contract"]["shared"]["developer_extensions"]
+    with pytest.raises(LabError, match="Unknown scenario extension"):
+        parse_scenario(scenario(emulation_target=target, extensions={"probe-unregistered": {}}))
 
 
 @pytest.mark.parametrize(("target", "projection"), TREATMENTS)

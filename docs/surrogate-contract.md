@@ -51,6 +51,12 @@ Existing Muse scenarios, omitted target values and the `muse-cli` flag retain
 their meaning. Switching a scenario that explicitly selects the unofficial
 Muse client to Instinct also requires `--client-profile generic-sdk`.
 
+Both targets accept registered developer extensions through `LaneExtension`,
+including module discovery, configuration validation and the shared approval
+and evidence hooks. Unknown extensions still fail setup. The published shared
+extension list qualifies CATT's shipped implementations; it does not qualify
+third-party implementations.
+
 ## Behavior and evidence
 
 The host enforces the same reviewed tool allowlists, private argument overlays,
@@ -119,6 +125,9 @@ and stale facts remain independent of the index.
 text. `metrics.extensions.memory.index` records visibility and blocked calls.
 `memory.source_access` checks that no service tool request used an unavailable
 indexed connector, including calls made through the host by another extension.
+It audits CATT's service-request ledger, including extension dispatch records.
+This is a host boundary check, not an independent observation of network traffic;
+custom extensions must record their own dispatches through `run.record_dispatch`.
 
 These are local fixtures, not live OAuth revocations or backend deletion
 requests. The index does not persist between trials, ingest a mailbox, or erase
@@ -141,6 +150,8 @@ selected projection. It records inferred or declared tool classes for review.
 The optional manifest has `version: 1`, `kind: surrogate-readiness`, `allow`,
 `classes` and `host_arguments` (tool names mapped to host-owned field names).
 Validate it against `schemas/surrogate-readiness-v1.schema.json`.
+Linked credentials use the workspace's `.cache/connector-links/`, shared with
+`connector-run`. The Python `run_check` API accepts an explicit `store` path.
 
 Exit codes are 0 for no required finding, 1 for a catalog finding, 2 for a
 setup/reporting error and 3 for an unsupported projection or client limit.

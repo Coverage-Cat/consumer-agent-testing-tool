@@ -229,10 +229,15 @@ REQUIRED = {'replay-diff': {'test_backwards_wall_clock_cannot_produce_negative_e
 # Exact module, test and parameter identities: one passing target must never stand in for the other.
 REQUIRED["surrogate-parity"] = {
     "tests.test_surrogate_parity::test_both_targets_publish_the_same_supported_connector_contract",
+    "tests.test_surrogate_parity::test_surrogate_cli_provenance_matches_its_treatment[muse-legacy-cli]",
+    "tests.test_surrogate_readiness::test_surrogate_readiness_does_not_match_credentials_across_json_boundaries",
     *(
         f"tests.{module}::{name}[{variant}{target}-{projection}]"
         for target in ("muse", "instinct") for projection in ("native", "cli")
         for module, name, variants in (
+            ("test_surrogate_parity", "test_surrogate_cli_provenance_matches_its_treatment", ("",)),
+            ("test_surrogate_parity", "test_surrogate_developer_extensions_keep_host_approval_and_checks", ("",)),
+            ("test_surrogate_parity", "test_surrogate_payment_treatment_cannot_change_the_next_trials_provenance", ("",)),
             ("test_surrogate_parity", "test_surrogate_memory_checks_live_reads_and_stale_answers", ("stale-", "fresh-")),
             ("test_surrogate_parity", "test_surrogate_routes_connect_only_with_consent_and_can_fall_back_to_phone", ("",)),
             ("test_surrogate_parity", "test_surrogate_routes_make_newly_connected_tools_reachable", ("",)),
@@ -260,7 +265,29 @@ REQUIRED["surrogate-parity"] = {
             ("test_ext_scheduler_e2e", "test_a_scripted_smoke_run_of_the_confirmation_example_runs_its_task_at_idle_steps"),
             ("test_ext_content_trust_stage", "test_flag_labels_the_injection_and_quarantine_removes_only_its_span"),
             ("test_ext_wallet_run", "test_bank_verification_asks_the_scripted_user_outside_the_conversation"),
+            ("test_memory_index", "test_memory_index_filters_the_actual_model_context_and_can_change_accounts_between_trials"),
+            ("test_memory_index", "test_deleted_indexed_stale_facts_are_not_reintroduced_as_standing_memory"),
+            ("test_memory_index", "test_memory_index_detects_extension_dispatch_outside_its_guard"),
         )
+    ),
+    *(
+        f"tests.{module}::{name}[{variant}-{target}]"
+        for target in ("muse", "instinct")
+        for module, name, variants in (
+            ("test_memory_index", "test_memory_index_rejects_ambiguous_or_cross_account_changes",
+             ("undeclared-change", "foreign-change", "undeclared-record", "shared-connector")),
+            ("test_surrogate_readiness", "test_surrogate_readiness_reports_service_findings_and_redacts_secrets",
+             ("schema", "duplicate", "credential", "unknown-allowlist")),
+            ("test_surrogate_readiness", "test_surrogate_readiness_errors_never_become_service_passes",
+             ("setup-error", "unsupported")),
+            ("test_surrogate_readiness", "test_surrogate_readiness_detects_escaped_linked_secrets",
+             ("quote", "backslash", "newline")),
+        )
+        for variant in variants
+    ),
+    *(
+        f"tests.test_memory_index::test_memory_index_schema_and_parser_reject_invalid_source_names[{variant}]"
+        for variant in ("empty", "digit", "space", "newline", "long")
     ),
 }
 

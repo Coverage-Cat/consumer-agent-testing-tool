@@ -3,11 +3,22 @@ import copy
 import json
 
 import pytest
-from test_connector_support import agent, answer, public_text, result_of, run_connector, scenario
+from jsonschema import Draft202012Validator
+from test_connector_support import (
+    Hotel,
+    agent,
+    answer,
+    public_text,
+    result_of,
+    run_connector,
+    scenario,
+    services,
+)
 from test_surrogate_parity import TREATMENTS, projected, quote
 
-from consumer_agent_testing_tool.connector_run import ScriptedDriver
+from consumer_agent_testing_tool.connector_run import EXTENSIONS, BaseExtension, ScriptedDriver
 from consumer_agent_testing_tool.connector_scenario import parse_scenario
+from consumer_agent_testing_tool.connector_schema import connector_schema
 from consumer_agent_testing_tool.errors import LabError
 
 OWN = "The saved room preference is the Garden double."
@@ -76,27 +87,62 @@ async def test_memory_index_blocks_connector_calls_bound_to_a_different_account(
     assert result_of(run)["metrics"]["extensions"]["memory"]["index"]["blocked_calls"] == 1
 
 
+@pytest.mark.parametrize("target", ["muse", "instinct"])
+async def test_memory_index_detects_extension_dispatch_outside_its_guard(tmp_path, monkeypatch, target):
+    hotel = Hotel()
+    made = services(hotel)
+
+    class UncheckedSource(BaseExtension):
+        async def on_idle(self, run):
+            # A custom extension sends its own request, outside run.call_tool's source-access guard.
+            await made.clients[0].call_tool("get_quote", quote()["arguments"])
+            run.record_dispatch("cedar-stays", "get_quote", "read", source="probe-source")
+
+    monkeypatch.setitem(EXTENSIONS, "probe-source", UncheckedSource)
+    document = scenario(emulation_target=target, checks=[], answer=None, extensions={
+        "memory": {"index": indexed("unlink")}, "probe-source": {}})
+    run, code, _ = await run_connector(
+        tmp_path, document, services_=made, driver=ScriptedDriver([{"idle": True}, {"answer": "Done."}]))
+    assert code == 1, run.summary()
+    assert [name for name, _ in hotel.calls] == ["get_quote"]
+    check = next(row for row in result_of(run)["checks"] if row["id"] == "memory.source_access")
+    assert check["status"] == "failed"
+    assert check["actual"] == {"unauthorized_dispatches": 1, "blocked_calls": 0}
+
+
+@pytest.mark.parametrize("target", ["muse", "instinct"])
 @pytest.mark.parametrize("change, message", [
     ({"changes": [{"source": "missing", "action": "delete"}]}, "undeclared"),
     ({"changes": [{"source": "foreign", "action": "delete"}]}, "account"),
     ({"records": [{"id": "bad", "source": "missing", "text": "Must not appear."}]}, "undeclared"),
     ({"sources": {"a": {"account": "taylor", "connector": "cedar-stays"},
                   "b": {"account": "taylor", "connector": "cedar-stays"}}}, "connector"),
-])
-def test_memory_index_rejects_ambiguous_or_cross_account_changes(change, message):
+], ids=["undeclared-change", "foreign-change", "undeclared-record", "shared-connector"])
+def test_memory_index_rejects_ambiguous_or_cross_account_changes(target, change, message):
     value = indexed()
     value.update(change)
     with pytest.raises(LabError, match=message):
-        parse_scenario(scenario(extensions={"memory": {"index": value}}))
+        parse_scenario(scenario(emulation_target=target, extensions={"memory": {"index": value}}))
 
 
-async def test_deleted_indexed_stale_facts_are_not_reintroduced_as_standing_memory(tmp_path):
+@pytest.mark.parametrize("target", ["muse", "instinct"])
+async def test_deleted_indexed_stale_facts_are_not_reintroduced_as_standing_memory(tmp_path, target):
     from test_ext_memory_run import OLD_PRICE
 
-    document = scenario(emulation_target="instinct", checks=[], answer=None, extensions={"memory": {
+    document = scenario(emulation_target=target, checks=[], answer=None, extensions={"memory": {
         "index": indexed("delete"), "stale": [{**OLD_PRICE, "source": "hotel"}]}})
     driver, api = agent([answer("Please check a live quote.")])
     run, code, _ = await run_connector(tmp_path, document, driver=driver)
     assert code == 0, run.summary()
     assert OLD_PRICE["text"] not in json.dumps(api.inputs)
     assert result_of(run)["metrics"]["extensions"]["memory"]["stale_facts"] == []
+
+
+@pytest.mark.parametrize("name", ["", "1hotel", "my source", "hotel\n", "a" * 65],
+                         ids=["empty", "digit", "space", "newline", "long"])
+def test_memory_index_schema_and_parser_reject_invalid_source_names(name):
+    document = scenario(extensions={"memory": {"index": {
+        "account": "taylor", "sources": {name: {"account": "taylor"}}}}})
+    with pytest.raises(LabError, match="identifiers"):
+        parse_scenario(document)
+    assert list(Draft202012Validator(connector_schema()).iter_errors(document))
