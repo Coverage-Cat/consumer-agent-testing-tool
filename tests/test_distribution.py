@@ -1,9 +1,11 @@
+import hashlib
 import importlib
 import json
 import platform
 import socket
 import subprocess
 import sys
+import tomllib
 import zipfile
 from pathlib import Path
 from types import SimpleNamespace
@@ -16,6 +18,34 @@ def packaging(monkeypatch):
     monkeypatch.syspath_prepend(str(Path.cwd() / "scripts"))
     return tuple(importlib.import_module(name) for name in (
         "distribution_support", "verify_distribution", "inventory"))
+
+
+@pytest.mark.parametrize("version", ["1.2.3", "2.0.0rc1"])
+def test_inventory_application_version_follows_project_metadata(
+        tmp_path, monkeypatch, packaging, version):
+    _, _, inventory = packaging
+    monkeypatch.setattr(inventory, "ROOT", tmp_path)
+    (tmp_path / "pyproject.toml").write_text(f'[project]\nversion = "{version}"\n')
+
+    document = inventory.bom("consumer-agent-testing-tool-core-installation", [])
+
+    assert document["metadata"]["component"]["version"] == version
+
+
+@pytest.mark.parametrize("name", ["core-sbom.cdx.json", "sbom.cdx.json"])
+def test_committed_inventory_matches_the_package_version_and_archive(name):
+    root = Path.cwd()
+    version = tomllib.loads((root / "pyproject.toml").read_text())["project"]["version"]
+    content = (root / "third_party" / name).read_bytes()
+    document = json.loads(content)
+
+    assert document["metadata"]["component"]["version"] == version
+    with zipfile.ZipFile(root / "third_party/notices.zip") as archive:
+        assert archive.read(name) == content
+    if name == "core-sbom.cdx.json":
+        properties = {item["name"]: item["value"] for item in document["metadata"]["properties"]}
+        assert properties["consumer-agent-testing-tool:dependency_lock_sha256"] == hashlib.sha256(
+            (root / "uv.lock").read_bytes()).hexdigest()
 
 
 def test_distribution_environment_excludes_credentials_and_global_configuration(tmp_path, monkeypatch, packaging):

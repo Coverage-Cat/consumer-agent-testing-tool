@@ -6,7 +6,7 @@
     "component": {
       "type": "application",
       "name": "consumer-agent-testing-tool-core-installation",
-      "version": "0.1.0"
+      "version": "0.2.0"
     },
     "properties": [
       {
@@ -23,7 +23,7 @@
       },
       {
         "name": "consumer-agent-testing-tool:dependency_lock_sha256",
-        "value": "4e83f6371185c188a7aa926934732253fd2d567447ec0f81cd67a9e0b1d7b289"
+        "value": "66949b9e14e27ad3854273b27d5a3b8139664b5509a5a4a9835b54afc0c02f56"
       }
     ]
   },
@@ -408,13 +408,13 @@
     {
       "type": "library",
       "name": "certifi",
-      "version": "2026.7.22",
-      "bom-ref": "core-python:pypi:certifi@2026.7.22",
-      "purl": "pkg:pypi/certifi@2026.7.22",
+      "version": "2026.10.19",
+      "bom-ref": "core-python:pypi:certifi@2026.10.19",
+      "purl": "pkg:pypi/certifi@2026.10.19",
       "properties": [
         {
           "name": "consumer-agent-testing-tool:notice-files",
-          "value": "[{\"path\": \"third_party/notices/core-python/certifi-2026.7.22/e93716da6b9c-LICENSE\", \"sha256\": \"e93716da6b9c0d5a4a1df60fe695b370f0695603d21f6f83f053e42cfc10caf7\"}]"
+          "value": "[{\"path\": \"third_party/notices/core-python/certifi-2026.10.19/e93716da6b9c-LICENSE\", \"sha256\": \"e93716da6b9c0d5a4a1df60fe695b370f0695603d21f6f83f053e42cfc10caf7\"}]"
         },
         {
           "name": "consumer-agent-testing-tool:declared-license",
@@ -422,7 +422,7 @@
         },
         {
           "name": "consumer-agent-testing-tool:locked-wheel-hashes",
-          "value": "[\"sha256:62f22742b58a1a33014a2b6b706588a8d7e2a88ae7bd1a6ebe8c992928483775\"]"
+          "value": "[\"sha256:42d35340cc5b9ba78e818ddbff0c5b1c2b779de448a340fd1b989f5fa8670e1b\"]"
         },
         {
           "name": "consumer-agent-testing-tool:scope",

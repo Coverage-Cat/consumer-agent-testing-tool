@@ -42,6 +42,32 @@
       "basis": "Original project notice from the matching upstream release; omitted by the published platform/package tarball"
     },
     {
+      "name": "@rolldown/binding-darwin-arm64",
+      "version": "1.2.14",
+      "path": "third_party/supplemental/@rolldown__binding-darwin-arm64-1.2.14/LICENSE",
+      "sha256": "23ecfff35a5a2e80d92142f75228912c3b1abc4b5a8337a821ff4397e2f9f734",
+      "source_url": "https://raw.githubusercontent.com/rolldown/rolldown/c9a8cda42bc0fdd84c7b4b4e6d7f95ae83e8b5f7/LICENSE",
+      "checked_at": "2026-10-22",
+      "basis": "Original project notice at the commit for v1.2.14; omitted from the platform binding. Bound to the installed package metadata and native binary.",
+      "artifacts": {
+        "package.json": "b453dd4db5ea29e4a14fdfeada50b19aff59e64286dbc8b28fd219bf9be63d27",
+        "rolldown-binding.darwin-arm64.node": "4e4ecbcd8bbdf4b189127493f79fef124c5c3dee1a68c02b2953bf29e9aebf1f"
+      }
+    },
+    {
+      "name": "@rolldown/binding-darwin-arm64",
+      "version": "1.2.14",
+      "path": "third_party/supplemental/@rolldown__binding-darwin-arm64-1.2.14/THIRD-PARTY-LICENSE",
+      "sha256": "a877291d800ed43692f3f9ae09d8e01cc6f7293ad39d43896059c188ffbb8b7c",
+      "source_url": "https://raw.githubusercontent.com/rolldown/rolldown/c9a8cda42bc0fdd84c7b4b4e6d7f95ae83e8b5f7/THIRD-PARTY-LICENSE",
+      "checked_at": "2026-10-22",
+      "basis": "Original third-party notice shipped by rolldown at the v1.2.14 commit; retained for the matching native binding. This does not establish complete native dependency coverage.",
+      "artifacts": {
+        "package.json": "b453dd4db5ea29e4a14fdfeada50b19aff59e64286dbc8b28fd219bf9be63d27",
+        "rolldown-binding.darwin-arm64.node": "4e4ecbcd8bbdf4b189127493f79fef124c5c3dee1a68c02b2953bf29e9aebf1f"
+      }
+    },
+    {
       "name": "@napi-rs/keyring-darwin-arm64",
       "version": "1.3.0",
       "path": "third_party/supplemental/@napi-rs__keyring-darwin-arm64-1.3.0/LICENSE",
