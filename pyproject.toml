@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "consumer-agent-testing-tool"
-version = "0.2.0"
+version = "0.2.1"
 description = "Test your service with Muse and Instinct consumer-assistant surrogates"
 readme = "README.md"
 authors = [{name = "Coverage Cat, Inc."}]

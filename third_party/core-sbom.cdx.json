@@ -6,7 +6,7 @@
     "component": {
       "type": "application",
       "name": "consumer-agent-testing-tool-core-installation",
-      "version": "0.2.0"
+      "version": "0.2.1"
     },
     "properties": [
       {
@@ -23,7 +23,7 @@
       },
       {
         "name": "consumer-agent-testing-tool:dependency_lock_sha256",
-        "value": "66949b9e14e27ad3854273b27d5a3b8139664b5509a5a4a9835b54afc0c02f56"
+        "value": "bec2ff7e5a77f727d90f1ae1e6217d257d57236af3e4ad76fb372c11779cb9ad"
       }
     ]
   },

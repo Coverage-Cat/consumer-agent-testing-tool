@@ -48,6 +48,14 @@ def test_committed_inventory_matches_the_package_version_and_archive(name):
             (root / "uv.lock").read_bytes()).hexdigest()
 
 
+def test_committed_notice_archive_uses_canonical_member_order():
+    with zipfile.ZipFile(Path.cwd() / "third_party/notices.zip") as archive:
+        names = archive.namelist()
+
+    # The release job compares the whole archive, including its central-directory order.
+    assert names == sorted(set(names))
+
+
 def test_distribution_environment_excludes_credentials_and_global_configuration(tmp_path, monkeypatch, packaging):
     support, _, _ = packaging
     for name in ("AWS_BEARER_TOKEN_BEDROCK", "OPENROUTER_API_KEY", "PYTHONPATH",
