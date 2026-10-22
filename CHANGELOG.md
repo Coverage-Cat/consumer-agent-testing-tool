@@ -14,7 +14,10 @@
 - A named surrogate-parity release gate requires exact cases for both targets;
   distribution verification checks distinct installed-wheel runs, readiness and exports.
 - Package metadata identifies both supported surrogate targets. Inventory
-  generation now reads the package version.
+  generation reads the package version, and tests check version, lock and archive
+  consistency.
+- Refresh dependency inventories and original notices for the locked dependency
+  updates, including the Rolldown native binding.
 - CI summaries report sealed setup/reporting failures as `status: error` with
   an error detail, consistent with exit code 2.
 - Shared CLI reports use target-neutral provenance. Surrogate readiness detects

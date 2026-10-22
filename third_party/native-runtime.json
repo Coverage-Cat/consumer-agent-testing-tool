@@ -988,15 +988,15 @@
       "scope": "node-protocol",
       "artifacts": {
         "keyring.darwin-arm64.node": {
-          "sha256": "9627560bd2490b8495504df6b48dafe0153883aab09fd8eee976f826c74a6fff",
-          "bytes": 491232,
+          "sha256": "1bc4c418c70021050fc052a1f5f60e0da1526ff0b952840f25e691624a4c483e",
+          "bytes": 540944,
           "format": "mach-o",
           "kind": "binary"
         }
       },
       "package": {
         "name": "@napi-rs/keyring-darwin-arm64",
-        "version": "1.3.0"
+        "version": "2.1.2"
       },
       "upstream_documents": [],
       "dependency_coverage": {
@@ -1012,15 +1012,15 @@
       "scope": "node-protocol",
       "artifacts": {
         "rolldown-binding.darwin-arm64.node": {
-          "sha256": "3d3a04898915d7dcd6809ca15c0f02d20fd07ab28b58863a3889e5f61d6620de",
-          "bytes": 16703408,
+          "sha256": "4e4ecbcd8bbdf4b189127493f79fef124c5c3dee1a68c02b2953bf29e9aebf1f",
+          "bytes": 17084304,
           "format": "mach-o",
           "kind": "binary"
         }
       },
       "package": {
         "name": "@rolldown/binding-darwin-arm64",
-        "version": "1.2.12"
+        "version": "1.2.14"
       },
       "upstream_documents": [],
       "dependency_coverage": {
