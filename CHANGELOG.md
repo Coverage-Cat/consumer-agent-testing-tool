@@ -5,9 +5,11 @@
 ## 0.2.1 - 2026-10-22
 
 - Sort the bundled notice archive by member name so it matches release generation.
-  All notice contents are unchanged. A regression check enforces this ordering.
-- Includes the Instinct update below. The `v0.2.0` tag's
-  publication stopped at the notice archive consistency check.
+  Original license and notice text is unchanged; the bundled SBOMs record the new
+  version and lock digest. A regression check covers ordering, ZIP metadata and
+  source contents.
+- Includes the Instinct update below. The `v0.2.0` tag's publication stopped at
+  the notice archive consistency check.
 
 ## 0.2.0 - 2026-10-22
 
