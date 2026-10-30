@@ -558,6 +558,7 @@ class SchedulerExtension(BaseExtension):
             schedules[job.id] = Schedule(job, every, seconds(job.jitter, "jitter"), first, until, self.config.seed)
         self.schedules = schedules
         run.event("scheduler.plan", {
+            "clock": self.clock(run).mode,
             "start": start.isoformat(),
             "jobs": [{"job": item.job.id, "every_seconds": item.every, "jitter_seconds": item.jitter,
                       "first": iso(item.first), "until": iso(item.until), "max_runs": item.job.max_runs,
@@ -837,7 +838,8 @@ class SchedulerExtension(BaseExtension):
         item.times.append(at.isoformat())
         self.resumed(run, "run", item.job.id, item.runs)
         self.event(run, "scheduler.job_run", {"job": item.job.id, "run": item.runs, "scheduled": iso(due),
-                                              "at": iso(at), "missed": missed, "turn": run.turns})
+                                              "at": iso(at), "missed": missed, "turn": run.turns,
+                                              "clock": self.clock(run).mode, "cleanup_verified": False})
         return f"Scheduled task {item.job.id} (run {item.runs}), {self.when(run, at)}. {AWAY}\n\n{item.job.message}"
 
     def hold(self, run, connector, tool, tool_class, arguments, now):

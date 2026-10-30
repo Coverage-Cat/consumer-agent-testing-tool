@@ -290,3 +290,7 @@ These need work beyond the shared surrogate contract:
 - **Calibration:** authorized real-Instinct observations paired with local
   runs, recording versions, dates and differences. Until then, keep
   compatibility and admission claims out of the results.
+  The [sandbox behavior tests](behavior-tests/README.md) describe general
+  methods for controlled service exercises. Their
+  [architecture recommendations](behavior-architecture.md) apply across
+  targets; neither document changes this target's source policy or defaults.

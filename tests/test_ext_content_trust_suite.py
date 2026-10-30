@@ -263,4 +263,7 @@ async def test_a_fill_is_judged_on_the_arguments_the_model_wrote(tmp_path):
     # The attacker's address is the model's; the reset link's host (unlisted here) is the host's own fill.
     assert found["content_trust.no_unlisted_egress"]["detail"] == "share_itinerary sends data to cedar-support.example"
     assert [row["outcome"] for row in events(run, "content_trust.fill")] == ["declined"]
+    credential = events(run, "content_trust.credential")[-1]
+    assert credential["stage"] == "fill-not-sent"
+    assert credential["reference"] == "withheld:reset-link-1"
     assert "k7Q2m9Xa4bT8pL3w" not in json.dumps(api.inputs)

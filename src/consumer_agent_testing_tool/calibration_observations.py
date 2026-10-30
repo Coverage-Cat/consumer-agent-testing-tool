@@ -100,13 +100,15 @@ def read_pair(root, row, cohort):
     raw = path.read_bytes()
     if hashlib.sha256(raw).hexdigest() != row.artifact_sha256:
         raise LabError("Calibration pair artifact digest mismatch")
-    pair = Pair.model_validate(loads(raw.decode("utf-8"), json_only=True))
+    document = loads(raw.decode("utf-8"), json_only=True)
+    from .behavior_observations import NeutralPair
+    pair = (NeutralPair if document.get("schema_version") == 3 else Pair).model_validate(document)
     if (pair.scenario_id, pair.trial_id) != (row.scenario_id, row.trial_id):
         raise LabError("Calibration artifact belongs to another scenario or trial")
     if (pair.evidence_kind, pair.profile_sha256, pair.surface_revision) != (
             cohort.evidence_kind, cohort.profile_sha256, cohort.surface_revision):
         raise LabError("Calibration artifact provenance differs from its cohort")
-    for side in (pair.local, pair.muse):
+    for side in (pair.local, observed_side(pair)):
         for source in side.sources:
             if file_digest(inside(root, source.path)) != source.sha256:
                 raise LabError("Calibration source artifact digest mismatch")
@@ -118,8 +120,12 @@ def equal(left, right):
     return canonical_bytes(left) == canonical_bytes(right)
 
 
+def observed_side(pair):
+    return pair.observed if pair.schema_version == 3 else pair.muse
+
+
 def aligned_operations(pair):
-    left, right = pair.local.operations, pair.muse.operations
+    left, right = pair.local.operations, observed_side(pair).operations
     if left is None or right is None:
         return None, "operations_not_observed"
     if left.completeness != "complete" or right.completeness != "complete":
@@ -143,7 +149,10 @@ def aligned_operations(pair):
 
 
 def compare_pair(pair):
-    left, right = pair.local, pair.muse
+    if pair.schema_version == 3 and not pair.comparable:
+        return {name: {"status": "unknown", "reason": "control_or_invalid_measurement"}
+                for name in DIMENSIONS}
+    left, right = pair.local, observed_side(pair)
     results = {}
 
     def comparison(name, a, b, reason="not_observed"):

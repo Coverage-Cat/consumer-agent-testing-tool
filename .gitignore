@@ -21,6 +21,9 @@ build/
 reports/
 *.egg-info/
 
+# Local experiment harnesses; public methods live under docs/behavior-tests/.
+/tools/*-live/
+
 # Local configuration and credentials
 consumer-agent-testing-tool.yaml
 .env

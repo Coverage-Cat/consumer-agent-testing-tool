@@ -1,0 +1,204 @@
+{
+  "$defs": {
+    "PairReference": {
+      "additionalProperties": false,
+      "properties": {
+        "scenario_id": {
+          "minLength": 1,
+          "title": "Scenario Id",
+          "type": "string"
+        },
+        "trial_id": {
+          "minLength": 1,
+          "title": "Trial Id",
+          "type": "string"
+        },
+        "split": {
+          "enum": [
+            "calibration",
+            "held-out"
+          ],
+          "title": "Split",
+          "type": "string"
+        },
+        "artifact": {
+          "minLength": 1,
+          "title": "Artifact",
+          "type": "string"
+        },
+        "artifact_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Artifact Sha256",
+          "type": "string"
+        }
+      },
+      "required": [
+        "scenario_id",
+        "trial_id",
+        "split",
+        "artifact",
+        "artifact_sha256"
+      ],
+      "title": "PairReference",
+      "type": "object"
+    },
+    "ScenarioAnalysis": {
+      "additionalProperties": false,
+      "properties": {
+        "method": {
+          "const": "scenario-cluster-t-v1",
+          "title": "Method",
+          "type": "string"
+        },
+        "independent_unit": {
+          "const": "scenario_id",
+          "title": "Independent Unit",
+          "type": "string"
+        },
+        "weighting": {
+          "enum": [
+            "paired-trials",
+            "equal-scenarios"
+          ],
+          "title": "Weighting",
+          "type": "string"
+        },
+        "confidence_level": {
+          "const": 0.95,
+          "default": 0.95,
+          "title": "Confidence Level",
+          "type": "number"
+        }
+      },
+      "required": [
+        "method",
+        "independent_unit",
+        "weighting"
+      ],
+      "title": "ScenarioAnalysis",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "const": 3,
+      "title": "Schema Version",
+      "type": "integer"
+    },
+    "cohort": {
+      "title": "Cohort",
+      "type": "string"
+    },
+    "authorized": {
+      "const": true,
+      "title": "Authorized",
+      "type": "boolean"
+    },
+    "observed_at": {
+      "title": "Observed At",
+      "type": "string"
+    },
+    "expires_at": {
+      "title": "Expires At",
+      "type": "string"
+    },
+    "surface_revision": {
+      "title": "Surface Revision",
+      "type": "string"
+    },
+    "profile_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Profile Sha256",
+      "type": "string"
+    },
+    "observations": {
+      "items": {
+        "$ref": "#/$defs/PairReference"
+      },
+      "minItems": 1,
+      "title": "Observations",
+      "type": "array"
+    },
+    "visibility": {
+      "additionalProperties": {
+        "enum": [
+          "observed",
+          "partial",
+          "unknown"
+        ],
+        "type": "string"
+      },
+      "propertyNames": {
+        "enum": [
+          "model",
+          "policy",
+          "browser",
+          "discovery"
+        ]
+      },
+      "title": "Visibility",
+      "type": "object"
+    },
+    "evidence_kind": {
+      "enum": [
+        "synthetic",
+        "observed"
+      ],
+      "title": "Evidence Kind",
+      "type": "string"
+    },
+    "primary_dimensions": {
+      "items": {
+        "enum": [
+          "task_outcome",
+          "backend_state",
+          "surface",
+          "operation_sequence",
+          "arguments",
+          "request_repetition",
+          "visible_approvals",
+          "handoffs",
+          "final_response_consistency"
+        ],
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Primary Dimensions",
+      "type": "array"
+    },
+    "consistency_rubric": {
+      "minLength": 1,
+      "title": "Consistency Rubric",
+      "type": "string"
+    },
+    "analysis": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/ScenarioAnalysis"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    }
+  },
+  "required": [
+    "schema_version",
+    "cohort",
+    "authorized",
+    "observed_at",
+    "expires_at",
+    "surface_revision",
+    "profile_sha256",
+    "observations",
+    "visibility",
+    "evidence_kind",
+    "consistency_rubric"
+  ],
+  "title": "NeutralCohort",
+  "type": "object",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:consumer-agent-testing-tool:behavior-cohort-v3"
+}

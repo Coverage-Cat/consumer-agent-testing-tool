@@ -5,7 +5,7 @@ from typing import Literal
 
 from pydantic import Field, StrictBool, field_validator, model_validator
 
-from .calibration_observations import DIMENSIONS, Dimension, compare_pair, read_pair
+from .calibration_observations import DIMENSIONS, Dimension, compare_pair, observed_side, read_pair
 from .calibration_statistics import ScenarioAnalysis, analyze, provenance
 from .errors import LabError
 from .metrics import wilson
@@ -90,6 +90,11 @@ class ObservableCohort(Cohort):
         return self
 
 
+class NeutralCohort(ObservableCohort):
+    schema_version: Literal[3]
+    evidence_kind: Literal["synthetic", "observed"]
+
+
 def timestamp(value):
     result = datetime.fromisoformat(value)
     if result.tzinfo is None:
@@ -100,7 +105,8 @@ def timestamp(value):
 def evaluate(root, packet, *, profile_sha256, now=None, surface_revision=None):
     root = Path(root).resolve()
     document = load(inside(root, packet))
-    cohort = (ObservableCohort if document.get("schema_version") == 2 else Cohort).model_validate(document)
+    model = {1: Cohort, 2: ObservableCohort, 3: NeutralCohort}.get(document.get("schema_version"), Cohort)
+    cohort = model.model_validate(document)
     now = now or datetime.now(UTC)
     if timestamp(cohort.observed_at) > now or timestamp(cohort.expires_at) <= timestamp(cohort.observed_at):
         raise LabError("Invalid observation dates")
@@ -138,6 +144,7 @@ def evaluate_observations(root, cohort, stale):
     pairs = [(row, read_pair(root, row, cohort)) for row in cohort.observations]
     comparisons = [{"scenario_id": row.scenario_id, "trial_id": row.trial_id, "split": row.split,
                     "artifact": row.artifact, "artifact_sha256": row.artifact_sha256,
+                    **({"comparison": pair.comparison} if pair.schema_version == 3 else {}),
                     "dimensions": compare_pair(pair)} for row, pair in pairs]
     groups = {}
     for split in ("calibration", "held-out"):
@@ -159,9 +166,11 @@ def evaluate_observations(root, cohort, stale):
                      for row in rows], cohort.analysis)
         for dimension, attribute in (("task_outcome", "task_success"),
                                      ("final_response_consistency", "final_consistent")):
-            observed = [(getattr(pair.local, attribute), getattr(pair.muse, attribute))
+            observed = [(getattr(pair.local, attribute), getattr(observed_side(pair), attribute))
                         for row, pair in pairs if row.split == split
-                        and getattr(pair.local, attribute) is not None and getattr(pair.muse, attribute) is not None]
+                        and (pair.schema_version != 3 or pair.comparable)
+                        and getattr(pair.local, attribute) is not None
+                        and getattr(observed_side(pair), attribute) is not None]
             dimensions[dimension].update(
                 false_local_passes=sum(a and not b for a, b in observed),
                 false_local_failures=sum(not a and b for a, b in observed))
@@ -169,8 +178,9 @@ def evaluate_observations(root, cohort, stale):
                         "independent_scenarios": len({row["scenario_id"] for row in rows}),
                         "dimensions": dimensions}
     covered = all(groups["held-out"]["dimensions"][name]["compared_pairs"] for name in cohort.primary_dimensions)
-    return {"schema_version": 2,
+    return {"schema_version": cohort.schema_version,
         "label": "Synthetic calibration analysis" if cohort.evidence_kind == "synthetic"
+                 else "Observed; operator-supplied structured evidence" if cohort.schema_version == 3
                  else "Muse observed; operator-supplied structured evidence",
         "evidence_kind": cohort.evidence_kind, "cohort": cohort.cohort,
         "source_sha256": digest(cohort.model_dump()), "stale": bool(stale),
@@ -178,7 +188,7 @@ def evaluate_observations(root, cohort, stale):
         "surface_revision": cohort.surface_revision, "profile_sha256": cohort.profile_sha256,
         "primary_dimensions": cohort.primary_dimensions, "groups": groups, "comparisons": comparisons,
         "primary_heldout_coverage": bool(covered),
-        "usable_for_comparison": bool(covered) and not stale and cohort.evidence_kind == "muse-observed",
+        "usable_for_comparison": bool(covered) and not stale and cohort.evidence_kind in ("muse-observed", "observed"),
         "annotation_basis": "Operator-normalized observations and operator-applied consistency rubric",
         "consistency_rubric_sha256": digest(cohort.consistency_rubric),
         "analysis": provenance(cohort.analysis) if cohort.analysis is not None else None,

@@ -12,6 +12,12 @@ class Unsupported(LabError):
         super().__init__(message, code=3, category="unsupported")
 
 
+class DispatchVeto(LabError):
+    """A refused call the agent can observe without terminating the trial."""
+    def __init__(self, message):
+        super().__init__(message, code=3, category="policy/approval")
+
+
 class LimitExhausted(LabError):
     """The agent used its turn, tool-call or time budget without finishing: a failed trial."""
 

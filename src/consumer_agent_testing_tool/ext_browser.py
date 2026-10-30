@@ -39,6 +39,7 @@ from urllib.parse import urlsplit
 from inspect_ai.tool import ToolDef, ToolError, ToolParams
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
+from .behavior_sessions import SessionLease, SessionPolicy
 from .browser import BrowserBroker, BrowserPolicy, mask
 from .browser_agent import (
     BrowserActionRefused,
@@ -335,6 +336,7 @@ class BrowserConfig(Strict):
     checkout: CheckoutConfig = Field(default_factory=CheckoutConfig)
     credentials: dict[str, CredentialConfig] = Field(default_factory=dict)
     takeover: TakeoverConfig = Field(default_factory=TakeoverConfig)
+    session: SessionPolicy = Field(default_factory=SessionPolicy)
     barriers: dict[Literal["captcha", "waf-block", "account-locked"], list[str]] = Field(default_factory=dict)
 
     @model_validator(mode="after")
@@ -516,6 +518,14 @@ class TaskBroker(BrowserBroker):
         self.driver, self.model_lock = "agent", run.run_lock["model"]  # The run's own model (run_model).
         self.text, self.generation, self.page = "", None, {}
         self.grant, self.notices, self.acting = None, [], None
+
+    def host_options(self):
+        lease = self.extension.session
+        if lease is None:
+            return {}
+        state = lease.restore(self.run.path.name, self.extension.config.session.principal,
+                              self.policy.origins)
+        return {"task_private_storage": True, **({"task_storage_state": state} if state else {})}
 
     def model_view(self, value):
         # With the run's current host secrets: an extension may register one after the task started (a
@@ -716,9 +726,16 @@ class BrowserExtension(BaseExtension):
         self.without_terms = {}   # approved checkout card id -> the CHECKOUT_TERMS it did not show
         self.key = os.urandom(32)  # Keys the request digests evidence records (keyed()); never recorded.
         self.instructions = TASK_INSTRUCTIONS + (" " + FILL_INSTRUCTIONS if config.credentials else "")
+        self.session = None
 
     # Setup (called while the run builds its projection) ---------------------------------------------
     def prepare(self, run):
+        if self.config.session.mode == "conversation":
+            self.session = SessionLease(run.path.name, self.config.session.principal,
+                                        self.config.allowed_origins, self.config.session.lifetime_seconds)
+            self.event(run, "browser.session_policy", {"mode": "conversation",
+                                                       "lifetime_seconds": self.config.session.lifetime_seconds},
+                       provenance="explicit browser storage treatment; no authority or memory is restored")
         environ, provided = self.services.environ, provided_private(run.scenario.extensions)
         for name, spec in self.config.credentials.items():
             where = f"extensions.browser.credentials.{name}"
@@ -846,6 +863,8 @@ class BrowserExtension(BaseExtension):
                             f"({', '.join(self.policy.origins)}); nothing was opened.")
         if len(self.tasks) >= self.config.max_tasks:
             raise ToolError(f"This conversation already used its {self.config.max_tasks} browser tasks.")
+        if self.session is not None and any(not task.closed for task in self.tasks.values()):
+            raise ToolError("Close the previous browser task before continuing its session.")
         task = BrowserTask(id=f"browser-{len(self.tasks) + 1}", brief=brief, url=url)
         self.tasks[task.id] = task
         secrets = list(run.redactor.secrets)  # Credentials are registered with the run: env ones at setup.
@@ -1056,10 +1075,12 @@ class BrowserExtension(BaseExtension):
         request = {"url": arguments.get("url"), "method": arguments.get("method"), "rule": rule.id,
                    "body_digest": self.keyed(body)}
         if commits == "session":
+            self.behavior_dispatch(run, rule, request)
             broker.record("network_authorized", {"rule": rule.id, "commits": "session"})
             self.event(run, "browser.request_allowed", {"browser_task": task.id, **request, "commits": "session"})
             return {"authorized": True}
         if broker.grant and broker.grant["remaining"]:
+            self.behavior_dispatch(run, rule, request)
             broker.grant["remaining"] -= 1
             task.commits.append({"tool": broker.grant["tool"], "card_id": broker.grant["card_id"], "rule": rule.id,
                                  "via": "action card"})
@@ -1090,6 +1111,7 @@ class BrowserExtension(BaseExtension):
         if not allowed:
             broker.notices.append(TASK_DECLINED.get(kind, DECLINED).replace("submitted", "sent"))
             raise LabError("The user did not approve this submission", category="policy/approval")
+        self.behavior_dispatch(run, rule, request)
         via = {"grant": "task grant", "site-grant": "site grant"}.get(kind, "request card")
         task.commits.append({"tool": tool, "card_id": card_id, "rule": rule.id, "via": via})
         broker.record("network_authorized", {"rule": rule.id, "card_id": card_id})
@@ -1099,6 +1121,11 @@ class BrowserExtension(BaseExtension):
                                                         "site-grant": "an earlier Allow for this site"}.get(
                                                     kind, "its own card")})
         return {"authorized": True}
+
+    def behavior_dispatch(self, run, rule, request):
+        for extension in getattr(run, "extensions", []):
+            if gate := getattr(extension, "browser_dispatch", None):
+                gate(run, rule.origin, rule.id, request)
 
     def dispatched(self, run, rule, tool):
         """Report a commitment before it leaves (run.record_dispatch), as the host records its own dispatches:
@@ -1162,7 +1189,15 @@ class BrowserExtension(BaseExtension):
         task.closed, task.ended = True, task.status
         broker, failure = task.broker, None
         try:
-            await broker.close()
+            if self.session is not None:
+                try:
+                    self.session.save(await broker.host.request("browse_task_storage_state", {}))
+                    self.event(run, "browser.session_saved", {"browser_task": task.id,
+                                                              "outcome": self.session.last_outcome})
+                finally:
+                    await broker.close()
+            else:
+                await broker.close()
         except Exception as error:  # noqa: BLE001 — record; the run reports it as a failed check
             failure = f"Host cleanup failed for {task.id}: {type(error).__name__}: {error}"
             broker.record("cleanup_failure", {"detail": failure})

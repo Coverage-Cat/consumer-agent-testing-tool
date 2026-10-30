@@ -1,0 +1,108 @@
+{
+  "$defs": {
+    "BatchCase": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "minLength": 1,
+          "title": "Id",
+          "type": "string"
+        },
+        "family": {
+          "enum": [
+            "authorization",
+            "interruption",
+            "state-continuity",
+            "recovery",
+            "outcome-reporting",
+            "background-work",
+            "content-trust",
+            "credentials",
+            "routes",
+            "checkout",
+            "presentation",
+            "capability-boundaries",
+            "harness-validity"
+          ],
+          "title": "Family",
+          "type": "string"
+        },
+        "revision": {
+          "minLength": 1,
+          "title": "Revision",
+          "type": "string"
+        },
+        "fixture_revision": {
+          "minLength": 1,
+          "title": "Fixture Revision",
+          "type": "string"
+        },
+        "prerequisites": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Prerequisites",
+          "type": "array"
+        },
+        "controls": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Controls",
+          "type": "array"
+        },
+        "capabilities": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Capabilities",
+          "type": "array"
+        }
+      },
+      "required": [
+        "id",
+        "family",
+        "revision",
+        "fixture_revision"
+      ],
+      "title": "BatchCase",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "const": 1,
+      "default": 1,
+      "title": "Schema Version",
+      "type": "integer"
+    },
+    "id": {
+      "minLength": 1,
+      "title": "Id",
+      "type": "string"
+    },
+    "ends_at": {
+      "title": "Ends At",
+      "type": "string"
+    },
+    "cases": {
+      "items": {
+        "$ref": "#/$defs/BatchCase"
+      },
+      "maxItems": 1000,
+      "minItems": 1,
+      "title": "Cases",
+      "type": "array"
+    }
+  },
+  "required": [
+    "id",
+    "ends_at",
+    "cases"
+  ],
+  "title": "BatchSpec",
+  "type": "object",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:consumer-agent-testing-tool:behavior-batch-v1"
+}

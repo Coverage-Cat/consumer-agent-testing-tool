@@ -123,6 +123,9 @@
         "pattern": "^[a-z][a-z0-9_-]{0,39}$"
       },
       "properties": {
+        "behavior": {
+          "$ref": "#/$defs/BehaviorConfig"
+        },
         "browser": {
           "$ref": "#/$defs/BrowserConfig"
         },
@@ -184,6 +187,14 @@
             "$ref": "#/$defs/RelayFactSpec"
           },
           "title": "Relay",
+          "type": "array"
+        },
+        "annotations": {
+          "items": {
+            "$ref": "#/$defs/ClaimAnnotationSpec"
+          },
+          "maxItems": 200,
+          "title": "Annotations",
           "type": "array"
         }
       },
@@ -276,6 +287,36 @@
         }
       },
       "title": "Approvals",
+      "type": "object"
+    },
+    "BehaviorConfig": {
+      "additionalProperties": false,
+      "properties": {
+        "principal": {
+          "minLength": 1,
+          "title": "Principal",
+          "type": "string"
+        },
+        "dispatch_guard": {
+          "default": true,
+          "title": "Dispatch Guard",
+          "type": "boolean"
+        },
+        "scopes": {
+          "additionalProperties": {
+            "items": {
+              "$ref": "#/$defs/ScopeRoute"
+            },
+            "type": "array"
+          },
+          "title": "Scopes",
+          "type": "object"
+        }
+      },
+      "required": [
+        "principal"
+      ],
+      "title": "BehaviorConfig",
       "type": "object"
     },
     "Billing": {
@@ -371,6 +412,9 @@
         },
         "takeover": {
           "$ref": "#/$defs/TakeoverConfig"
+        },
+        "session": {
+          "$ref": "#/$defs/SessionPolicy"
         },
         "barriers": {
           "additionalProperties": {
@@ -517,6 +561,81 @@
       "title": "CheckoutConfig",
       "type": "object"
     },
+    "ClaimAnnotationSpec": {
+      "additionalProperties": false,
+      "properties": {
+        "text": {
+          "maxLength": 10000,
+          "minLength": 1,
+          "title": "Text",
+          "type": "string"
+        },
+        "phase": {
+          "default": "final",
+          "enum": [
+            "final",
+            "intermediate",
+            "quoted",
+            "unknown"
+          ],
+          "title": "Phase",
+          "type": "string"
+        },
+        "task_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Task Id"
+        },
+        "action_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Action Id"
+        },
+        "object_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Object Id"
+        },
+        "at": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "At"
+        }
+      },
+      "required": [
+        "text"
+      ],
+      "title": "ClaimAnnotationSpec",
+      "type": "object"
+    },
     "ClaimRuleSpec": {
       "additionalProperties": false,
       "properties": {
@@ -536,6 +655,54 @@
         "true_when": {
           "title": "True When",
           "type": "string"
+        },
+        "task_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Task Id"
+        },
+        "action_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Action Id"
+        },
+        "object_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Object Id"
+        },
+        "at": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "At"
         }
       },
       "required": [
@@ -2792,6 +2959,63 @@
         "jobs"
       ],
       "title": "SchedulerConfig",
+      "type": "object"
+    },
+    "ScopeRoute": {
+      "additionalProperties": false,
+      "properties": {
+        "service": {
+          "minLength": 1,
+          "title": "Service",
+          "type": "string"
+        },
+        "action": {
+          "minLength": 1,
+          "title": "Action",
+          "type": "string"
+        }
+      },
+      "required": [
+        "service",
+        "action"
+      ],
+      "title": "ScopeRoute",
+      "type": "object"
+    },
+    "SessionPolicy": {
+      "additionalProperties": false,
+      "properties": {
+        "mode": {
+          "default": "task",
+          "enum": [
+            "task",
+            "conversation"
+          ],
+          "title": "Mode",
+          "type": "string"
+        },
+        "principal": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Principal"
+        },
+        "lifetime_seconds": {
+          "default": 1800,
+          "maximum": 86400,
+          "minimum": 1,
+          "title": "Lifetime Seconds",
+          "type": "integer"
+        }
+      },
+      "title": "SessionPolicy",
       "type": "object"
     },
     "Signal": {

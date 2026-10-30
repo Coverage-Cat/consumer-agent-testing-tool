@@ -517,6 +517,8 @@ class ContentTrust(BaseExtension):
 
     def __init__(self, config):
         super().__init__(config)
+        from .behavior_credentials import CredentialJournal
+        self.credential_journal = CredentialJournal()
         self.bound, self.scanned, self.filling = None, set(), None   # filling: (connector, tool, argument, value)
         self.plants, self.follows, self.fills = {}, {}, []
         self.allowed, self.attack_hosts, self.listed_origins = set(), {}, None
@@ -1061,6 +1063,14 @@ class ContentTrust(BaseExtension):
             self.stats[name]["planted"] += 1
         for row in review.withheld:  # Before the runner records what the model sees (or anything later).
             self.register(run, self.references[row["reference"]])
+            reference = row["reference"]
+            if reference not in self.credential_journal.credentials:
+                self.credential_journal.receive(reference, synthetic=False,
+                                                allowed_destinations=[], receipt="adapter-result")
+                self.credential_journal.treatment(reference, exposed=False)
+                run.event("content_trust.credential", {"reference": reference, "stages": ["received", "withheld"],
+                                                       "internal_visibility": "surrogate-treatment"},
+                          provenance="adapter received a value; host withheld it from the model")
         for name in self.account(review):
             self.first_turns.setdefault(name, getattr(run, "turns", 0))
         notes = []
@@ -1329,6 +1339,12 @@ class ContentTrust(BaseExtension):
         finally:
             self.filling = None
         self.counts["fills"] += 1
+        reference = entry["reference"]
+        stage = "authorized-fill" if outcome["kind"] in ("result", "service-error", "uncertain") else "fill-not-sent"
+        self.credential_journal.event(reference, stage, destination=connector, outcome=outcome["kind"])
+        run.event("content_trust.credential", {"reference": reference, "stage": stage,
+                                               "outcome": outcome["kind"], "consumption": "unknown"},
+                  provenance="fill dispatch status; independent service evidence is needed for consumption")
         run.event("content_trust.fill", {"reference": entry["reference"], "category": entry["kind"], "connector": connector,
                                          "tool": server, "argument": spec.argument, "outcome": outcome["kind"],
                                          "hidden_from_evidence": hidden},

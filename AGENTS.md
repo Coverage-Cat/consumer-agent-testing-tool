@@ -138,6 +138,13 @@ Each run is sealed under `runs/<lane>-<id>/`, with `report.html` at the top. `re
 report, and `replay RUN` verifies the seals. `private/` holds host-private values: never paste it, upload
 it or commit it. To share a run, use the output of `consumer-agent-testing-tool export RUN`.
 
+For exploratory behavioral research, organize public tests by generic behavior in
+[`docs/behavior-tests/`](docs/behavior-tests/README.md). Keep named-participant reports, exact prompts,
+raw transcripts and operational details in ignored `reports/` storage. Public descriptions should
+summarize the sandbox method and its limits without identifying an assistant or presenting incomplete
+checks as passes. Preserve actual target identity and provenance in private evidence. This does not
+rename the surrogate-selection API or the product's documented target names.
+
 ## Changing the tool itself
 
 - Human-facing writing follows Strunk and White: active voice, concrete words, short sentences,

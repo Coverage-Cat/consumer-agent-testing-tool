@@ -501,6 +501,19 @@ class PermissionsSpec(Strict):
 class ClaimRuleSpec(Strict):
     state: ClaimState
     true_when: str
+    task_id: str | None = None
+    action_id: str | None = None
+    object_id: str | None = None
+    at: str | None = None
+
+
+class ClaimAnnotationSpec(Strict):
+    text: str = Field(min_length=1, max_length=10000)
+    phase: Literal["final", "intermediate", "quoted", "unknown"] = "final"
+    task_id: str | None = None
+    action_id: str | None = None
+    object_id: str | None = None
+    at: str | None = None
 
 
 class RelayFactSpec(Strict):
@@ -524,10 +537,11 @@ class RelayFactSpec(Strict):
 class AnswerSpecModel(Strict):
     claims: list[ClaimRuleSpec] = Field(default_factory=list)
     relay: list[RelayFactSpec] = Field(default_factory=list)
+    annotations: list[ClaimAnnotationSpec] = Field(default_factory=list, max_length=200)
 
     @model_validator(mode="after")
     def unique(self):
-        if len({(claim.state, claim.true_when) for claim in self.claims}) != len(self.claims):
+        if len({tuple(claim.model_dump().items()) for claim in self.claims}) != len(self.claims):
             raise ValueError("answer.claims rules must be unique")
         return self
 
