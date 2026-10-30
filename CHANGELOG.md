@@ -21,6 +21,8 @@
   capabilities test local surrogates; they do not certify a hosted assistant.
 - Keep host OS and Python patch versions in release verification evidence so
   identical dependency notices do not change between the laptop and release runner.
+- Patch supported dependencies: OpenTelemetry API 1.45.1, undici 8.12.3/7.30.1,
+  and ip-address 10.7.5 address the reported parsing and denial-of-service advisories.
 
 ## 0.2.1 - 2026-10-22
 
