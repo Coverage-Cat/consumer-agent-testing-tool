@@ -10,6 +10,7 @@
 # {idle: true} steps (scheduled-confirmation.calls.yaml shows them).
 version: 1
 kind: connector
+emulation_target: muse
 id: scheduled-status-watch
 goal: "Book me the Garden Queen for two adults from 2026-12-04 to 2026-12-06 if the total is at most $500, then keep an eye on the booking this morning and tell me if anything about it changes."
 connectors:

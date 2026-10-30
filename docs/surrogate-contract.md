@@ -1,7 +1,8 @@
 # Supported surrogate targets
 
 Muse and Instinct are supported targets of the same connector testing contract,
-`connector-surrogate-v1`. Muse remains the default. Support means that CATT's
+`connector-surrogate-v1`. Neither is the default; scenarios and shared readiness
+checks require an explicit target. Support means that CATT's
 implementation is tested and packaged for both targets. Neither target is
 calibrated against its hosted assistant, and no result certifies compatibility
 or admission.
@@ -20,13 +21,19 @@ The Python API is
 It returns an independent JSON-compatible object with `version`, `id`,
 `emulation_target`, `status`, `fidelity`, `shared`, `additional_treatments`,
 `exploratory_extensions` and `limits`. `targets --json` wraps both objects in
-`{"schema_version": 1, "targets": [...]}`. Every connector run seals its contract
+`{"schema_version": 1, "default_target": null, "targets": [...]}`. Every connector run seals its contract
 in `run_lock.surrogate_contract`. Changing a target remains a recorded treatment
 in replay, diff, JUnit and CI summaries.
 
 The inference model is a separate choice. Scripted trials, capability listing
 and surrogate readiness call no model provider. Agent trials require a model
 profile and authorization for paid inference.
+
+Starting with 0.3.0, new scenarios must declare `emulation_target`. To run an
+older unlabeled scenario, add the field or supply the target on the command line.
+Catalog scaffolding and shared readiness also require `--emulation-target`.
+Scaffolding from a sealed run retains its recorded target; historical evidence
+and published scenario digests keep their original interpretation.
 
 | Treatment | Muse | Instinct |
 | --- | --- | --- |
@@ -47,8 +54,8 @@ profile and authorization for paid inference.
 service's command namespace. Script references use `/results/N/stdout/...`;
 native references use `/results/N/result/...`.
 
-Existing Muse scenarios, omitted target values and the `muse-cli` flag retain
-their meaning. Switching a scenario that explicitly selects the unofficial
+Historical Muse evidence, including records with omitted target values, and the
+`muse-cli` flag retain their meaning. Switching a scenario that explicitly selects the unofficial
 Muse client to Instinct also requires `--client-profile generic-sdk`.
 
 Both targets accept registered developer extensions through `LaneExtension`,

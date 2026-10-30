@@ -2,6 +2,10 @@
 
 **Version 0.3 • Revised 1 October 2026 • Scope and verification review incorporated**
 
+This is a historical design document. Its Muse-first positioning and defaults
+are superseded by the [shared surrogate contract](surrogate-contract.md):
+Muse and Instinct have equal standing, with explicit target selection.
+
 Build a developer workbench that runs locally and shows how a service is exposed to an agent, exercises realistic workflows, and explains failures with inspectable evidence. Developers can supply an existing inference-provider key instead of hosting a model. Preserve a fully offline, account-free option. Compose existing agent, evaluation, protocol, browser, and API tooling; own the integration profiles, observations, scenarios, and comparison reports.
 
 **Recommended implementation:** Inspect AI as the execution and evaluation foundation, with first-class local and remote inference profiles; Muse Glimmer as the offline model baseline; a restricted Playwright MCP browser; the official MCP SDK, Inspector, and Conformance tools; FastMCP for explicitly labeled adapters; Spectral, Prism, and Schemathesis for APIs. A Bedrock or other supported provider key must be sufficient for the model step without downloading weights or provisioning a cloud agent. Reuse Inspect’s and Playwright’s viewers.

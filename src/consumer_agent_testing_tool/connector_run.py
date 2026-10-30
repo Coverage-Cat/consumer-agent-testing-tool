@@ -3946,9 +3946,12 @@ async def _run_from_cli(args, root, outputs) -> int:
         from .service_start import free_port
         port = free_port()
         variables.setdefault("PORT", str(port))  # The scenario's ${PORT}, unless --set PORT=... chose one.
-    loaded = load_scenario(within(root, args.scenario, "The scenario"), variables=variables)
-    outputs.scenario_id = loaded.scenario.id
     chosen_target = getattr(args, "emulation_target", None)
+    # With an explicit CLI choice, decode an unlabeled file as the legacy source first.
+    # Apply the chosen target and projection/client overrides together below, before any work.
+    loaded = load_scenario(within(root, args.scenario, "The scenario"), variables=variables,
+                           target_if_missing="muse" if chosen_target is not None else None)
+    outputs.scenario_id = loaded.scenario.id
     outputs.treatment = {"projection": args.projection, "exposure": args.exposure,
                          "client_profile": args.client_profile, "output_schema": getattr(args, "output_schema", None),
                          "emulation_target": chosen_target or loaded.scenario.emulation_target}
@@ -4052,7 +4055,7 @@ def pass_line(values) -> str:
     return ", ".join(f"pass^{k} {value:.2f}" for k, value in values.items()) if values else "pass^k n/a"
 
 
-async def _agent_driver(args, root, *, emulation_target="muse"):
+async def _agent_driver(args, root, *, emulation_target):
     from .cli import report_outcome, statuses, warn_unqualified
     from .config import read_config
     from .evidence import Evidence, run_lock
@@ -4147,8 +4150,8 @@ async def scaffold_from_cli(args, services=None) -> int:
     if output.exists():
         raise LabError(f"{args.output} already exists; scaffold never overwrites a scenario")
     profile_name = args.client_profile or "generic-sdk"
-    emulation_target = getattr(args, "emulation_target", None) or "muse"
-    target_profile(emulation_target)
+    from .emulation import require_target
+    emulation_target = require_target(getattr(args, "emulation_target", None))
     if emulation_target == "instinct":
         try:
             validate_instinct("native", [profile_name], {})
@@ -4275,7 +4278,9 @@ async def guidelines_from_cli(args, services=None) -> int:
     Muse template is opt-in, and its refusals are that profile's limits (exit 3)."""
     from .gadget import ignored_options
     suite = args.suite
-    emulation_target = getattr(args, "emulation_target", None) or "muse"
+    from .emulation import require_target
+    chosen_target = getattr(args, "emulation_target", None)
+    emulation_target = "muse" if suite == "muse-guidelines" and chosen_target is None else require_target(chosen_target)
     projection = getattr(args, "projection", None) or "native"
     profile_name = args.client_profile or "generic-sdk"
     if suite == "muse-guidelines" and (emulation_target != "muse" or getattr(args, "projection", None)):

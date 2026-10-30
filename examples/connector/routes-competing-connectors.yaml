@@ -17,6 +17,7 @@
 # The scripted smoke run (no model): add --driver scripted --script examples/connector/routes-competing-connectors.calls.yaml
 version: 1
 kind: connector
+emulation_target: muse
 id: routes-competing-connectors
 goal: "Book me a room at Cedar Stays for two adults from 2026-12-04 to 2026-12-06 if the total is at most $500."
 connectors:

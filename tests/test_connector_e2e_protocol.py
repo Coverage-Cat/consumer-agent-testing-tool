@@ -75,7 +75,7 @@ async def test_a_domain_session_error_is_not_an_mcp_session_incompatibility(tmp_
 
     with FakeMcp(pages=[["domain_session"]]) as fake:
         origin = fake.base
-        scenario = {"version": 1, "kind": "connector", "id": "yoga", "goal": "Book me into the morning class.",
+        scenario = {"version": 1, "kind": "connector", "emulation_target": "muse", "id": "yoga", "goal": "Book me into the morning class.",
                     "connectors": [{"name": "lotus-yoga", "endpoint": fake.url, "allowed_origins": [origin],
                                     "client_profile": TEMPLATE, "tools": {"allow": ["domain_session"]}}],
                     "permissions": {"rules": [{"id": "reads", "decision": "allow_once",
@@ -99,7 +99,7 @@ async def test_a_stateless_server_s_http_400_session_error_is_not_an_mcp_session
     # A stateless server (no Mcp-Session-Id, ever) answers a full yoga session with HTTP 400 and a JSON-RPC
     # error, as some web frameworks do: the template never sent a session, so this is no protocol evidence.
     with FakeMcp(pages=[["list_sessions", "domain_session_400"]], session=False) as fake:
-        scenario = {"version": 1, "kind": "connector", "id": "yoga", "goal": "Book me into the morning class.",
+        scenario = {"version": 1, "kind": "connector", "emulation_target": "muse", "id": "yoga", "goal": "Book me into the morning class.",
                     "connectors": [{"name": "lotus-yoga", "endpoint": fake.url, "allowed_origins": [fake.base],
                                     "client_profile": profile,
                                     "tools": {"allow": ["list_sessions", "domain_session_400"],
@@ -146,7 +146,7 @@ async def test_a_server_request_the_template_never_answers_is_a_compatibility_pr
     from consumer_agent_testing_tool.connector_run import Services
     from consumer_agent_testing_tool.mcp_clients import PROFILES
     with FakeMcp(pages=[["elicit"]], delay=2.0) as fake:
-        scenario = {"version": 1, "kind": "connector", "id": "notes", "goal": "Send my note to Sam.",
+        scenario = {"version": 1, "kind": "connector", "emulation_target": "muse", "id": "notes", "goal": "Send my note to Sam.",
                     "connectors": [{"name": "notes", "endpoint": fake.url, "allowed_origins": [fake.base],
                                     "client_profile": TEMPLATE,
                                     "tools": {"allow": ["elicit"], "classes": {"elicit": "write"}}}],

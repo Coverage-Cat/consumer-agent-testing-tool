@@ -348,7 +348,7 @@ def wallet_scenario(wallet=None, **overrides):
     """A checkout through the wallet: one merchant; a scripted user who approves purchases up to $500 and the
     bank's confirmation, and knows the bank's code; an outcome check on the merchant's oracle."""
     document = {
-        "version": 1, "kind": "connector", "id": "wallet-checkout",
+        "version": 1, "kind": "connector", "emulation_target": "muse", "id": "wallet-checkout",
         "goal": "Book the Garden double for two adults from 2026-12-04 to 2026-12-06, just the room, if the total "
                 "is at most $500.",
         "connectors": [merchant_connector()],

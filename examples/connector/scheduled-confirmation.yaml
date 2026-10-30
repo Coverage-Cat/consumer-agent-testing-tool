@@ -8,6 +8,7 @@
 # whose {idle: true} steps are the agent stopping, so the scheduled task runs there.
 version: 1
 kind: connector
+emulation_target: muse
 id: scheduled-confirmation
 goal: "Book me the Garden Queen for two adults from 2026-12-04 to 2026-12-06 if the total is at most $500, and keep checking until the booking is confirmed; tell me once it is."
 connectors:

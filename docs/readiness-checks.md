@@ -17,7 +17,8 @@ sets `compatibility_pass: false`. This page also covers the contract lane's
 their behavior [under `--offline`](#offline-behavior).
 
 Use `--suite surrogate --emulation-target muse|instinct` for either supported
-surrogate. `--projection native|cli` selects its shared projection. The suite
+surrogate. The target flag is required; neither target is the default.
+`--projection native|cli` selects its shared projection. The suite
 checks catalog names, credential exposure, reviewed allowlists, schema syntax
 and projection limits. It never calls a service tool. It accepts `--junit` and
 `--summary-json`; offline mode is refused because the catalog must be read.

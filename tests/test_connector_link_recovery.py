@@ -67,7 +67,8 @@ async def test_scaffold_auth_from_recovers_from_a_forgotten_client_too(workspace
     source = workspace / "oauth.json"
     source.write_text(json.dumps(scenario()).replace("${PORT}", str(port)).replace("${PORT:-8765}", str(port)))
     async with fixture(auth="oauth", users=USERS, port=port) as running:
-        code = await execute(parser().parse_args(["scaffold", f"http://127.0.0.1:{port}/mcp", "--auth-from",
+        code = await execute(parser().parse_args(["scaffold", f"http://127.0.0.1:{port}/mcp",
+                                                  "--emulation-target", "muse", "--auth-from",
                                                   str(source), "--output", str(workspace / "scaffolded.yaml")]))
         registered = registrations(running)
     assert code == 0 and (workspace / "scaffolded.yaml").is_file()

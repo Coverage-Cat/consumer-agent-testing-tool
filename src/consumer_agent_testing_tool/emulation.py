@@ -35,6 +35,15 @@ PROFILES = {
 INSTINCT_FIRST_LINE = "Help your user carry out their requests with care and clear communication."
 
 
+def require_target(target):
+    """Shared entry points never infer an assistant from omitted configuration."""
+    if target is None:
+        raise LabError("Select --emulation-target muse or instinct, or set emulation_target in the scenario; "
+                       "there is no default assistant target")
+    target_profile(target)
+    return target
+
+
 def target_profile(target: str) -> dict:
     try:
         return copy.deepcopy(PROFILES[target])

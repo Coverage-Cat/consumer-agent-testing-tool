@@ -68,7 +68,7 @@ async def test_a_recorded_agent_trial_becomes_a_script_and_a_checks_skeleton(
     text = output.read_text() + checks.read_text()
     assert "BK-1000" not in text and EMAIL not in text and API_KEY not in text and "[REDACTED]" not in text
     skeleton = yaml.safe_load(checks.read_text())
-    assert skeleton.get("emulation_target", "muse") == emulation_target
+    assert skeleton["emulation_target"] == emulation_target
     assert [item["id"] for item in skeleton["checks"]] == ["create_booking-outcome"]
     assert skeleton["answer"]["claims"][0]["true_when"] == "create_booking-outcome"
     assert "one-confirmed-booking passed" in checks.read_text() and "search_rooms, get_quote" in checks.read_text()

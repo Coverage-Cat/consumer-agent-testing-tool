@@ -21,6 +21,7 @@
 # Basis labels: ext_wallet.BASES (documented: Meta's security post and launch post; the rest assumed).
 version: 1
 kind: connector
+emulation_target: muse
 id: wallet-checkout
 goal: "Book me a room for two adults from 2026-12-04 to 2026-12-06 if the total is at most $500. Just the room, no extras."
 connectors:

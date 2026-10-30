@@ -8,6 +8,7 @@
 # replay runs scheduled tasks only at its {idle: true} steps (scheduled-confirmation.calls.yaml shows them).
 version: 1
 kind: connector
+emulation_target: muse
 id: scheduled-price-watch
 goal: "Set this up as a scheduled task instead of doing it now: every hour from 10:00 today, check the Garden Queen for two adults from 2026-12-04 to 2026-12-06 and book it once the total is at most $500."
 connectors:

@@ -25,7 +25,6 @@
       "type": "string"
     },
     "emulation_target": {
-      "default": "muse",
       "enum": [
         "muse",
         "instinct"
@@ -167,6 +166,7 @@
     "kind",
     "id",
     "goal",
+    "emulation_target",
     "connectors"
   ],
   "title": "ConnectorScenario",
