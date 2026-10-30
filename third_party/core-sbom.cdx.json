@@ -6,7 +6,7 @@
     "component": {
       "type": "application",
       "name": "consumer-agent-testing-tool-core-installation",
-      "version": "0.2.1"
+      "version": "0.3.0"
     },
     "properties": [
       {
@@ -14,16 +14,12 @@
         "value": "Fresh core dependency installation; optional tooling and runtimes inventoried separately"
       },
       {
-        "name": "consumer-agent-testing-tool:platform",
-        "value": "macOS-15.7.9-arm64-arm-64bit-Mach-O"
-      },
-      {
-        "name": "consumer-agent-testing-tool:python",
-        "value": "3.14.7"
+        "name": "consumer-agent-testing-tool:environment_evidence",
+        "value": "Release verification.json: tool_versions"
       },
       {
         "name": "consumer-agent-testing-tool:dependency_lock_sha256",
-        "value": "bec2ff7e5a77f727d90f1ae1e6217d257d57236af3e4ad76fb372c11779cb9ad"
+        "value": "94785fab083c5149c529f89253499cd18f46576839d5f51ff9b574c54577fd83"
       }
     ]
   },
