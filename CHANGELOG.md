@@ -2,6 +2,28 @@
 
 ## Unreleased
 
+## 0.3.0 - 2026-10-30
+
+- **Breaking:** Muse and Instinct have equal standing with no default target.
+  Connector scenarios must set `emulation_target`, or callers must pass
+  `--emulation-target muse` or `--emulation-target instinct`. Catalog scaffolding
+  and `check --suite surrogate` require the flag. Bundled examples name their
+  target, and historical evidence retains its original interpretation.
+- Add explicit-selection checks to the surrogate-parity release gate and expose
+  `default_target: null` in `targets --json`.
+- Add opt-in behavior capabilities: neutral observation contracts, action and
+  delivery journals, revocation checks, bounded browser sessions, clock and
+  availability records, synthetic credential fixtures, exposure controls and
+  scoped outcome claims.
+- Add a durable local sandbox runner and aggregate public summaries, with
+  architecture documentation and 13 generic behavior test families.
+- Retain distinct source provenance and target-specific treatments. These
+  capabilities test local surrogates; they do not certify a hosted assistant.
+- Keep host OS and Python patch versions in release verification evidence so
+  identical dependency notices do not change between the laptop and release runner.
+- Patch supported dependencies: OpenTelemetry API 1.45.1, undici 8.12.3/7.30.1,
+  and ip-address 10.7.5 address the reported parsing and denial-of-service advisories.
+
 ## 0.2.1 - 2026-10-22
 
 - Sort the bundled notice archive by member name so it matches release generation.

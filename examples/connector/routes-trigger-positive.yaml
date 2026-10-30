@@ -5,6 +5,7 @@
 # README.md, then: consumer-agent-testing-tool connector-run examples/connector/routes-trigger-positive.yaml
 version: 1
 kind: connector
+emulation_target: muse
 id: routes-trigger-positive
 goal: "Book me a room at Cedar Stays for two adults from 2026-12-04 to 2026-12-06 if the total is at most $500."
 connectors:

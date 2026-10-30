@@ -228,6 +228,15 @@ REQUIRED = {'replay-diff': {'test_backwards_wall_clock_cannot_produce_negative_e
 
 # Exact module, test and parameter identities: one passing target must never stand in for the other.
 REQUIRED["surrogate-parity"] = {
+    "tests.test_target_selection::test_scenario_has_no_default_emulation_target",
+    *(f"tests.test_target_selection::test_missing_target_stops_before_external_work[{command}]"
+      for command in ("connector-run", "scaffold", "surrogate")),
+    *(f"tests.test_target_selection::{name}[{target}]"
+      for target in ("muse", "instinct")
+      for name in ("test_explicit_loader_target_migrates_an_unlabeled_scenario",
+                   "test_explicit_cli_target_runs_an_unlabeled_scenario",
+                   "test_cli_migrates_legacy_target_and_projection_together",
+                   "test_scaffold_records_either_explicit_target")),
     "tests.test_surrogate_parity::test_both_targets_publish_the_same_supported_connector_contract",
     "tests.test_surrogate_parity::test_surrogate_cli_provenance_matches_its_treatment[muse-legacy-cli]",
     "tests.test_surrogate_readiness::test_surrogate_readiness_does_not_match_credentials_across_json_boundaries",

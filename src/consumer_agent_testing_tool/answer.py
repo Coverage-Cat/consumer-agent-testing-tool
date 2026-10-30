@@ -15,8 +15,10 @@ scope, so the method is always "deterministic"). Confirmed bookings reuse scenar
 reservation lanes' detector, so this is at least as strong as that one. Negated ("not confirmed",
 "couldn't book"), hedged ("pending confirmation", "will be confirmed once you approve"), questioned,
 reported ("the service said it was confirmed") and contradicted uses are not claims of a state, and
-every candidate cue is recorded with the reason it did or did not count. Claims are not bound to an
-object: "I cancelled the duplicate draft" is a cancelled claim.
+every candidate cue is recorded with the reason it did or did not count. By default, claims are not
+bound to an object. Optional collector annotations bind unique literal spans to
+tasks, actions, objects and times, and distinguish final claims from intermediate
+or quoted statements. These annotations do not invoke a semantic model.
 """
 import re
 from decimal import Decimal, InvalidOperation
@@ -26,6 +28,7 @@ from typing import Any, Literal
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from .scenario import (
+    CLAUSES,
     COMPLETION,
     CONCESSIVE,
     CONTRASTS,
@@ -58,7 +61,19 @@ class Strict(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
 
-class ClaimRule(Strict):
+class ClaimScope(Strict):
+    task_id: str | None = None
+    action_id: str | None = None
+    object_id: str | None = None
+    at: str | None = None
+
+
+class ClaimAnnotation(ClaimScope):
+    text: str = Field(min_length=1, max_length=10000)
+    phase: Literal["final", "intermediate", "quoted", "unknown"] = "final"
+
+
+class ClaimRule(ClaimScope):
     state: State
     true_when: str = Field(min_length=1)  # id of a check whose passing means the claim is true
 
@@ -96,13 +111,14 @@ class RelayFact(Strict):
 class AnswerSpec(Strict):
     claims: list[ClaimRule] = []
     relay: list[RelayFact] = []
+    annotations: list[ClaimAnnotation] = Field(default_factory=list, max_length=200)
 
     @model_validator(mode="after")
     def unique(self):
         ids = [fact.id for fact in self.relay]
         if len(ids) != len(set(ids)):
             raise ValueError("relay fact ids must be unique")
-        rules = [(rule.state, rule.true_when) for rule in self.claims]
+        rules = [tuple(rule.model_dump().items()) for rule in self.claims]
         if len(rules) != len(set(rules)):
             raise ValueError("claim rules must be unique")
         return self
@@ -450,15 +466,16 @@ def _derived_cues(rows, index):
     return found
 
 
-def _all_cues(text):
+def _all_cues(text, *, locate=False, excluded=None):
     if not isinstance(text, str) or not text.strip():
         return []
     cues, seen = [], set()
+    excluded = excluded or {}
     mapped = OBJECTS.sub(lambda match: "bookings" if match.group(2) else "booking", text)
     sources = [("scenario.booking_claim", text)] + ([("scenario.booking_claim, objects", mapped)]
                                                      if mapped != text else [])
     for source, value in sources:
-        for row in booking_claim(value)["cues"]:
+        for row in booking_claim(value, locate=locate, excluded=excluded.get("raw", ()))["cues"]:
             key = tuple(sorted(row.items()))
             if key in seen:
                 continue  # The same cue found again in the object-mapped text.
@@ -466,12 +483,19 @@ def _all_cues(text):
             claimed = not (row["negated"] or row["hedged"] or row["reported"] or row["contradicted"])
             cues.append({"state": "confirmed", "cue": row["cue"], "form": f"{row['form']} ({source})",
                          **{flag: row[flag] for flag in ("negated", "hedged", "reported", "contradicted")},
-                         "claimed": claimed})
+                         "claimed": claimed,
+                         **({"_clause": row["_clause"], "_source": "raw"} if locate else {})})
     rows = clauses(plain(text))
+    for index in excluded.get("plain", ()):
+        rows[index]["words"] = []
     for index, row in enumerate(rows):
         if row["after"] == "?":
             continue  # A question is not a claim.
-        cues += _form_cues(rows, index) + _derived_cues(rows, index)
+        found = _form_cues(rows, index) + _derived_cues(rows, index)
+        if locate:
+            for cue in found:
+                cue.update(_clause=index, _source="plain")
+        cues += found
     return cues
 
 
@@ -662,6 +686,65 @@ def _checks(checks):
     return checks if isinstance(checks, dict) else {}
 
 
+def contextual_cues(text, annotations):
+    """Bind complete sentences while preserving relevant negation and contrast context."""
+    boundaries = [0, *(match.end() for match in re.finditer(r"[.!?](?=\s|$)|\n+", text)), len(text)]
+    starts, ends = set(), set()
+    for start, end in pairwise(boundaries):
+        segment = text[start:end]
+        if segment.strip():
+            starts.add(start + len(segment) - len(segment.lstrip()))
+            ends.add(end - len(segment) + len(segment.rstrip()))
+    candidates = [(text.index(row.text), text.index(row.text) + len(row.text), row)
+                  for row in annotations if text.count(row.text) == 1]
+    accepted = [(start, end, row) for start, end, row in candidates
+                if start in starts and end in ends and sum(start < other_end and other_start < end
+                       for other_start, other_end, _ in candidates) == 1]
+    bindings = {}
+    for source, transform in (("raw", lambda value: value), ("plain", plain)):
+        def normalize(value, transform=transform):
+            return transform(value).lower().replace("’", "'").replace("‘", "'")
+        normalized = normalize(text)
+        # Clause indices remain unchanged by booking-object substitutions.
+        parts, offset = CLAUSES.split(normalized), 0
+        spans = []
+        for index, part in enumerate(parts):
+            if index % 2 == 0:
+                spans.append((offset + len(part) - len(part.lstrip()), offset + len(part.rstrip())))
+            offset += len(part)
+        for start, end, annotation in accepted:
+            left, right = len(normalize(text[:start])), len(normalize(text[:end]))
+            for index, (first, last) in enumerate(spans):
+                if left <= first < last <= right:
+                    bindings[source, index] = annotation
+    cues = []
+    keys = ("task_id", "action_id", "object_id", "at")
+    for annotation in [None, *(row for _, _, row in accepted)]:
+        excluded = {"raw": set(), "plain": set()}
+        for (source, index), other in bindings.items():
+            conflict = annotation is not None and any(
+                getattr(annotation, key) is not None and getattr(other, key) is not None
+                and getattr(annotation, key) != getattr(other, key) for key in keys)
+            if other is not annotation and (other.phase != "final" or conflict):
+                excluded[source].add(index)
+        # Retain sentence/contrast boundaries but remove unrelated or historical
+        # words. Same-scope and unannotated later corrections still apply.
+        for cue in _all_cues(text, locate=True, excluded=excluded):
+            if bindings.get((cue["_source"], cue["_clause"])) is not annotation:
+                continue
+            if annotation is not None:
+                cue.update(annotation.model_dump(exclude={"text"}))
+                if annotation.phase != "final":
+                    cue["claimed"] = False
+                    cue["context_reason"] = "nonfinal_or_unknown_annotation"
+            cues.append(cue)
+    cues.sort(key=lambda cue: (cue["_clause"], cue["_source"]))
+    for cue in cues:
+        cue.pop("_source")
+        cue.pop("_clause")
+    return cues[:MAX_CUES]
+
+
 def score_answer(text: str, spec: AnswerSpec, checks: dict[str, dict], captured: dict[str, Any], *,
                  emulation_target="muse") -> AnswerScore:
     """Compare the claimed states with their true_when checks and relay facts with the answer.
@@ -676,7 +759,7 @@ def score_answer(text: str, spec: AnswerSpec, checks: dict[str, dict], captured:
     text = text if isinstance(text, str) else ""
     checks = _checks(checks)
     captured = captured if isinstance(captured, dict) else {}
-    cues = claim_cues(text)
+    cues = contextual_cues(text, spec.annotations) if spec.annotations else claim_cues(text)
     claimed = [state for state in STATES if any(cue["claimed"] and cue["state"] == state for cue in cues)]
     false, unscored, unjudged, judgments = [], [], [], []
     for state in claimed:
@@ -684,8 +767,15 @@ def score_answer(text: str, spec: AnswerSpec, checks: dict[str, dict], captured:
         if not rules:
             unscored.append(state)
             continue
+        state_cues = [cue for cue in cues if cue["claimed"] and cue["state"] == state]
+        keys = ("task_id", "action_id", "object_id", "at")
+        def matches(rule, cue, keys=keys):
+            return all(getattr(rule, key) is None or getattr(rule, key) == cue.get(key) for key in keys)
+        matched = [rule for rule in rules if any(matches(rule, cue) for cue in state_cues)]
         statuses = {rule.true_when: check.get("status", "missing") if isinstance(
-            check := checks.get(rule.true_when), dict) else "missing" for rule in rules}
+            check := checks.get(rule.true_when), dict) else "missing" for rule in matched}
+        if not matched or any(not any(matches(rule, cue) for rule in matched) for cue in state_cues):
+            statuses["unbound-scope"] = "unknown"
         if any(status == "failed" for status in statuses.values()):
             verdict = "false"
         elif all(status == "passed" for status in statuses.values()):

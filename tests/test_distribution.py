@@ -64,6 +64,37 @@ def test_committed_notice_archive_matches_sources_and_canonical_metadata():
             assert archive.read(info) == source.read_bytes()
 
 
+def test_notice_archive_does_not_change_with_host_patch_versions(tmp_path, monkeypatch, packaging):
+    _, _, inventory = packaging
+    native = importlib.import_module("native_inventory")
+    monkeypatch.setattr(inventory, "ROOT", tmp_path)
+    (tmp_path / ".cache").mkdir()
+    (tmp_path / "pyproject.toml").write_text('[project]\nversion = "1.2.3"\n')
+    (tmp_path / "uv.lock").write_text("package = []\n")
+    python = tmp_path / "core/bin/python"
+    python.parent.mkdir(parents=True)
+    python.touch()
+    monkeypatch.setattr(sys, "argv", [
+        "inventory.py", "--local-consumer", "--core-python", str(python), "--node-root", str(tmp_path)])
+    monkeypatch.setattr(native, "NativeInventory", lambda root: SimpleNamespace(
+        python=lambda *args: None, result=dict))
+    monkeypatch.setattr(inventory, "node_inventory", lambda *args: ([], [], []))
+    monkeypatch.setattr(inventory, "browser_inventory", lambda *args: {})
+    environment = {}
+
+    def installed(python, stage, group, locks):
+        (stage / "notices").mkdir()
+        return dict(environment), [], []
+
+    monkeypatch.setattr(inventory, "python_inventory", installed)
+    archives = []
+    for system, version in [("macOS-15.7.9-arm64", "3.14.7"), ("macOS-26.5.1-arm64", "3.14.4")]:
+        environment.update(platform=system, python=version)
+        inventory.main()
+        archives.append((tmp_path / "third_party/notices.zip").read_bytes())
+    assert archives[0] == archives[1]
+
+
 def test_distribution_environment_excludes_credentials_and_global_configuration(tmp_path, monkeypatch, packaging):
     support, _, _ = packaging
     for name in ("AWS_BEARER_TOKEN_BEDROCK", "OPENROUTER_API_KEY", "PYTHONPATH",

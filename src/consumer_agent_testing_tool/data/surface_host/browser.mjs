@@ -216,6 +216,8 @@ export class RestrictedBrowser extends BrowserNetwork {
     }
     if (policy.scenario_storage_state && !policy.scenario_private_storage)
       throw Error('Storage restoration requires the private scenario capability');
+    if (policy.task_storage_state && !policy.task_private_storage)
+      throw Error('Task storage restoration requires the private task capability');
     this.diagnostics = new BrowserDiagnostics(this.root, policy.diagnostics || {enabled: false},
       policy.diagnostics_directory);
     if (policy.worker) {
@@ -227,7 +229,8 @@ export class RestrictedBrowser extends BrowserNetwork {
         tracesDir: this.diagnostics.work, args: NATIVE_ARGS});
     }
     this.context = await this.browser.newContext({serviceWorkers: 'block',
-      ...(policy.scenario_storage_state ? {storageState: policy.scenario_storage_state} : {})});
+      ...(policy.scenario_storage_state ? {storageState: policy.scenario_storage_state} : {}),
+      ...(policy.task_storage_state ? {storageState: policy.task_storage_state} : {})});
     await this.diagnostics.start(this.context);
     this.context.setDefaultTimeout(policy.timeout_seconds * 1000);
     if (policy.scenario_request_ledger) this.requests = new BrowserRequests(this);
@@ -393,6 +396,15 @@ export class RestrictedBrowser extends BrowserNetwork {
     // The owned fixture issues a new session cookie at /portal. Never replay
     // an old authentication credential, or restore a different origin.
     return {cookies: [], origins: state.origins.filter(row => this.policy.origins.includes(row.origin))};
+  }
+  async taskStorageState() {
+    if (!this.policy.task_private_storage) throw Error('Private task storage capability is unavailable');
+    const state = await this.context.storageState();
+    const hosts = new Set(this.policy.origins.map(origin => new URL(origin).hostname));
+    return {
+      cookies: state.cookies.filter(row => hosts.has(row.domain.replace(/^\./, ''))),
+      origins: state.origins.filter(row => this.policy.origins.includes(row.origin)),
+    };
   }
   // Policy is checked before anything executes; a denied destination is never loaded.
   destination(url) {

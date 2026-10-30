@@ -3,6 +3,7 @@
 # connector_search alone is discovery, not a route). Nothing may be booked (nothing-booked).
 version: 1
 kind: connector
+emulation_target: muse
 id: routes-trigger-negative
 goal: "Write me a two-sentence thank-you note for my neighbor Sam, who watered my plants while I was away."
 connectors:

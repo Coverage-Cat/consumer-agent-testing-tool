@@ -3,6 +3,9 @@ import json
 from pathlib import Path
 
 from consumer_agent_testing_tool.api_mapping import ApiMapping
+from consumer_agent_testing_tool.behavior_observations import NeutralPair
+from consumer_agent_testing_tool.behavior_sandbox import BatchSpec
+from consumer_agent_testing_tool.calibration import NeutralCohort
 from consumer_agent_testing_tool.ci_outputs import SUMMARY_SCHEMA
 from consumer_agent_testing_tool.connector_schema import connector_schema
 from consumer_agent_testing_tool.event_contract import event_schema
@@ -132,3 +135,11 @@ readiness.update({"$schema": "https://json-schema.org/draft/2020-12/schema",
 for path in [Path("schemas/surrogate-readiness-v1.schema.json"),
              Path("src/consumer_agent_testing_tool/data/schemas/surrogate-readiness-v1.schema.json")]:
     path.write_text(json.dumps(readiness, indent=2) + "\n")
+
+for name, model in (("behavior-observation-v3", NeutralPair), ("behavior-cohort-v3", NeutralCohort),
+                    ("behavior-batch-v1", BatchSpec)):
+    document = model.model_json_schema()
+    document.update({"$schema": "https://json-schema.org/draft/2020-12/schema",
+                     "$id": f"urn:consumer-agent-testing-tool:{name}"})
+    for directory in (Path("schemas"), Path("src/consumer_agent_testing_tool/data/schemas")):
+        (directory / f"{name}.schema.json").write_text(json.dumps(document, indent=2) + "\n")

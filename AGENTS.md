@@ -31,7 +31,7 @@ Run these in order. Each step needs only what the step before it produced.
 1. **Scaffold** a scenario from the live catalog. It calls `initialize` and `tools/list` only:
 
    ```sh
-   uv run consumer-agent-testing-tool scaffold http://127.0.0.1:8080/mcp --output my-connector.yaml
+   uv run consumer-agent-testing-tool scaffold http://127.0.0.1:8080/mcp --emulation-target muse --output my-connector.yaml
    ```
 
    Then replace every `TODO(scaffold)` in the file. Validate against
@@ -138,14 +138,22 @@ Each run is sealed under `runs/<lane>-<id>/`, with `report.html` at the top. `re
 report, and `replay RUN` verifies the seals. `private/` holds host-private values: never paste it, upload
 it or commit it. To share a run, use the output of `consumer-agent-testing-tool export RUN`.
 
+For exploratory behavioral research, organize public tests by generic behavior in
+[`docs/behavior-tests/`](docs/behavior-tests/README.md). Keep named-participant reports, exact prompts,
+raw transcripts and operational details in ignored `reports/` storage. Public descriptions should
+summarize the sandbox method and its limits without identifying an assistant or presenting incomplete
+checks as passes. Preserve actual target identity and provenance in private evidence. This does not
+rename the surrogate-selection API or the product's documented target names.
+
 ## Changing the tool itself
 
 - Human-facing writing follows Strunk and White: active voice, concrete words, short sentences,
   no needless words or promotional filler. Apply this to the README, CLI help, errors and reports.
   Keep safety caveats and evidence labels; do not change machine-readable fields or model-facing
   prompts during a copy edit.
-- Muse and Instinct are supported surrogate emulation targets; Muse is the default. Select
-  `emulation_target: instinct` or `--emulation-target instinct` for the connector lane. Its supported
+- Muse and Instinct are equal supported surrogate targets; neither is the default. Set
+  `emulation_target` to `muse` or `instinct` in each scenario, or pass the choice with `--emulation-target`.
+  Catalog scaffolding and shared surrogate readiness also require the flag. Instinct's supported
   extensions, research and unimplemented features are in [the spec](docs/instinct-emulation.md).
   Keep the assistant target distinct from the model that drives a trial. Do not present shared
   CATT algorithms or Muse sources as documented Instinct behavior.

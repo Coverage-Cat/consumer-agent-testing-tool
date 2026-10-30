@@ -21,6 +21,7 @@ async def test_targets_command_lists_both_supported_surrogates(capsys):
     assert await execute(parser().parse_args(["targets", "--json"])) == 0
     document = json.loads(capsys.readouterr().out)
     assert document["schema_version"] == 1
+    assert document["default_target"] is None
     assert {row["emulation_target"] for row in document["targets"]} == {"muse", "instinct"}
     assert {row["status"] for row in document["targets"]} == {"supported"}
 
@@ -138,7 +139,7 @@ def test_surrogate_readiness_does_not_match_credentials_across_json_boundaries()
     ["--suite", "surrogate", "--emulation-target", "instinct", "--projection", "muse-cli"],
     ["--suite", "surrogate", "--emulation-target", "instinct",
      "--client-profile", "muse-template-unofficial-2026-10"],
-    ["--suite", "surrogate", "--drift-check"],
+    ["--suite", "surrogate", "--emulation-target", "muse", "--drift-check"],
     ["--suite", "contract", "--emulation-target", "instinct"],
 ])
 async def test_incompatible_readiness_flags_fail_before_authentication(monkeypatch, extra):

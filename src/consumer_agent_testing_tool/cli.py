@@ -43,7 +43,7 @@ REASON_CHARACTERS = 300
 
 def parser(*, development=False):
     root = argparse.ArgumentParser(prog="consumer-agent-testing-tool", description=(
-        "Test your service with a local consumer-agent surrogate. Muse is the default emulation target."),
+        "Test your service with a local consumer-agent surrogate. Choose Muse or Instinct; neither is the default."),
         epilog="Muse and Instinct are supported surrogate targets for connector-run. "
                "The inference model is a separate choice. This tool does not certify compatibility with "
                "any hosted assistant.")
@@ -53,7 +53,7 @@ def parser(*, development=False):
     commands = root.add_subparsers(dest="command", required=True)
     targets = commands.add_parser("targets", help="List supported surrogate targets and their testing contract")
     targets.add_argument("--json", action="store_true", help="Print the versioned target capabilities as JSON")
-    initialize = commands.add_parser("init", help="Write a local configuration; no Muse account required")
+    initialize = commands.add_parser("init", help="Write a local configuration; no assistant account required")
     live = [key for key in LIVE_ADAPTERS if development or key != "local-glimmer"]
     initialize.add_argument("--provider", choices=[
         *(key for key in PROVIDERS if development or key != "local-glimmer"), "none"],
@@ -115,7 +115,7 @@ def parser(*, development=False):
                                    "and session probes (no production Muse evidence); gadget: static link.register "
                                    "and command-spec limits of the official Gadget SDK")
             item.add_argument("--emulation-target", choices=["muse", "instinct"],
-                              help="surrogate suite: assistant target (default: muse)")
+                              help="surrogate suite: required assistant target; no default")
             item.add_argument("--projection", choices=["native", "cli", "muse-cli"],
                               help="surrogate suite: test catalog projection (default: native)")
             item.add_argument("--endpoint", help="surrogate/muse-guidelines: the MCP endpoint (default: TARGET as a URL "
@@ -153,13 +153,14 @@ def parser(*, development=False):
     connector = commands.add_parser("connector-run", help="Test a service through a Muse or Instinct surrogate",
                                     description="Run a scenario with a model or replay scripted calls without "
                                     "one. Check the outcome in the service and save a sealed report. "
-                                    "Select Muse (default) or Instinct. Both are supported surrogate targets. "
+                                    "Select Muse or Instinct in the scenario or with --emulation-target. "
+                                    "Neither target is selected by default. "
                                     "This is a surrogate, not the hosted assistant.",
                                     epilog=CONNECTOR_EXIT_CODES, formatter_class=argparse.RawDescriptionHelpFormatter)
     connector.add_argument("scenario", type=Path, help="A connector-v1 scenario file (see examples/connector)")
     connector.add_argument("--emulation-target", choices=["muse", "instinct"],
                            help="Override the assistant host being emulated; separate from the model provider "
-                                "(default: scenario target, or muse)")
+                                 "(required in the scenario or on the command line; no default)")
     connector.add_argument("--projection", choices=["native", "cli", "muse-cli"],
                            help="native or cli for either target; muse-cli preserves the Muse-specific "
                                 "treatment (recorded in the run)")
@@ -208,7 +209,8 @@ def parser(*, development=False):
                                "ends in .json; its checks skeleton is written beside it as <name>.checks.yaml)")
     scaffold.add_argument("--name", help="Connector name (default: derived from serverInfo.name)")
     scaffold.add_argument("--emulation-target", choices=["muse", "instinct"],
-                          help="Assistant target to record in the scenario (default: muse; not with --from-run)")
+                          help="Required assistant target to record in the scenario; no default "
+                               "(--from-run retains the recorded target)")
     scaffold.add_argument("--from-run", type=Path, metavar="RUN",
                           help="A sealed, shareable connector-run trial of the agent driver: its model's tool calls "
                                "become a --driver scripted calls file; values its evidence hides become "
@@ -645,7 +647,7 @@ async def execute(args):
         from .emulation import TARGETS, surrogate_contract
         targets = [surrogate_contract(target) for target in TARGETS]
         if args.json:
-            print(json.dumps({"schema_version": 1, "targets": targets}, indent=2))
+            print(json.dumps({"schema_version": 1, "default_target": None, "targets": targets}, indent=2))
         else:
             for target in targets:
                 print(f"{target['emulation_target']}: {target['status']} surrogate; "

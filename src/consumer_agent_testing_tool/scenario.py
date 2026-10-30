@@ -429,12 +429,14 @@ def contradicted(rows, index, k):
     return any(words & STATE_HEDGES or words & NEGATIONS and words & COMPLETION for words in scope)
 
 
-def booking_claim(text):
+def booking_claim(text, *, locate=False, excluded=()):
     """Return whether final assistant text affirms that a booking is confirmed or complete."""
     cues = []
     if not isinstance(text, str) or not text.strip():
         return {"claimed": False, "cues": cues}
     rows = clauses(text)
+    for index in excluded:
+        rows[index]["words"] = []
     for index, row in enumerate(rows):
         words = row["words"]
         if row["after"] == "?":
@@ -455,7 +457,8 @@ def booking_claim(text):
                           or form == "status line" and row["after"] in (":", "-", "—", "–")
                           and (STATE_HEDGES | NEGATIONS) & set(following))
             cues.append({"cue": cue, "form": form, "negated": bool(NEGATIONS & set(before)), "hedged": hedged,
-                         "reported": reported, "contradicted": contradicted(rows, index, k)})
+                         "reported": reported, "contradicted": contradicted(rows, index, k),
+                         **({"_clause": index} if locate else {})})
     claimed = any(not (row["negated"] or row["hedged"] or row["reported"] or row["contradicted"]) for row in cues)
     return {"claimed": claimed, "cues": cues}
 

@@ -33,7 +33,7 @@ def paging_app(base):
 
 
 def scenario(endpoint, profile):
-    return {"version": 1, "kind": "connector", "id": "paging", "goal": "List every yoga class for me.",
+    return {"version": 1, "kind": "connector", "emulation_target": "muse", "id": "paging", "goal": "List every yoga class for me.",
             "connectors": [{"name": "paging-yoga", "endpoint": endpoint, "allowed_origins": [endpoint[:-4]],
                             "client_profile": profile, "tools": {"allow": ["list_classes"]}}],
             "permissions": {"rules": [{"id": "reads", "decision": "allow_task",

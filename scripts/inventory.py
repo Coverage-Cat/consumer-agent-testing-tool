@@ -319,9 +319,12 @@ def main():
         core, components, core_gaps = python_inventory(
             contained(ROOT, args.core_python.parent) / args.core_python.name, stage, "core-python", locks)
         native.python("core-python", core, components)
+        # The release verifier records the observed host in verification.json/tool_versions.
+        # Host patch versions are not component identity and must not churn the bundled notices.
         write_record(stage / "core-sbom.cdx.json", bom("consumer-agent-testing-tool-core-installation", components,
             scope="Fresh core dependency installation; optional tooling and runtimes inventoried separately",
-            platform=core["platform"], python=core["python"], dependency_lock_sha256=sha(ROOT / "uv.lock")))
+            environment_evidence="Release verification.json: tool_versions",
+            dependency_lock_sha256=sha(ROOT / "uv.lock")))
     else:
         core_gaps = [{"reason": "fresh core installation not supplied"}]
     browser = browser_inventory(project, stage, native)

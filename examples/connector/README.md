@@ -12,7 +12,7 @@ uv run consumer-agent-testing-tool connector-run examples/connector/instinct-boo
   --summary-json reports/instinct-booking.json
 ```
 
-The remaining examples default to Muse. Shared routing, memory, wallet,
+The remaining examples explicitly select Muse. Shared routing, memory, wallet,
 browser/HTTP and scheduling treatments also accept `--emulation-target instinct`.
 For `fixture-booking-cli.yaml`, also pass `--projection cli --client-profile generic-sdk`.
 The [shared contract](../../docs/surrogate-contract.md) lists target-specific
@@ -61,7 +61,7 @@ Then, from the repository root in a second terminal:
 
 ```sh
 # What the host would infer from the live catalog (calls no tool)
-.venv/bin/consumer-agent-testing-tool scaffold http://127.0.0.1:3001/mcp --output my-everything.yaml
+.venv/bin/consumer-agent-testing-tool scaffold http://127.0.0.1:3001/mcp --emulation-target muse --output my-everything.yaml
 # The pinned Muse connector guidelines, statically
 .venv/bin/consumer-agent-testing-tool check http://127.0.0.1:3001/mcp --suite muse-guidelines
 # A scripted trial: native tools, then the muse-cli projection over the unofficial Muse template client
@@ -184,14 +184,14 @@ With the fixture running, `scaffold` writes a scenario skeleton from its
 catalog:
 
 ```sh
-.venv/bin/consumer-agent-testing-tool scaffold http://127.0.0.1:8765/mcp --output my-connector.yaml
+.venv/bin/consumer-agent-testing-tool scaffold http://127.0.0.1:8765/mcp --emulation-target muse --output my-connector.yaml
 ```
 
 Against the OAuth fixture of `fixture-booking-oauth.yaml`, `--auth-from` links
 with that scenario's auth block:
 
 ```sh
-.venv/bin/consumer-agent-testing-tool scaffold http://127.0.0.1:8765/mcp \
+.venv/bin/consumer-agent-testing-tool scaffold http://127.0.0.1:8765/mcp --emulation-target muse \
   --auth-from examples/connector/fixture-booking-oauth.yaml --output my-oauth-connector.yaml
 ```
 

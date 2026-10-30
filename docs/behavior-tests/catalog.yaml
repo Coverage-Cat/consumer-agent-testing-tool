@@ -1,0 +1,157 @@
+# Navigation catalog, not a connector-v1 scenario or a test-results file.
+version: 1
+kind: sandbox-behavior-catalog
+default_execution: local-scripted
+external_execution: requires-new-bounded-authorization
+outcome_authority: independent-service-records
+families:
+  - id: authorization
+    description: Scoped actions, denials, changed terms and delayed permission.
+    local_regressions:
+      - tests/test_behavior_integration.py
+      - tests/test_permissions_engine.py
+      - tests/test_permissions_rules.py
+      - tests/test_connector_run.py
+    examples:
+      - examples/connector/fixture-booking.yaml
+      - examples/connector/scheduled-confirmation.yaml
+    runtime_capabilities: [ARCH-02, ARCH-03]
+    limits: A room reply alone does not reveal a native permission mechanism.
+
+  - id: interruption
+    description: Instructions arriving during a workflow and revocation before commitment.
+    local_regressions:
+      - tests/test_behavior_journal.py
+      - tests/test_ext_browser_tasks.py
+      - tests/test_connector_hooks_idle.py
+    examples: []
+    runtime_capabilities: [ARCH-02, ARCH-03]
+    limits: Serving a message does not establish that an agent read or acknowledged it.
+
+  - id: state-continuity
+    description: Authentication, site storage and preferences across separated tasks.
+    local_regressions:
+      - tests/test_behavior_browser.py
+      - tests/test_ext_browser_tasks.py
+      - tests/test_ext_memory_context.py
+      - tests/test_memory_index.py
+    examples: []
+    runtime_capabilities: [ARCH-04]
+    limits: Conversation leases are opt-in and bounded; retained conversation is not proof of indexed memory.
+
+  - id: recovery
+    description: Uncertain writes, session expiry and retry advice on different surfaces.
+    local_regressions:
+      - tests/test_behavior_journal.py
+      - tests/test_connector_e2e_booking.py
+      - tests/test_connector_link_recovery.py
+      - tests/test_ext_scheduler_polling.py
+    examples:
+      - examples/connector/fixture-booking.yaml
+    runtime_capabilities: [ARCH-02, ARCH-05, ARCH-07]
+    limits: An eventual success does not show that a retry delay was honored.
+
+  - id: outcome-reporting
+    description: Claims about quoted, pending, completed and failed operations.
+    local_regressions:
+      - tests/test_behavior_claims.py
+      - tests/test_answer_claims.py
+      - tests/test_answer_score.py
+    examples:
+      - examples/connector/scheduled-confirmation.yaml
+    runtime_capabilities: [ARCH-01, ARCH-08]
+    limits: Lexical detection is not an internal-state observation or a semantic judge.
+
+  - id: background-work
+    description: Bounded watches, late replies and limits on repeated actions.
+    local_regressions:
+      - tests/test_behavior_treatments.py
+      - tests/test_ext_scheduler_config.py
+      - tests/test_ext_scheduler_runs.py
+      - tests/test_ext_scheduler_edges.py
+    examples:
+      - examples/connector/scheduled-price-watch.yaml
+      - examples/connector/scheduled-status-watch.yaml
+    runtime_capabilities: [ARCH-03, ARCH-05, ARCH-07]
+    limits: Virtual-clock checks do not establish wall-clock behavior of an external scheduler.
+
+  - id: content-trust
+    description: Service-supplied instructions, forged authority and unintended destinations.
+    local_regressions:
+      - tests/test_behavior_observations.py
+      - tests/test_ext_content_trust_suite.py
+      - tests/test_ext_content_trust_extensions.py
+    examples:
+      - examples/connector/injection-quarantine.yaml
+      - examples/connector/injection-search-results.yaml
+    runtime_capabilities: [ARCH-06, ARCH-07]
+    limits: Success on selected payloads does not establish a general security guarantee.
+
+  - id: credentials
+    description: Use and disclosure of synthetic sign-in codes, links and private fill values.
+    local_regressions:
+      - tests/test_behavior_treatments.py
+      - tests/test_ext_browser_fill.py
+      - tests/test_ext_content_trust_examples.py
+      - tests/test_connector_hooks_private.py
+    examples:
+      - examples/connector/injection-one-time-code.yaml
+    runtime_capabilities: [ARCH-01, ARCH-06]
+    limits: Credential use, permitted answer disclosure and internal model visibility are separate observations.
+
+  - id: routes
+    description: Exposed service alternatives, actual protocol use and duplicate commitments.
+    local_regressions:
+      - tests/test_behavior_observations.py
+      - tests/test_ext_routes_trace.py
+      - tests/test_ext_routes_run.py
+      - tests/test_ext_custom_connector_e2e.py
+    examples:
+      - examples/connector/routes-trigger-positive.yaml
+      - examples/connector/routes-competing-connectors.yaml
+    runtime_capabilities: [ARCH-02, ARCH-07]
+    limits: A successful manual protocol request does not prove a saved native integration or an informed route preference.
+
+  - id: checkout
+    description: Optional extras, storage choices, total changes and fictional transaction state.
+    local_regressions:
+      - tests/test_behavior_observations.py
+      - tests/test_connector_fixture_checkout.py
+      - tests/test_ext_wallet_run.py
+      - tests/test_ext_wallet_avs.py
+    examples:
+      - examples/connector/wallet-checkout.yaml
+    runtime_capabilities: [ARCH-02, ARCH-07]
+    limits: A local demonstration form or issuer does not establish native payment-provider behavior.
+
+  - id: presentation
+    description: Comparisons, requested long text and multipart delivery.
+    local_regressions:
+      - tests/test_behavior_claims.py
+      - tests/test_ext_presentation_checks.py
+      - tests/test_answer_score.py
+    examples: []
+    runtime_capabilities: [ARCH-03, ARCH-08]
+    limits: A captured test surface does not establish another channel's formatting or length limits.
+
+  - id: capability-boundaries
+    description: Resource gates, unavailable transports and dependent requests.
+    local_regressions:
+      - tests/test_behavior_sandbox.py
+      - tests/test_ext_routes_config.py
+      - tests/test_connector_ci_outputs.py
+    examples:
+      - examples/connector/routes-disconnected-connector.yaml
+    runtime_capabilities: [ARCH-01, ARCH-09]
+    limits: A reported blocker for one account is not a capability judgment for all accounts.
+
+  - id: harness-validity
+    description: Reachability, fixture capacity, message delivery and preserved evidence.
+    local_regressions:
+      - tests/test_behavior_sandbox.py
+      - tests/test_connector_start.py
+      - tests/test_connector_evidence.py
+      - tests/test_export_private_scan.py
+    examples: []
+    runtime_capabilities: [ARCH-01, ARCH-05, ARCH-07, ARCH-09]
+    limits: Local process health alone does not establish public endpoint availability.

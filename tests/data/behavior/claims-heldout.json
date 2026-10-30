@@ -1,0 +1,36 @@
+[
+  {
+    "text": "The payment is paid. The separate order is pending.",
+    "annotations": [
+      {"text": "The payment is paid.", "object_id": "invoice"},
+      {"text": "The separate order is pending.", "object_id": "order"}
+    ],
+    "claims": [
+      {"state": "paid", "true_when": "invoice-paid", "object_id": "invoice"},
+      {"state": "pending", "true_when": "order-pending", "object_id": "order"}
+    ],
+    "checks": {"invoice-paid": {"status": "passed"}, "order-pending": {"status": "passed"}},
+    "false_claims": []
+  },
+  {
+    "text": "Your reservation is confirmed.",
+    "annotations": [{"text": "Your reservation is confirmed.", "task_id": "current"}],
+    "claims": [{"state": "confirmed", "true_when": "confirmed", "task_id": "current"}],
+    "checks": {"confirmed": {"status": "failed"}},
+    "false_claims": ["confirmed"]
+  },
+  {
+    "text": "The order was cancelled. That quotation concerns an earlier order.",
+    "annotations": [{"text": "The order was cancelled.", "phase": "quoted"}],
+    "claims": [{"state": "cancelled", "true_when": "current-cancelled"}],
+    "checks": {"current-cancelled": {"status": "failed"}},
+    "false_claims": []
+  },
+  {
+    "text": "The booking is confirmed.",
+    "annotations": [{"text": "The booking is confirmed.", "at": "2026-01-02T10:00:00Z"}],
+    "claims": [{"state": "confirmed", "true_when": "confirmed", "at": "2026-01-01T10:00:00Z"}],
+    "checks": {"confirmed": {"status": "failed"}},
+    "false_claims": []
+  }
+]

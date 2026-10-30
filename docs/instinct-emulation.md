@@ -83,7 +83,7 @@ no code was copied into CATT and no protected routes were visited.
 
 ## User interface
 
-The connector scenario gains one optional field:
+The connector scenario requires an explicit target:
 
 ```yaml
 version: 1
@@ -92,10 +92,11 @@ emulation_target: instinct
 # The rest of connector-v1 is unchanged.
 ```
 
-Omitting it selects Muse. The CLI override is
-`connector-run SCENARIO --emulation-target instinct`. The same flag on
-`scaffold URL --output FILE` records the target in the generated scenario.
-`scaffold --from-run RUN` preserves an Instinct trial's target in the checks
+Neither target is selected by default. For an older scenario without the field,
+pass `connector-run SCENARIO --emulation-target instinct` or select `muse`.
+`scaffold URL --emulation-target instinct --output FILE` records the chosen
+target in the generated scenario.
+`scaffold --from-run RUN` preserves either trial's target in the checks
 skeleton so merging it into a scenario keeps the selected treatment.
 Scaffolding still calls only initialize and tools/list.
 
@@ -232,7 +233,7 @@ assumed Instinct treatment, not a statement about every action Instinct takes.
 Before the initial implementation, new regression tests must fail on main.
 The completed tests must cover:
 
-1. Default Muse selection; explicit Instinct in YAML and the CLI; target
+1. Explicit Muse or Instinct selection in YAML and the CLI, with no default; target
    override with projection/client overrides; invalid target combinations
    rejected before any side effect or inference.
 2. Successful scripted booking using the real loopback fixture, independent
@@ -246,7 +247,7 @@ The completed tests must cover:
 6. Browser and HTTP extension regressions, including permission denial and
    uncertain outcomes. Existing origin, credential and checkout boundaries
    must remain intact.
-7. Default Muse behavior and source dictionaries unchanged after an
+7. Selected Muse treatments and source dictionaries unchanged after an
    Instinct run.
 8. Scaffolded target selection, generated JSON schemas, sealed replay and
    exported evidence.
@@ -290,3 +291,7 @@ These need work beyond the shared surrogate contract:
 - **Calibration:** authorized real-Instinct observations paired with local
   runs, recording versions, dates and differences. Until then, keep
   compatibility and admission claims out of the results.
+  The [sandbox behavior tests](behavior-tests/README.md) describe general
+  methods for controlled service exercises. Their
+  [architecture recommendations](behavior-architecture.md) apply across
+  targets; neither document changes this target's source policy or defaults.

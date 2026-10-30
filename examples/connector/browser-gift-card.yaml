@@ -16,6 +16,7 @@
 # ext_browser.BASES (documented: Meta's security post and Help Center; the rest unofficial or assumed).
 version: 1
 kind: connector
+emulation_target: muse
 id: browser-gift-card
 goal: "Buy me the $125 Pine Lodge gift card on their website with the card on file."
 # Websites are the agent's service here: browser tasks need no connector.

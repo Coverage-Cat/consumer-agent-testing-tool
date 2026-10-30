@@ -105,7 +105,7 @@ async def test_a_scaffold_of_the_fixture_suggests_only_personal_inputs_as_host_p
     from consumer_agent_testing_tool.mcp_clients import GENERIC_PROFILE, make_client
 
     async with fixture() as running:
-        assert await cli("scaffold", running.mcp_url, "--output", "cedar.yaml") == 0
+        assert await cli("scaffold", running.mcp_url, "--emulation-target", "muse", "--output", "cedar.yaml") == 0
         client = make_client(GENERIC_PROFILE, running.mcp_url, NoCredential())
         await client.connect()
         try:
@@ -122,7 +122,7 @@ async def test_a_scaffold_of_the_fixture_suggests_only_personal_inputs_as_host_p
 
 async def test_scaffold_writes_a_scenario_that_validates_and_runs_against_the_fixture(workspace, capsys):
     async with fixture() as running:
-        assert await cli("scaffold", running.mcp_url, "--output", "cedar.yaml") == 0
+        assert await cli("scaffold", running.mcp_url, "--emulation-target", "muse", "--output", "cedar.yaml") == 0
         assert printed_paths(capsys) == [workspace / "cedar.yaml"]
         text = (workspace / "cedar.yaml").read_text()
         with pytest.raises(LabError, match=r"TODO\(scaffold\)"):

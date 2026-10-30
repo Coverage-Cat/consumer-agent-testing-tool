@@ -9,8 +9,8 @@ Run a scripted or model-driven agent against an MCP server, an MCP app, a
 website or an HTTP API. Check what the service did, inspect the evidence, and
 compare results across builds.
 
-**Muse and Instinct are supported surrogate emulation targets.** Muse remains
-the default. Both use the [shared connector testing contract](docs/surrogate-contract.md),
+**Muse and Instinct are equal supported surrogate emulation targets.** Choose
+one explicitly; neither is the default. Both use the [shared connector testing contract](docs/surrogate-contract.md),
 including routing, memory, payments, browser/HTTP tasks and scheduling.
 See the [Instinct research](docs/instinct-emulation.md) for its sources and
 limits. The model that drives a trial is separate from the assistant being emulated.
@@ -29,7 +29,7 @@ limits. The model that drives a trial is separate from the assistant being emula
 | --- | --- | --- | --- |
 | MCP connectors | `connector-run SCENARIO` | Use the server's tools, apply account and approval rules, protect private values, and check the service's recorded outcome and the agent's answer. | Muse and Instinct surrogates: `--emulation-target muse\|instinct`. See [connector lane](docs/connector-lane.md). |
 | Connector extensions | `connector-run SCENARIO` with `extensions:` | Routes, memory, custom API clients, browser actions, wallet cards, background jobs, untrusted content, channel limits and simulated users. | Supported with the lane. `user_simulator` is exploratory and cannot run in scripted tests or decision contracts. See [extensions](docs/connector-extensions.md). |
-| Scenario scaffolding | `scaffold URL --output FILE`, `scaffold --from-run RUN --output FILE` | Read a tool catalog or turn an agent run into scripted calls. Calls no service tools. Replace every `TODO(scaffold)` before running. | Supported. One Streamable HTTP connector; no OpenAPI input. |
+| Scenario scaffolding | `scaffold URL --emulation-target muse\|instinct --output FILE`, `scaffold --from-run RUN --output FILE` | Read a tool catalog or turn an agent run into scripted calls. Calls no service tools. Replace every `TODO(scaffold)` before running. | Supported. One Streamable HTTP connector; no OpenAPI input. |
 | Muse connector readiness | `check URL --suite muse-guidelines` | Review the catalog and optional manifest against the pinned connector guidelines without calling tools. | Documented constraints, not admission. See [readiness checks](docs/readiness-checks.md). |
 | Shared surrogate readiness | `check URL --suite surrogate --emulation-target instinct` | Check the catalog, allowlist, schema syntax and selected projection without calling tools. | CATT's contract for either target; see [shared contract](docs/surrogate-contract.md). |
 | Personal Agent Protocol | `check ORIGIN --suite poppy` | Read `poppy.json`. With a manifest, probe sessions, sign-in and one declared operation on the company's hosts. | Draft 0.1; no production Muse evidence. |
@@ -57,8 +57,9 @@ uv run consumer-agent-testing-tool connector-run examples/connector/instinct-boo
   --start "python -m consumer_agent_testing_tool.connector_fixture --port {port} --variant good --auth none"
 ```
 
-Set `emulation_target: instinct` in your scenario or pass
-`--emulation-target instinct`. Both targets use `native` or `cli` projection and the generic
+Set `emulation_target: muse` or `emulation_target: instinct` in your scenario, or
+pass `--emulation-target muse|instinct`. Older scenarios without a target need
+this explicit choice before they can run. Both targets use `native` or `cli` projection and the generic
 MCP client. Instinct defaults to plain-text replies and does not run Muse guideline
 checks. Its local wallet fixture covers payment behavior; live payment rails,
 trusted-network protocol, Vault and Files remain outside the
@@ -222,7 +223,7 @@ and `tools/list`, calls no tool, and writes a scenario skeleton with suggested
 tool classes from the server's annotations:
 
 ```sh
-uv run consumer-agent-testing-tool scaffold http://127.0.0.1:3001/mcp --output my-everything.yaml
+uv run consumer-agent-testing-tool scaffold http://127.0.0.1:3001/mcp --emulation-target muse --output my-everything.yaml
 uv run consumer-agent-testing-tool check http://127.0.0.1:3001/mcp --suite muse-guidelines
 ```
 
@@ -428,7 +429,7 @@ embedded payment UI and Stripe test-mode setup separately.
 The quickstarts above are the pieces of one workflow. For an MCP server you
 own:
 
-1. **Write a scenario.** `scaffold URL --output my-connector.yaml` reads the
+1. **Write a scenario.** `scaffold URL --emulation-target muse --output my-connector.yaml` reads the
    live catalog (`--auth-env VAR` for an API key, or `--auth-from FILE` with a
    scenario that holds an OAuth block) and writes a skeleton. Replace every
    `TODO(scaffold)`: the user's goal in their own words, the allowlist of tools a

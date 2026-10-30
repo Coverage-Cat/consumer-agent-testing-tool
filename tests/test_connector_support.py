@@ -199,7 +199,7 @@ def services(hotel, *, secrets=(API_KEY,), link_error=None):
 
 def scenario(**overrides):
     document = {
-        "version": 1, "kind": "connector", "id": "fixture-booking",
+        "version": 1, "kind": "connector", "emulation_target": "muse", "id": "fixture-booking",
         "goal": "Book me a room for two adults from 2026-12-04 to 2026-12-06 if the total is at most $500.",
         "connectors": [{
             "name": "cedar-stays", "endpoint": f"{ORIGIN}/mcp", "allowed_origins": [ORIGIN],

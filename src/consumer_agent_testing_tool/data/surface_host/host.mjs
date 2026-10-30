@@ -904,6 +904,7 @@ async function dispatch(method, args) {
   }
   if (method === 'browse_action') return restricted.action(args);
   if (method === 'browse_storage_state') return restricted.storageState();
+  if (method === 'browse_task_storage_state') return restricted.taskStorageState();
   if (method === 'browse_diagnostics_capture')
     return restricted.diagnostics.capture(restricted, args.generation);
   if (method === 'browse_diagnostics_stop') return restricted.diagnostics.stop();

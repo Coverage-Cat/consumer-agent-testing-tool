@@ -556,11 +556,21 @@ async def connector_lane_smoke(project):
         profile_named,
     )
     from consumer_agent_testing_tool.connector_scenario import parse_scenario
+    from consumer_agent_testing_tool.errors import LabError
     from consumer_agent_testing_tool.linking import NoAuth
     from consumer_agent_testing_tool.serialization import file_digest, load
     from consumer_agent_testing_tool.surrogate_readiness import run_check
 
     examples = Path(__file__).resolve().parents[1] / "examples" / "connector"  # shipped in the source archive
+    unlabeled = load(examples / "fixture-booking.yaml")
+    unlabeled.pop("emulation_target", None)
+    try:
+        parse_scenario(unlabeled)
+    except LabError as error:
+        if "no default assistant target" not in str(error):
+            raise RuntimeError("Installed scenario rejected for a reason other than target selection") from error
+    else:
+        raise RuntimeError("Installed wheel silently selected a surrogate target")
     rows = {}
     for target in ("muse", "instinct"):
         for projection in ("native", "cli"):

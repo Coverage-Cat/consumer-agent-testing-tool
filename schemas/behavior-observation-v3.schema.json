@@ -1,0 +1,543 @@
+{
+  "$defs": {
+    "Assessment": {
+      "additionalProperties": false,
+      "properties": {
+        "completion": {
+          "enum": [
+            "completed",
+            "incomplete",
+            "unknown"
+          ],
+          "title": "Completion",
+          "type": "string"
+        },
+        "disposition": {
+          "enum": [
+            "observed",
+            "blocked",
+            "forgone"
+          ],
+          "title": "Disposition",
+          "type": "string"
+        },
+        "exposure": {
+          "enum": [
+            "reached",
+            "not-reached",
+            "unknown"
+          ],
+          "title": "Exposure",
+          "type": "string"
+        },
+        "infrastructure": {
+          "enum": [
+            "observed-healthy",
+            "interrupted",
+            "unknown"
+          ],
+          "title": "Infrastructure",
+          "type": "string"
+        },
+        "verdict": {
+          "enum": [
+            "supported",
+            "contradicted",
+            "inconclusive"
+          ],
+          "title": "Verdict",
+          "type": "string"
+        },
+        "evidence": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Evidence",
+          "type": "array"
+        },
+        "dispatch_guard": {
+          "default": false,
+          "title": "Dispatch Guard",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "completion",
+        "disposition",
+        "exposure",
+        "infrastructure",
+        "verdict"
+      ],
+      "title": "Assessment",
+      "type": "object"
+    },
+    "Identity": {
+      "additionalProperties": false,
+      "properties": {
+        "subject": {
+          "minLength": 1,
+          "title": "Subject",
+          "type": "string"
+        },
+        "profile": {
+          "minLength": 1,
+          "title": "Profile",
+          "type": "string"
+        },
+        "account_cohort": {
+          "minLength": 1,
+          "title": "Account Cohort",
+          "type": "string"
+        },
+        "session_cohort": {
+          "minLength": 1,
+          "title": "Session Cohort",
+          "type": "string"
+        },
+        "prior_context": {
+          "minLength": 1,
+          "title": "Prior Context",
+          "type": "string"
+        }
+      },
+      "required": [
+        "subject",
+        "profile",
+        "account_cohort",
+        "session_cohort",
+        "prior_context"
+      ],
+      "title": "Identity",
+      "type": "object"
+    },
+    "Intervention": {
+      "additionalProperties": false,
+      "properties": {
+        "milestone": {
+          "minLength": 1,
+          "title": "Milestone",
+          "type": "string"
+        },
+        "kind": {
+          "enum": [
+            "approval",
+            "handoff"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "outcome": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Outcome"
+        },
+        "details": {
+          "anyOf": [
+            {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Details"
+        }
+      },
+      "required": [
+        "milestone",
+        "kind"
+      ],
+      "title": "Intervention",
+      "type": "object"
+    },
+    "Interventions": {
+      "additionalProperties": false,
+      "properties": {
+        "completeness": {
+          "enum": [
+            "complete",
+            "partial"
+          ],
+          "title": "Completeness",
+          "type": "string"
+        },
+        "items": {
+          "items": {
+            "$ref": "#/$defs/Intervention"
+          },
+          "title": "Items",
+          "type": "array"
+        }
+      },
+      "required": [
+        "completeness",
+        "items"
+      ],
+      "title": "Interventions",
+      "type": "object"
+    },
+    "MigrationSource": {
+      "additionalProperties": false,
+      "properties": {
+        "path": {
+          "minLength": 1,
+          "title": "Path",
+          "type": "string"
+        },
+        "sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Sha256",
+          "type": "string"
+        }
+      },
+      "required": [
+        "path",
+        "sha256"
+      ],
+      "title": "MigrationSource",
+      "type": "object"
+    },
+    "ObservedSide": {
+      "additionalProperties": false,
+      "properties": {
+        "sources": {
+          "items": {
+            "$ref": "#/$defs/Source"
+          },
+          "minItems": 1,
+          "title": "Sources",
+          "type": "array"
+        },
+        "task_success": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Task Success"
+        },
+        "backend_state": {
+          "anyOf": [
+            {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Backend State"
+        },
+        "surface": {
+          "anyOf": [
+            {
+              "enum": [
+                "cli-skill",
+                "api-tools",
+                "browser",
+                "mixed"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Surface"
+        },
+        "operations": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Operations"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "interventions": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Interventions"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "final_response": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Final Response"
+        },
+        "final_consistent": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Final Consistent"
+        },
+        "identity": {
+          "$ref": "#/$defs/Identity"
+        },
+        "assessment": {
+          "$ref": "#/$defs/Assessment"
+        }
+      },
+      "required": [
+        "sources",
+        "identity",
+        "assessment"
+      ],
+      "title": "ObservedSide",
+      "type": "object"
+    },
+    "Operation": {
+      "additionalProperties": false,
+      "properties": {
+        "milestone": {
+          "minLength": 1,
+          "title": "Milestone",
+          "type": "string"
+        },
+        "operation": {
+          "minLength": 1,
+          "title": "Operation",
+          "type": "string"
+        },
+        "arguments": {
+          "anyOf": [
+            {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Arguments"
+        }
+      },
+      "required": [
+        "milestone",
+        "operation"
+      ],
+      "title": "Operation",
+      "type": "object"
+    },
+    "Operations": {
+      "additionalProperties": false,
+      "properties": {
+        "completeness": {
+          "enum": [
+            "complete",
+            "partial"
+          ],
+          "title": "Completeness",
+          "type": "string"
+        },
+        "items": {
+          "items": {
+            "$ref": "#/$defs/Operation"
+          },
+          "title": "Items",
+          "type": "array"
+        }
+      },
+      "required": [
+        "completeness",
+        "items"
+      ],
+      "title": "Operations",
+      "type": "object"
+    },
+    "Source": {
+      "additionalProperties": false,
+      "properties": {
+        "path": {
+          "minLength": 1,
+          "title": "Path",
+          "type": "string"
+        },
+        "sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Sha256",
+          "type": "string"
+        },
+        "kind": {
+          "enum": [
+            "transcript",
+            "screenshot",
+            "target-requests",
+            "backend-state"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "timestamp": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Timestamp"
+        },
+        "precision": {
+          "default": "unknown",
+          "enum": [
+            "millisecond",
+            "second",
+            "minute",
+            "unknown"
+          ],
+          "title": "Precision",
+          "type": "string"
+        },
+        "origin": {
+          "default": "unknown",
+          "enum": [
+            "service",
+            "native-transcript",
+            "room-fetch",
+            "operator-copy",
+            "fixture",
+            "unknown"
+          ],
+          "title": "Origin",
+          "type": "string"
+        }
+      },
+      "required": [
+        "path",
+        "sha256",
+        "kind"
+      ],
+      "title": "Source",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "const": 3,
+      "title": "Schema Version",
+      "type": "integer"
+    },
+    "evidence_kind": {
+      "enum": [
+        "synthetic",
+        "observed"
+      ],
+      "title": "Evidence Kind",
+      "type": "string"
+    },
+    "profile_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Profile Sha256",
+      "type": "string"
+    },
+    "surface_revision": {
+      "minLength": 1,
+      "title": "Surface Revision",
+      "type": "string"
+    },
+    "fixture_revision": {
+      "minLength": 1,
+      "title": "Fixture Revision",
+      "type": "string"
+    },
+    "case_revision": {
+      "minLength": 1,
+      "title": "Case Revision",
+      "type": "string"
+    },
+    "scenario_id": {
+      "minLength": 1,
+      "title": "Scenario Id",
+      "type": "string"
+    },
+    "trial_id": {
+      "minLength": 1,
+      "title": "Trial Id",
+      "type": "string"
+    },
+    "comparison": {
+      "enum": [
+        "matched",
+        "control"
+      ],
+      "title": "Comparison",
+      "type": "string"
+    },
+    "local": {
+      "$ref": "#/$defs/ObservedSide"
+    },
+    "observed": {
+      "$ref": "#/$defs/ObservedSide"
+    },
+    "migrated_from": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/MigrationSource"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    }
+  },
+  "required": [
+    "schema_version",
+    "evidence_kind",
+    "profile_sha256",
+    "surface_revision",
+    "fixture_revision",
+    "case_revision",
+    "scenario_id",
+    "trial_id",
+    "comparison",
+    "local",
+    "observed"
+  ],
+  "title": "NeutralPair",
+  "type": "object",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:consumer-agent-testing-tool:behavior-observation-v3"
+}

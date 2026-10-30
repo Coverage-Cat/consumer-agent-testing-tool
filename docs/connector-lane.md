@@ -1,20 +1,20 @@
 # Connector lane
 
-Muse and Instinct are supported surrogate targets; Muse is the default.
-Set `emulation_target: instinct` or pass `--emulation-target instinct`.
-Its [spec and research](instinct-emulation.md) define the supported extensions,
+Muse and Instinct are equal supported surrogate targets; neither is the default.
+Set `emulation_target` in the scenario or pass `--emulation-target muse|instinct`.
+The [Instinct spec and research](instinct-emulation.md) define its supported extensions,
 default text channel, native MCP adapter and evidence limits. Shared host
 rules are assumptions for Instinct; its runs do not apply Muse guidelines.
 
-`connector-run` tests a developer's MCP connector the way a Muse-like personal
-agent would use it. An agent, either a model or a scripted replay, works with
-the server's real `tools/list` catalog through a host. The host plays a
-Muse-like trusted control plane. It links the account and holds the
+`connector-run` tests a developer's MCP connector through the selected surrogate
+host. An agent, either a model or a scripted replay, works with
+the server's real `tools/list` catalog. The host links the account and holds the
 credential, keeps the user's private data out of model context, shows
 approval cards to a scripted user and checks the outcome after the agent stops.
 
-The host is a labeled public-constraint surrogate (profile
-`muse-connector-surrogate-2026-10`). It claims no equivalence to Muse. Every
+Each run records its selected target and source provenance. Neither surrogate
+claims equivalence to its hosted assistant. The Muse profile is
+`muse-connector-surrogate-2026-10`. Every
 Muse-specific behavior carries a basis label:
 
 | Label | Meaning |
@@ -103,7 +103,7 @@ service state stays unresolved.
 | Option | Default | Effect |
 |---|---|---|
 | `SCENARIO` | | A connector-v1 file |
-| `--emulation-target {muse,instinct}` | scenario's target, or `muse` | Selects the assistant host, independently of the inference model. Both support native/cli projection and generic-sdk. |
+| `--emulation-target {muse,instinct}` | required unless the scenario names a target | Selects the assistant host, independently of the inference model. Both support native/cli projection and generic-sdk. |
 | `--projection {native,cli,muse-cli}` | the scenario's | Replaces `projection`; muse-cli remains a Muse-specific treatment |
 | `--exposure {in-prompt,search-only}` | the scenario's | Replaces `exposure` and every connector's exposure except `disconnected` |
 | `--client-profile {generic-sdk,muse-template-unofficial-2026-10}` | each connector's | Replaces every connector's `client_profile` |
@@ -1115,7 +1115,7 @@ Agent sub-runs and model preflights record the same
 With the fixture running:
 
 ```sh
-.venv/bin/consumer-agent-testing-tool scaffold http://127.0.0.1:8765/mcp --output my-connector.yaml
+.venv/bin/consumer-agent-testing-tool scaffold http://127.0.0.1:8765/mcp --emulation-target muse --output my-connector.yaml
 ```
 
 For your own server, pass its URL and its auth, for example
@@ -1124,6 +1124,7 @@ For your own server, pass its URL and its auth, for example
 unofficial `--client-profile muse-template-unofficial-2026-10`) and
 `tools/list`, and calls no tool. It writes a connector-v1 skeleton:
 
+- the explicitly selected `emulation_target`;
 - one connector with `endpoint`, `allowed_origins`, `auth`, `client_profile`
   and `tools.allow` (every listed tool);
 - a `reads-for-this-task` rule, with every write denied until you add rules;

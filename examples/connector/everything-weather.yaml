@@ -9,6 +9,7 @@
 # See examples/connector/README.md for the agent run and the unofficial Muse template client profile.
 version: 1
 kind: connector
+emulation_target: muse
 id: everything-weather
 goal: "What's the weather in Chicago right now? Tell me the temperature and the conditions."
 connectors:

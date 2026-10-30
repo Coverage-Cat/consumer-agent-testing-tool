@@ -17,7 +17,7 @@ STEPS = [{"tool": "get_quote", "arguments": {"text": "garden room"}}, {"answer":
 def document(endpoint, base, **connector):
     """FakeMcp's legacy server behind the real SDK client: its get_quote answers without the total_minor its
     outputSchema requires."""
-    return {"version": 1, "kind": "connector", "id": "output-schema", "goal": "Quote me the garden room.",
+    return {"version": 1, "kind": "connector", "emulation_target": "muse", "id": "output-schema", "goal": "Quote me the garden room.",
             "connectors": [{"name": "fake-mcp", "endpoint": endpoint, "allowed_origins": [base],
                             "auth": {"mode": "none"}, "tools": {"allow": ["search_rooms", "get_quote"]}, **connector}],
             "permissions": {"rules": [{"id": "reads", "decision": "allow_task",

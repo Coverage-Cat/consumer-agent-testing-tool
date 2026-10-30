@@ -20,14 +20,15 @@ from consumer_agent_testing_tool.errors import LabError
 from consumer_agent_testing_tool.replay import playback
 
 
-def test_instinct_is_an_explicit_target_and_muse_remains_the_default():
-    default = parse_scenario(scenario()).scenario
+def test_both_targets_are_explicit_and_can_override_each_other():
+    muse = parse_scenario(scenario(emulation_target="muse")).scenario
     instinct = parse_scenario(scenario(emulation_target="instinct")).scenario
-    assert default.emulation_target == "muse"
+    assert muse.emulation_target == "muse"
     assert instinct.emulation_target == "instinct"
     assert instinct.connectors[0].client_profile == "generic-sdk"
     assert instinct.projection == "native"
-    assert effective_scenario(default, emulation_target="instinct") == instinct
+    assert effective_scenario(muse, emulation_target="instinct") == instinct
+    assert effective_scenario(instinct, emulation_target="muse") == muse
 
 
 @pytest.mark.parametrize("change", [

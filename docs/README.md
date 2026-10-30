@@ -102,6 +102,15 @@ review that drove the connector lane.
 
 ### Measurements and decisions
 
+- [Sandbox behavior tests](behavior-tests/README.md): general methods for
+  controlled service exercises, organized by observable behavior.
+  The [catalog](behavior-tests/catalog.yaml) links related local checks and
+  identifies related opt-in capabilities.
+- [Behavior architecture](behavior-architecture.md): observation, delivery,
+  recovery and orchestration, with implementation locations, migration
+  constraints and acceptance criteria.
+- [Local behavior capabilities](behavior-runtime.md): use the observation,
+  journal, session, clock, credential, scoring and bounded-runner interfaces.
 - [Measurement coverage](measurement-coverage.md): complete and partial token
   and duration totals, and agent sub-run metrics.
 - [Model timing](model-timing.md): model latency and incomplete request records.

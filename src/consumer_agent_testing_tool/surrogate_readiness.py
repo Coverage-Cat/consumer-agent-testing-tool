@@ -111,7 +111,7 @@ def catalog_checks(tools, manifest, *, target, projection, secrets=(), instructi
     return checks, classified
 
 
-async def run_check(endpoint, *, auth, manifest_path, output, profile, emulation_target="muse",
+async def run_check(endpoint, *, auth, manifest_path, output, profile, emulation_target,
                     projection="native", services=None, store=None, sealed=None):
     from .connector_run import default_services
     from .sealed_events import metadata, record

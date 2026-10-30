@@ -125,7 +125,7 @@ async def test_connector_run_cli_needs_a_script_or_a_model_profile(workspace, mo
 
 async def test_scaffold_writes_a_reviewable_skeleton_and_never_overwrites(workspace, monkeypatch, capsys):
     made = fake_services(monkeypatch, Hotel())
-    arguments = ["scaffold", "http://127.0.0.1:8765/mcp", "--output", "cedar.yaml", "--auth-env", "CEDAR_KEY"]
+    arguments = ["scaffold", "--emulation-target", "muse", "http://127.0.0.1:8765/mcp", "--output", "cedar.yaml", "--auth-env", "CEDAR_KEY"]
     assert await execute(parser().parse_args(arguments)) == 0
     assert capsys.readouterr().out.strip() == str(workspace / "cedar.yaml")
     text = (workspace / "cedar.yaml").read_text()
@@ -144,9 +144,9 @@ async def test_scaffold_writes_a_reviewable_skeleton_and_never_overwrites(worksp
     with pytest.raises(LabError, match="never overwrites"):
         await execute(parser().parse_args(arguments))
     with pytest.raises(LabError, match="must use https"):
-        await execute(parser().parse_args(["scaffold", "http://cedar.example/mcp", "--output", "x.yaml"]))
+        await execute(parser().parse_args(["scaffold", "--emulation-target", "muse", "http://cedar.example/mcp", "--output", "x.yaml"]))
     with pytest.raises(LabError, match="need --auth-env"):
-        await execute(parser().parse_args(["scaffold", "http://127.0.0.1:8765/mcp", "--output", "y.yaml",
+        await execute(parser().parse_args(["scaffold", "--emulation-target", "muse", "http://127.0.0.1:8765/mcp", "--output", "y.yaml",
                                            "--auth-placement", "custom_header"]))
 
 
@@ -154,7 +154,7 @@ async def test_scaffold_refuses_a_json_output_its_commented_yaml_could_not_load_
     # connector-run reads a .json file as JSON only (serialization.load): a YAML skeleton there never loads.
     made = fake_services(monkeypatch, Hotel())
     with pytest.raises(LabError, match="scaffold writes a commented YAML scenario; name it .yaml"):
-        await execute(parser().parse_args(["scaffold", "http://127.0.0.1:8765/mcp", "--output", "cedar.JSON"]))
+        await execute(parser().parse_args(["scaffold", "--emulation-target", "muse", "http://127.0.0.1:8765/mcp", "--output", "cedar.JSON"]))
     assert not (workspace / "cedar.JSON").exists() and made.clients == []
 
 
@@ -224,12 +224,12 @@ async def test_scaffold_and_check_link_with_the_auth_block_of_a_scenario(workspa
     oauth["connectors"][0]["auth"] = {"mode": "oauth", "scopes": ["stays:read"], "consent": "fixture-auto",
                                       "test_login_env": "CEDAR_LOGIN"}
     source = write(workspace / "linked.json", oauth)
-    assert await execute(parser().parse_args(["scaffold", "http://127.0.0.1:8765/mcp", "--output", "o.yaml",
+    assert await execute(parser().parse_args(["scaffold", "--emulation-target", "muse", "http://127.0.0.1:8765/mcp", "--output", "o.yaml",
                                               "--auth-from", source])) == 0
     assert made.linked[-1]["auth"]["mode"] == "oauth" and made.linked[-1]["auth"]["scopes"] == ["stays:read"]
     assert yaml.safe_load((workspace / "o.yaml").read_text())["connectors"][0]["auth"]["mode"] == "oauth"
     with pytest.raises(LabError, match="does not combine with --auth-env"):
-        await execute(parser().parse_args(["scaffold", "http://127.0.0.1:8765/mcp", "--output", "p.yaml",
+        await execute(parser().parse_args(["scaffold", "--emulation-target", "muse", "http://127.0.0.1:8765/mcp", "--output", "p.yaml",
                                            "--auth-from", source, "--auth-env", "KEY"]))
 
 

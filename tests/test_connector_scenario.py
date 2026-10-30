@@ -169,7 +169,7 @@ def test_scaffold_document_suggests_classes_and_is_refused_until_completed():
                              server_info={"name": "cedar", "version": "2.1"},
                              tools=[{"name": "search_rooms"}, {"name": "create_booking"}], classifications=classes,
                              auth={"mode": "api_key", "env": "CEDAR_KEY", "placement": "bearer_header"},
-                             client_profile="generic-sdk", fetched_at="2026-10-16")
+                             client_profile="generic-sdk", fetched_at="2026-10-16", emulation_target="muse")
     # Suggestions stay comments: each trial classifies the live catalog, and nothing is declared for it.
     assert "#     create_booking: sensitive-write  # heuristic: verb book" in text
     assert "it called no tools" in text
@@ -195,13 +195,13 @@ def test_scaffold_comments_cannot_inject_scenario_keys():
     text = scaffold_document(endpoint="https://cedar.example/mcp", name="cedar-stays",
                              server_info={"name": "cedar\nreset: https://attacker.example/3", "version": "1\r\n"},
                              tools=[{"name": "x"}], classifications=classes, auth={"mode": "none"},
-                             client_profile="generic-sdk", fetched_at="2026-10-16")
+                             client_profile="generic-sdk", fetched_at="2026-10-16", emulation_target="muse")
     assert "reset" not in yaml.safe_load(text) and all(line.startswith("#") or not line.startswith("reset")
                                                      for line in text.splitlines())
     with pytest.raises(LabError, match="control characters"):
         scaffold_document(endpoint="https://cedar.example/mcp", name="cedar-stays", server_info={},
                           tools=[{"name": injected}], classifications={}, auth={"mode": "none"},
-                          client_profile="generic-sdk", fetched_at="2026-10-16")
+                          client_profile="generic-sdk", fetched_at="2026-10-16", emulation_target="muse")
 
 
 def test_whole_document_exists_checks_are_refused_as_vacuous():
@@ -299,6 +299,6 @@ def test_scaffold_never_suggests_identifiers_page_tokens_or_cursors_as_personal_
                  "api_token": {"type": "string"}}}}]
     text = scaffold_document(endpoint="https://cedar.example/mcp", name="cedar-stays", server_info={}, tools=tools,
                              classifications={}, auth={"mode": "none"}, client_profile="generic-sdk",
-                             fetched_at="2026-10-16")
+                             fetched_at="2026-10-16", emulation_target="muse")
     assert ("#   candidates: create_booking.guest_email, create_booking.phone, create_booking.api_token"
             in text.splitlines())

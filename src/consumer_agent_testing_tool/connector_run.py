@@ -69,7 +69,7 @@ from .emulation import (
     target_profile,
     validate_instinct,
 )
-from .errors import LabError, LimitExhausted, Unsupported, normalize_error
+from .errors import DispatchVeto, LabError, LimitExhausted, Unsupported, normalize_error
 from .evidence import HARNESS_NUMBERS, PersonalValue, Redactor, admissible_secret
 from .evidence import NUMBER as NUMBER_TEXT
 from .guidelines import LABEL as GUIDELINES_LABEL
@@ -618,12 +618,19 @@ class ClockConfig(BaseModel):
 class FixtureClock:
     """Fixture time from the scenario's clock.now: it moves only when an extension advances it (a
     scheduler between jobs), and never backwards. run.fixture_clock is this object."""
+    mode = "virtual"
 
     def __init__(self, start: datetime):
         self.start, self._now, self.moves = start, start, []
 
     def now(self) -> datetime:
         return self._now
+
+    def utc(self) -> datetime:
+        return self._now.astimezone(UTC)
+
+    def monotonic(self) -> float:
+        return self.elapsed
 
     @property
     def elapsed(self) -> float:
@@ -1178,6 +1185,13 @@ class ConnectorRun:
             failed = normalize_error(error)
             checks.append({"id": "verification", "status": "failed", "class": failed.category, "detail": str(failed)})
         finally:
+            for extension in self.extensions:
+                if cleanup := getattr(extension, "cleanup", None):
+                    try:
+                        cleanup(self)
+                    except Exception as error:  # noqa: BLE001 — preserve the run after cleanup failure
+                        checks.append({"id": f"{extension.name}.cleanup", "status": "failed",
+                                       "class": "setup/infrastructure", "detail": str(error)})
             for connection in self.connections.values():
                 if connection.client is not None and not connection.closed:
                     connection.closed = True
@@ -1720,14 +1734,21 @@ class ConnectorRun:
                                          "decision": as_dict(ticket.decision), "model_message": ticket.model_message})
         info.update(card_id=card.card_id if card else None, decision=ticket.decision.kind if ticket.decision else None)
         decision = {"allowed": ticket.allowed, "prompted": card is not None, "card_id": info["card_id"],
-                    "kind": info["decision"], "scope": ticket.scope, "origin": asker}
+                    "kind": info["decision"], "scope": ticket.scope, "origin": asker, "request": request}
         for extension in self.extensions:
             # Between the decision and dispatch: an allowed call may still be vetoed (a wallet that issues a
             # card only once the user approved the purchase); a refused call is only observed.
             hook = getattr(extension, "after_approval", None)
             if hook is None:
                 continue
-            verdict = await hook(self, connector, tool, copy.deepcopy(ticket.arguments), copy.deepcopy(decision))
+            try:
+                verdict = await hook(self, connector, tool, copy.deepcopy(ticket.arguments), copy.deepcopy(decision))
+            except DispatchVeto as error:
+                self.event("dispatch_vetoed", {"connector": connector, "tool": tool,
+                                               "extension": extension.name, "card_id": info["card_id"],
+                                               "stage": "after_approval",
+                                               "by": "dispatch_guard", "error": str(error)})
+                return {"kind": "vetoed", "message": str(error)}
             if not ticket.allowed or not verdict:
                 continue
             stage = {"extension": extension.name, "connector": connector, "tool": tool, "stage": "after_approval"}
@@ -1740,6 +1761,22 @@ class ConnectorRun:
         dispatched = copy.deepcopy(ticket.arguments)
         if dispatched != effective and (problem := self.argument_problem(connector, tool, dispatched, full=True)):
             raise LabError(f"The scripted user's edit for {tool} violates its inputSchema ({problem})")
+        action_ids = {}
+        # Synchronous final gates run after every awaited approval hook. No
+        # extension can yield between this authority boundary and client send.
+        for extension in self.extensions:
+            gate = getattr(extension, "dispatch_gate", None)
+            if gate:
+                try:
+                    action_id = gate(self, connector, tool, copy.deepcopy(dispatched), request=request)
+                except DispatchVeto as error:
+                    self.event("dispatch_vetoed", {"connector": connector, "tool": tool,
+                                                   "extension": extension.name, "card_id": info["card_id"],
+                                                   "stage": "dispatch_gate",
+                                                   "by": "dispatch_guard", "error": str(error)})
+                    return {"kind": "vetoed", "message": str(error)}
+                if action_id:
+                    action_ids[extension.name] = action_id
         self.event("service_request", {"connector": connector, "tool": tool, "arguments": dispatched,
                                        "origin": origin, "card_id": card.card_id if card else None,
                                        "tool_class": connection.tool_class(tool)})
@@ -1749,6 +1786,8 @@ class ConnectorRun:
                   "arguments_sha256": digest(recordable(dispatched)), "edited": dispatched != effective,
                   "uncertain": False, "error": False, "is_error": False, "request": request,
                   "card_id": card.card_id if card else None, "sent_binding": None, "wire": "not reported"}
+        if action_ids:
+            record["action_ids"] = action_ids
         self.dispatches.append(record)
         self.request_log.append({"by": "host", "connector": connector, "tool": tool, "class": record["class"],
                                  "origin": origin, "turn": self.turns, "card_id": record["card_id"]})
@@ -1756,6 +1795,7 @@ class ConnectorRun:
         try:
             reply = await connection.client.call_tool(tool, dispatched)
         except BaseException as error:
+            self.action_response(record, False)
             if record["class"] != "read":
                 record["uncertain"] = True
                 self.uncertain.append(record)
@@ -1763,6 +1803,7 @@ class ConnectorRun:
                                             "error": {"message": f"the MCP client raised {type(error).__name__}"},
                                             "origin": "model" if model else origin})
             raise
+        self.action_response(record, reply.result is not None and not reply.uncertain)
         self.bind_wire(connection, record, reply, disclosure)
         note = None
         if dispatched != effective:
@@ -1775,6 +1816,12 @@ class ConnectorRun:
                                             f"received {shown or 'other details'}.")
         return self.received(connection, tool, dispatched, reply, record=record, note=note,
                              origin="model" if model else origin)
+
+    def action_response(self, record, received):
+        for extension in self.extensions:
+            identifier = record.get("action_ids", {}).get(extension.name)
+            if identifier and (hook := getattr(extension, "transport_response", None)):
+                hook(identifier, received)
 
     def bind_wire(self, connection, record, reply, disclosure):
         """The engine's binding of what the MCP client serialized for the wire (tools/call params.name
@@ -2829,6 +2876,10 @@ class ConnectorRun:
         resolved = observed["status"] in ("passed", "failed")
         item = {**observed, "layer": "host", "status": "passed" if resolved else "blocked", "class": "reconciliation",
                 "effect_observed": observed["status"] == "passed" if resolved else None}
+        for extension in self.extensions:
+            identifier = record.get("action_ids", {}).get(extension.name)
+            if identifier and (hook := getattr(extension, "reconciliation", None)):
+                hook(identifier, item)
         self.event("check", item, provenance="host reconciliation of an uncertain write; no retry was sent")
         return item
 
@@ -3895,9 +3946,12 @@ async def _run_from_cli(args, root, outputs) -> int:
         from .service_start import free_port
         port = free_port()
         variables.setdefault("PORT", str(port))  # The scenario's ${PORT}, unless --set PORT=... chose one.
-    loaded = load_scenario(within(root, args.scenario, "The scenario"), variables=variables)
-    outputs.scenario_id = loaded.scenario.id
     chosen_target = getattr(args, "emulation_target", None)
+    # With an explicit CLI choice, decode an unlabeled file as the legacy source first.
+    # Apply the chosen target and projection/client overrides together below, before any work.
+    loaded = load_scenario(within(root, args.scenario, "The scenario"), variables=variables,
+                           target_if_missing="muse" if chosen_target is not None else None)
+    outputs.scenario_id = loaded.scenario.id
     outputs.treatment = {"projection": args.projection, "exposure": args.exposure,
                          "client_profile": args.client_profile, "output_schema": getattr(args, "output_schema", None),
                          "emulation_target": chosen_target or loaded.scenario.emulation_target}
@@ -4001,7 +4055,7 @@ def pass_line(values) -> str:
     return ", ".join(f"pass^{k} {value:.2f}" for k, value in values.items()) if values else "pass^k n/a"
 
 
-async def _agent_driver(args, root, *, emulation_target="muse"):
+async def _agent_driver(args, root, *, emulation_target):
     from .cli import report_outcome, statuses, warn_unqualified
     from .config import read_config
     from .evidence import Evidence, run_lock
@@ -4096,8 +4150,8 @@ async def scaffold_from_cli(args, services=None) -> int:
     if output.exists():
         raise LabError(f"{args.output} already exists; scaffold never overwrites a scenario")
     profile_name = args.client_profile or "generic-sdk"
-    emulation_target = getattr(args, "emulation_target", None) or "muse"
-    target_profile(emulation_target)
+    from .emulation import require_target
+    emulation_target = require_target(getattr(args, "emulation_target", None))
     if emulation_target == "instinct":
         try:
             validate_instinct("native", [profile_name], {})
@@ -4224,7 +4278,9 @@ async def guidelines_from_cli(args, services=None) -> int:
     Muse template is opt-in, and its refusals are that profile's limits (exit 3)."""
     from .gadget import ignored_options
     suite = args.suite
-    emulation_target = getattr(args, "emulation_target", None) or "muse"
+    from .emulation import require_target
+    chosen_target = getattr(args, "emulation_target", None)
+    emulation_target = "muse" if suite == "muse-guidelines" and chosen_target is None else require_target(chosen_target)
     projection = getattr(args, "projection", None) or "native"
     profile_name = args.client_profile or "generic-sdk"
     if suite == "muse-guidelines" and (emulation_target != "muse" or getattr(args, "projection", None)):

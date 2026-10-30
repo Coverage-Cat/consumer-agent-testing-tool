@@ -1,6 +1,7 @@
 # Connector lane extensions
 
-Muse and Instinct support all the extensions below. Muse remains the default.
+Muse and Instinct support all the extensions below. Select either target
+explicitly in the scenario or with `--emulation-target`; neither is the default.
 Their shared algorithms are CATT assumptions for Instinct. Its default
 presentation is text with no character cap or widget checks; Muse app widgets
 remain a Muse-specific treatment. The simulated user remains exploratory for

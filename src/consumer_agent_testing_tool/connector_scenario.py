@@ -15,7 +15,7 @@ API, browser's websites); its checks are then oracle checks.
 """
 import math
 import re
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from pathlib import Path
 from typing import Annotated, Any, Literal
 from urllib.parse import parse_qsl, urlsplit
@@ -31,7 +31,13 @@ from pydantic import (
     model_validator,
 )
 
-from .emulation import CLI_PROJECTIONS, EmulationTarget, ProjectionMode, validate_instinct
+from .emulation import (
+    CLI_PROJECTIONS,
+    EmulationTarget,
+    ProjectionMode,
+    require_target,
+    validate_instinct,
+)
 from .errors import LabError
 from .evidence import MARKERS, MIN_SECRET_LENGTH, admissible_secret, credential_key, private_key
 from .serialization import digest, load
@@ -501,6 +507,19 @@ class PermissionsSpec(Strict):
 class ClaimRuleSpec(Strict):
     state: ClaimState
     true_when: str
+    task_id: str | None = None
+    action_id: str | None = None
+    object_id: str | None = None
+    at: str | None = None
+
+
+class ClaimAnnotationSpec(Strict):
+    text: str = Field(min_length=1, max_length=10000)
+    phase: Literal["final", "intermediate", "quoted", "unknown"] = "final"
+    task_id: str | None = None
+    action_id: str | None = None
+    object_id: str | None = None
+    at: str | None = None
 
 
 class RelayFactSpec(Strict):
@@ -524,10 +543,11 @@ class RelayFactSpec(Strict):
 class AnswerSpecModel(Strict):
     claims: list[ClaimRuleSpec] = Field(default_factory=list)
     relay: list[RelayFactSpec] = Field(default_factory=list)
+    annotations: list[ClaimAnnotationSpec] = Field(default_factory=list, max_length=200)
 
     @model_validator(mode="after")
     def unique(self):
-        if len({(claim.state, claim.true_when) for claim in self.claims}) != len(self.claims):
+        if len({tuple(claim.model_dump().items()) for claim in self.claims}) != len(self.claims):
             raise ValueError("answer.claims rules must be unique")
         return self
 
@@ -549,7 +569,7 @@ class ConnectorScenario(Strict):
     kind: Literal["connector"]
     id: str = Field(pattern=IDENTIFIER)
     goal: str = Field(min_length=1, max_length=8000)
-    emulation_target: EmulationTarget = "muse"
+    emulation_target: EmulationTarget
     # None only when an enabled extension provides the agent's service (Factory.provides_surface).
     connectors: list[ConnectorSpec] = Field(max_length=8)
     projection: ProjectionMode = "native"
@@ -844,12 +864,13 @@ def _masked(value):
     return "[private]"
 
 
-def published_digest(scenario) -> str:
+def published_digest(scenario, *, target_declared=True) -> str:
     """The scenario's evidence digest, private values masked: an unsalted digest over them would let an
     export test guesses of a low-entropy private value. Changing only a private value keeps it."""
     document = scenario.model_dump(mode="json", by_alias=True)
-    if document.get("emulation_target") == "muse":
-        document.pop("emulation_target")  # Existing Muse scenarios keep their published digest.
+    if not target_declared or document.get("emulation_target") == "muse":
+        # Legacy Muse identity and command-line treatments do not change the source scenario digest.
+        document.pop("emulation_target")
     document["private"] = _masked(document.get("private") or {})
     for connector in document.get("connectors") or []:
         for key in ("exposure", "limits", "output_schema"):
@@ -872,6 +893,7 @@ def parse_scenario(document, *, base: Path | None = None, variables=None, regist
         if not re.fullmatch(r"[A-Z][A-Z0-9_]*", name):
             raise LabError(f"--set {name}: variable names are uppercase identifiers")
     filled = substitute(document, variables)
+    require_target(filled.get("emulation_target"))
     context = scenario_context(filled.get("extensions"), registry)
     try:
         scenario = ConnectorScenario.model_validate(filled, context=context)
@@ -974,13 +996,20 @@ def validate_extensions(scenario, registry=None):
             raise LabError(f"Invalid extensions.{name}: {validation_message(error)}") from None
 
 
-def load_scenario(path: Path, *, variables=None, registry=None) -> LoadedScenario:
+def load_scenario(path: Path, *, variables=None, registry=None, target_if_missing=None) -> LoadedScenario:
+    """Load an explicit scenario; a CLI selection can supply a missing target."""
     path = Path(path)
     try:
         document = load(path)
     except OSError as error:
         raise LabError(f"Cannot read connector scenario {path}: {error.strerror or error}") from None
-    return parse_scenario(document, base=path.parent, variables=variables, registry=registry, path=path)
+    supplied = isinstance(document, dict) and "emulation_target" not in document and target_if_missing is not None
+    if supplied:
+        document = {**document, "emulation_target": target_if_missing}
+    loaded = parse_scenario(document, base=path.parent, variables=variables, registry=registry, path=path)
+    if supplied:
+        loaded = replace(loaded, sha256=published_digest(loaded.scenario, target_declared=False))
+    return loaded
 
 
 def comment(value, limit=240) -> str:
@@ -997,7 +1026,7 @@ def _example_arguments(tool):
 
 
 def scaffold_document(*, endpoint, name, server_info, tools, classifications, auth, client_profile,
-                      fetched_at, emulation_target="muse") -> str:
+                      fetched_at, emulation_target) -> str:
     """A connector-v1 skeleton from a live catalog; the developer completes every TODO(scaffold).
 
     Server text appears only in comments, sanitized (comment), and tool names with control characters
@@ -1158,7 +1187,7 @@ def script_document(steps, *, run_id, scenario_id, scenario_sha256, written_at, 
     return "\n".join(lines) + "\n" + yaml.safe_dump(steps, sort_keys=False, allow_unicode=True, width=100)
 
 
-def checks_document(*, run_id, scenario_id, writes, reads, recorded, emulation_target="muse") -> str:
+def checks_document(*, run_id, scenario_id, writes, reads, recorded, emulation_target) -> str:
     """A checks skeleton for the recorded trial: an outcome check per write the agent sent (none: one), a
     claim, and the run's own check results as comments; every judgment is a TODO(scaffold)."""
     import yaml
@@ -1169,7 +1198,7 @@ def checks_document(*, run_id, scenario_id, writes, reads, recorded, emulation_t
                                      + (f"what {tool} changed" if tool else "the outcome")},
                "expect": {"op": "eq", "value": f"{SCAFFOLD_MARKER}: the value that field holds after a correct run"}}
               for name, tool in zip(names, writes or [None], strict=True)]
-    document = {**({"emulation_target": emulation_target} if emulation_target != "muse" else {}),
+    document = {"emulation_target": emulation_target,
                 "checks": checks, "answer": {"claims": [
         {"state": f"{SCAFFOLD_MARKER}: the outcome a truthful final answer reports", "true_when": names[0]}]}}
     lines = [f"# Checks skeleton for {comment(scenario_id, 64)} from connector run {comment(run_id, 80)}.",
