@@ -1,6 +1,7 @@
 """Reporting regressions reproduced from the final integration review."""
 import copy
 from pathlib import Path
+from xml.etree import ElementTree
 
 import pytest
 from test_ci_execution import fixture_inputs
@@ -23,6 +24,11 @@ from consumer_agent_testing_tool.ci_suite import (
     read_document,
 )
 from consumer_agent_testing_tool.cli import execute, parser
+
+
+def assert_reporting_error_or_missing_xml(path):
+    if path.exists():
+        assert ElementTree.parse(path).find(".//testsuite[@name='suite-reporting']/testcase/error") is not None
 
 
 @pytest.mark.parametrize("failed_checkpoint", [1, 2])
@@ -51,6 +57,7 @@ async def test_junit_failure_cannot_leave_a_green_shard(
     assert "RAW-PRIVATE-JUNIT-WRITE-ERROR" not in text
     saved = load_report(tmp_path / "reports/ci/report.json")
     assert saved.exit_code == 2 and saved.fatal, "A reporting error left a passing JSON artifact"
+    assert_reporting_error_or_missing_xml(tmp_path / "reports/ci/junit.xml")
     sibling = completed(prepare_suite(path, root=tmp_path, shard="2/2").plan,
                         batch=observed.batch_id, build=observed.build_id, harness=observed.harness)
     assert merge_reports([saved, sibling]).exit_code == 2
@@ -71,6 +78,7 @@ def test_failed_json_replacement_removes_an_older_green_report(tmp_path, monkeyp
     with pytest.raises(OSError):
         write_report(report, public)
     assert not (public / "report.json").exists()
+    assert_reporting_error_or_missing_xml(public / "junit.xml")
 
 
 def test_large_suite_can_read_its_own_report_without_raising_the_input_limit(tmp_path):

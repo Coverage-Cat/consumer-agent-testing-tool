@@ -87,7 +87,7 @@ jobs:
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         if: always()
         with:
-          name: connector-lane-scripted-${{ matrix.shard }}
+          name: connector-lane-scripted-${{ github.run_attempt }}-${{ matrix.shard }}
           path: |
             reports/scripted/report.json
             reports/scripted/junit.xml
@@ -118,14 +118,14 @@ jobs:
       - run: uv sync --project .consumer-agent-testing-tool --locked --no-dev
       - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
-          pattern: connector-lane-scripted-*
+          pattern: connector-lane-scripted-${{ github.run_attempt }}-*
           path: reports/shards
       - name: Merge every shard
         run: '"$CATT" ci merge reports/shards/*/report.json --report-dir reports/merged'
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         if: always()
         with:
-          name: connector-lane-gate
+          name: connector-lane-gate-${{ github.run_attempt }}
           path: |
             reports/merged/report.json
             reports/merged/junit.xml
@@ -196,7 +196,7 @@ jobs:
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         if: always()
         with:
-          name: connector-lane-agent-${{ strategy.job-index }}
+          name: connector-lane-agent-${{ github.run_attempt }}-${{ strategy.job-index }}
           path: |
             reports/agent.json
             reports/agent.xml

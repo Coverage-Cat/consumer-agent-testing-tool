@@ -281,12 +281,14 @@ def write_report(report, directory):
         # Publish the authoritative report only after both formats have been written successfully.
         atomic_write(directory / "report.json", report.model_dump_json(indent=2) + "\n")
     except OSError:
-        try:
-            # A later checkpoint can fail after an earlier one was green. Preserve that error on disk too.
-            atomic_write(directory / "report.json", write_failed(report).model_dump_json(indent=2) + "\n")
-        except OSError:
-            with suppress(OSError):
-                (directory / "report.json").unlink(missing_ok=True)
+        failed = write_failed(report)
+        # A later checkpoint can fail after an earlier one was green. Repair or remove both public formats.
+        for name, text in (("junit.xml", junit(failed)), ("report.json", failed.model_dump_json(indent=2) + "\n")):
+            try:
+                atomic_write(directory / name, text)
+            except OSError:
+                with suppress(OSError):
+                    (directory / name).unlink(missing_ok=True)
         raise
 
 

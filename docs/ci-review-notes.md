@@ -61,7 +61,7 @@ Reviewed commit: `ab7625c`.
 | Finding | Disposition and evidence |
 | --- | --- |
 | A failed JUnit write could leave a green JSON artifact | Reproduced at both the first completed checkpoint and the final checkpoint. JSON now publishes after JUnit. A write error attempts to publish fatal JSON, then remove stale JSON if publishing also fails. The workflow gate also requires every shard job to succeed. Regression tests verify that the saved error cannot merge as a pass. |
-| Rerunning only failed jobs mixes attempt IDs | Keep strict attempt binding. The suite guide and workflow README now require **Re-run all jobs**. |
+| Rerunning only failed jobs mixes attempt IDs | Keep strict attempt binding. The suite guide and workflow README require **Re-run all jobs**. Artifacts have distinct names for each attempt, and the gate downloads only its attempt, leaving earlier attempts available without mixing their coverage. |
 | Large suites could not read their own reports | Reproduced with 512 cases and check details. Reports now have a separate 64 MiB read limit; input files retain the 4 MiB limit. The documented bound remains explicit. |
 
 The reviewer found no further defect in cancellation, cleanup, cause pins, explicit discovery, snapshots,
@@ -70,3 +70,19 @@ not substitute for local execution.
 
 A final template inspection also narrowed the optional paid job's upload to its two public report files.
 Raw review output and reproduction logs remain private.
+
+## Iteration 4: publication failure follow-up
+
+Reviewed commit: `0e0631f`.
+
+The reviewer confirmed that fatal JSON cannot become a green merged gate. It found that JUnit could still
+show an earlier pass. Three added XML assertions reproduced this. The error path now tries to publish both
+formats with the reporting error and removes each file it cannot replace. A passed case remains an observed
+pass inside the failed suite; the regression checks the suite's reporting error, rather than erasing those
+observations.
+
+The required gate still checks shard job outcomes because a read-only or failed filesystem may prevent both
+replacement and removal. A remaining artifact cannot override the command's failure.
+
+The existing locale-dependent input reader was a nonblocking review note. This change's supported CI jobs
+use UTF-8; the aggregate files explicitly use UTF-8. No input-loader behavior was changed for that note.

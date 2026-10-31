@@ -75,7 +75,9 @@ Every shard receives the commit SHA as its build ID and the CI run ID plus attem
 Merge rejects duplicate, stale or mismatched shards. A missing shard remains unrun and exits 3. Do not
 ignore exit 3 in a required gate. The gate also requires every shard job to succeed, even if an artifact
 survived a later reporting or upload error. To rerun a failed gate, choose **Re-run all jobs**. **Re-run failed
-jobs** mixes artifacts from different attempt IDs and merge rejects them.
+jobs** leaves successful shards in the older attempt, so the current gate has missing coverage. Artifact
+names include the attempt, and the gate downloads only artifacts from its current attempt. Earlier artifacts
+remain available until their retention period ends.
 
 Reduce the shard matrix to one job and omit merging for a small suite;
 bounded local workers often avoid the cost of starting extra CI machines.
