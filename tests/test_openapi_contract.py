@@ -1,8 +1,10 @@
 import asyncio
 import copy
 import json
+import subprocess
 import threading
 from http.server import BaseHTTPRequestHandler
+from pathlib import Path
 from urllib.parse import parse_qs, urlsplit
 
 import pytest
@@ -16,6 +18,26 @@ from consumer_agent_testing_tool.evidence import Evidence, export_redacted
 from consumer_agent_testing_tool.offline import kernel_denies_default_egress
 from consumer_agent_testing_tool.openapi_contract import prepare_case
 from consumer_agent_testing_tool.surface import pointer
+
+
+def test_spectral_source_globs_use_patched_minimatch_with_the_callable_interface():
+    root = Path(__file__).resolve().parents[1]
+    # Exercise Spectral's actual source selector: a bare major-version override passes
+    # an audit but breaks its old callable CommonJS import.
+    script = """
+const assert = require('node:assert/strict');
+const {createRequire} = require('node:module');
+const {dirname, join} = require('node:path');
+const req = createRequire(process.cwd() + '/tooling/api/package.json');
+const match = req(join(dirname(req.resolve('@stoplight/spectral-core')), 'ruleset/utils/minimatch.js')).minimatch;
+assert.equal(match('schemas/purchase.yaml', '*.yaml'), true);
+assert.equal(match('schemas/purchase.yaml', '*.json'), false);
+assert.equal(match('schemas/purchase.yaml', '**/{purchase,policy}.yaml'), true);
+assert.equal(match('schemas/private/purchase.yaml', '!**/private/**'), false);
+assert.equal(req('minimatch-patched/package.json').version, '11.0.3');
+"""
+    result = subprocess.run(["node", "-e", script], cwd=root, text=True, capture_output=True, timeout=15, check=False)
+    assert result.returncode == 0, result.stderr
 
 
 def document():
@@ -119,7 +141,7 @@ async def test_real_upstream_generation_and_validation(service, tmp_path):
     assert {row["mode"] for row in checks if "mode" in row} == {"positive", "negative"}
     record = evidence.manifest["run_lock"]["openapi"]
     assert record["node"]["@stoplight/prism-http"] == "5.16.0"
-    assert record["schemathesis"]["schemathesis"] == "4.30.1"
+    assert record["schemathesis"]["schemathesis"] == "4.32.6"
 
 
 async def test_static_openapi_never_calls_target_and_style_is_a_warning(service, tmp_path):

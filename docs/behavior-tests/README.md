@@ -5,6 +5,10 @@ controlled environment. They are organized by behavior, independently of the
 assistant or model used. The [catalog](catalog.yaml) links each family to
 existing local checks and implemented opt-in capabilities.
 
+[Consumer purchase behaviors](purchase-flows.md) adds synthetic insurance purchase
+cases, modern MCP availability checks and a map from the benchmark survey to existing
+coverage. It includes runnable examples for both supported surrogate targets.
+
 Sandbox exercises have covered scoped actions, changing terms, delayed replies,
 interrupted workflows, retained state, recovery from service errors, credential
 handling, route selection and outcome reporting. They used isolated service
@@ -30,6 +34,8 @@ condition and a hosting interruption remain distinct from a behavioral failure.
 | Credentials | Synthetic codes, sign-in links and owner-requested summaries | Separate records of use, disclosure and destination |
 | Routes | Website, protocol and controlled contact alternatives | Which alternatives were exposed and which route was actually used |
 | Checkout | Optional extras, storage choices and changed totals | Submitted options and the committed fictional transaction |
+| Purchase lifecycle | Review, offer choice, document review, payment setup and carrier follow-up | Separate application, charge, policy and support records |
+| Protocol availability | Modern discovery, catalog access and legacy fallback | Observed protocol revision, with no purchase call |
 | Presentation | Comparisons, long text and multipart replies | Requested content against the captured delivery surface |
 | Capability boundaries | Unavailable transports or account connections | Attempted operations and explicit blockers; never inferred success |
 | Harness validity | Availability, message delivery and viable fixture alternatives | Independent controls showing the intended condition could be observed |

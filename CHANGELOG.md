@@ -2,6 +2,30 @@
 
 ## Unreleased
 
+## 0.4.0 - 2026-10-31
+
+- Add synthetic umbrella and homeowners purchases for both surrogate targets.
+  Independent records check review and submission, offer approval, declarations,
+  secure-payment setup, carrier delays, policy retrieval and policy-support requests.
+  Native and shared CLI regressions include denied and late approvals, changed
+  prices, lost responses, malformed output and false completion receipts.
+- Shared readiness can require a dated `protocol_revision`. The modern requirement
+  checks `2026-07-28` discovery and catalog access without a tool or model call;
+  legacy fallback cannot pass it. SDK versions and protocol availability remain distinct.
+- Captures can accept results from several allowed tools, keeping a rotating
+  intake credential current without exposing it to the model or public evidence.
+- Check insurance completion and premium-collection wording in final answers.
+  Add `refunded` as a separate assumed CATT outcome, so a payment or support
+  request cannot substantiate a refund claim.
+- Link the benchmark survey's useful behaviors to existing authorization, memory,
+  scheduling, content-trust, browser and oracle suites. The new fixtures do not
+  reproduce external benchmarks or certify hosted assistants.
+- Update Python, Node, build and GitHub Actions dependencies and refresh notices.
+  Resolve the AWS dependency constraint conflict; patch fast-uri, body-parser,
+  qs, zod, FastMCP, Authlib and joserfc. The optional API validator uses a patched
+  minimatch through a small compatibility adapter, which fresh initialization
+  also stages. Repository and packaged lockfiles remain synchronized.
+
 ## 0.3.0 - 2026-10-30
 
 - **Breaking:** Muse and Instinct have equal standing with no default target.

@@ -1393,7 +1393,7 @@ class ConnectorRun:
                                          "not public)")
         tools_spec, declared, scoped = connection.tools, set(names), self.scenario.scoped
         named = {*(tools_spec.allow or []), *tools_spec.classes, *tools_spec.host_arguments, *tools_spec.disclosure,
-                 *tools_spec.reconcile, *(pick.source for pick in tools_spec.capture.values()),
+                 *tools_spec.reconcile, *(source for pick in tools_spec.capture.values() for source in pick.sources),
                  *scoped(self.scenario.expected.tools, connection.name),
                  *scoped(self.scenario.permissions.important_reads, connection.name),
                  *scoped(self.scenario.permissions.persisted_always, connection.name),
@@ -1946,7 +1946,7 @@ class ConnectorRun:
     def capture(self, connection, tool, result):
         names = []
         for name, item in connection.tools.capture.items():
-            if item.source != tool:
+            if tool not in item.sources:
                 continue
             try:
                 value = lookup(result, item.pointer)

@@ -43,7 +43,7 @@ from .evidence import MARKERS, MIN_SECRET_LENGTH, admissible_secret, credential_
 from .serialization import digest, load
 
 ToolClass = Literal["read", "write", "sensitive-write"]
-ClaimState = Literal["confirmed", "pending", "quoted", "failed", "cancelled", "submitted", "paid"]
+ClaimState = Literal["confirmed", "pending", "quoted", "failed", "cancelled", "submitted", "paid", "refunded"]
 DecisionKind = Literal["allow_once", "allow_task", "allow_site", "always_allow", "deny", "edit", "no_response"]
 CLIENT_PROFILES = ("generic-sdk", "muse-template-unofficial-2026-10")
 MUSE_TEMPLATE = "muse-template-unofficial-2026-10"
@@ -213,6 +213,21 @@ class Pick(Strict):
         return self
 
 
+class CapturePick(Pick):
+    """The latest accepted value from one or more reviewed tools of the same connector."""
+    source: str | list[Annotated[str, Field(min_length=1)]] = Field(alias="from", min_length=1)
+
+    @property
+    def sources(self) -> tuple[str, ...]:
+        return (self.source,) if isinstance(self.source, str) else tuple(self.source)
+
+    @model_validator(mode="after")
+    def distinct_sources(self):
+        if len(set(self.sources)) != len(self.sources):
+            raise ValueError("capture.from must name distinct tools")
+        return self
+
+
 class Fixed(Strict):
     value: Any
 
@@ -307,7 +322,7 @@ class ToolsSpec(Strict):
     allow: list[str] | None = None
     classes: dict[str, ToolClass] = Field(default_factory=dict)
     host_arguments: dict[str, dict[str, Any]] = Field(default_factory=dict)
-    capture: dict[str, Pick] = Field(default_factory=dict)
+    capture: dict[str, CapturePick] = Field(default_factory=dict)
     disclosure: dict[str, dict[str, Disclosed]] = Field(default_factory=dict)
     reconcile: dict[str, Observation] = Field(default_factory=dict)
 
@@ -316,14 +331,14 @@ class ToolsSpec(Strict):
         for name, pick in self.capture.items():
             if not re.fullmatch(IDENTIFIER, name):
                 raise ValueError(f"capture name {name!r} must be an identifier")
-            if pick.source == "arguments":
+            if "arguments" in pick.sources:
                 raise ValueError(f"capture.{name} reads a tool result: from names a tool")
             if pick.match is not None:
                 raise ValueError(f"capture.{name}: match applies to disclosure picks only")
         if self.allow is not None and len(set(self.allow)) != len(self.allow):
             raise ValueError("tools.allow lists a tool twice")
         named = {*self.classes, *self.host_arguments, *self.disclosure, *self.reconcile,
-                 *(pick.source for pick in self.capture.values())}
+                 *(source for pick in self.capture.values() for source in pick.sources)}
         if self.allow is not None and (outside := sorted(named - set(self.allow))):
             raise ValueError(f"tools configuration names tools outside tools.allow: {', '.join(outside)}")
         for tool, overlay in self.host_arguments.items():

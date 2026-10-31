@@ -26,7 +26,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      - uses: astral-sh/setup-uv@1c37ad07a6a961277cf70c0d37d6f313000f5884 # v10.3.0
+      - uses: astral-sh/setup-uv@07a047e608db84b3d8c06cd9a7c7dcc9c355c18e # v10.3.2
         with:
           version: "0.13.4"
           python-version: "3.14"
@@ -86,7 +86,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      - uses: astral-sh/setup-uv@1c37ad07a6a961277cf70c0d37d6f313000f5884 # v10.3.0
+      - uses: astral-sh/setup-uv@07a047e608db84b3d8c06cd9a7c7dcc9c355c18e # v10.3.2
         with:
           version: "0.13.4"
           python-version: ${{ matrix.python }}
@@ -126,7 +126,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      - uses: astral-sh/setup-uv@1c37ad07a6a961277cf70c0d37d6f313000f5884 # v10.3.0
+      - uses: astral-sh/setup-uv@07a047e608db84b3d8c06cd9a7c7dcc9c355c18e # v10.3.2
         with:
           version: "0.13.4"
           python-version: "3.14"
@@ -177,6 +177,18 @@ jobs:
               --junit "reports/$target-wallet.xml" --summary-json "reports/$target-wallet.json"
           done
 
+      - name: Synthetic consumer purchases for both surrogate targets
+        run: |
+          for target in muse instinct; do
+            for line in umbrella homeowners; do
+              uv run --no-sync consumer-agent-testing-tool connector-run "examples/connector/purchase-$line.yaml" \
+                --emulation-target "$target" --driver scripted --script "examples/connector/purchase-$line.calls.yaml" \
+                --start "python -m consumer_agent_testing_tool.purchase_fixture --port {port} --line $line" \
+                --ready-url "http://127.0.0.1:{port}/health" \
+                --junit "reports/$target-$line.xml" --summary-json "reports/$target-$line.json"
+            done
+          done
+
       - name: Scripted weather question against the locked MCP reference server
         run: >-
           uv run --no-sync consumer-agent-testing-tool connector-run examples/connector/everything-weather.yaml
@@ -210,6 +222,10 @@ jobs:
               --suite surrogate --emulation-target "$target" \
               --manifest examples/connector/surrogate-readiness.yaml \
               --junit "reports/$target-readiness.xml" --summary-json "reports/$target-readiness.json"
+            uv run --no-sync consumer-agent-testing-tool check http://127.0.0.1:8765/mcp \
+              --suite surrogate --emulation-target "$target" \
+              --manifest examples/connector/modern-readiness.yaml \
+              --junit "reports/$target-modern-mcp.xml" --summary-json "reports/$target-modern-mcp.json"
           done
 
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2

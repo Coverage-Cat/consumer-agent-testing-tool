@@ -8,13 +8,14 @@ import warnings
 from .serialization import loads
 
 schema, cases = None, {}
-PIN = "4.30.1"
+PIN = "4.32.6"
 
 
 def initialize(document):
     import schemathesis
     if importlib.metadata.version("schemathesis") != PIN:
-        raise ModuleNotFoundError("Install consumer-agent-testing-tool[api] with the pinned Schemathesis version")
+        raise ModuleNotFoundError("Install the development-extensions dependency group with the pinned "
+                                  "Schemathesis version")
     schema = schemathesis.openapi.from_dict(document)
     schema.config.generation.update(with_security_parameters=False, allow_extra_parameters=False)
     # Force complete upstream schema validation before the host sends any request.

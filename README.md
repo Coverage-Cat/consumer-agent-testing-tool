@@ -205,6 +205,12 @@ list each shipped scenario with its fixture command, and
 connectors, the browser sub-agent, wallets, schedules and the other
 extensions.
 
+[Synthetic purchase examples](docs/behavior-tests/purchase-flows.md) cover umbrella
+and homeowners applications through policy retrieval for both surrogates. They use
+local carrier delays, fictional payment callbacks and independent outcome records.
+The same guide maps useful benchmark ideas to existing tests and shows how to require
+observed modern MCP availability without calling a purchase tool.
+
 ## Quickstart: a popular MCP server
 
 The connector lane works with any MCP server over Streamable HTTP, not only the
@@ -947,8 +953,9 @@ tooling. These experiments are outside the supported release. The supported way
 to give an agent a CLI over an MCP server is
 `connector-run --projection muse-cli`.
 
-The optional Node API tools have [known dependency advisories](docs/dependency-security.md).
-Do not use them with untrusted inputs while those findings remain open.
+The [dependency review](docs/dependency-security.md) covers the optional Node API tools.
+Their network restrictions are not a general code-execution sandbox. Do not use them with
+untrusted specifications, customer data or production credentials.
 
 The [original specification](docs/spec-v0.3.md) and earlier test records document
 the project's history; they do not define the scope of this release.

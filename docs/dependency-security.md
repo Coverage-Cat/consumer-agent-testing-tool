@@ -1,10 +1,40 @@
 # Dependency security review
 
-Reviewed 21 October 2026. GitHub's Dependency Graph reports the optional Node
+Reviewed 31 October 2026. GitHub's Dependency Graph reports the optional Node
 lockfiles twice: once under `tooling/`, and once in the packaged copies under `src/`.
 Each pair must stay in sync.
 
-## Applied fixes
+## Release 0.4.0
+
+The four Node lockfiles (`tooling`, `tooling/payment-ui`, `tooling/api`, and
+`tooling/ci`) audit with no known vulnerabilities. The Python audit includes
+all locked extras and development groups and also reports no known vulnerabilities.
+This is an advisory-database result at review time, not a guarantee against
+unknown defects.
+
+- Update MCP Inspector to 2.12.0, the browser client to 2.4.0, MCP Apps to 2.0.4
+  and Playwright to 1.64.1. Refresh transitive fast-uri, body-parser, qs and zod
+  fixes, including every packaged initialization copy.
+- Replace Spectral's old minimatch parser with minimatch 11.0.3. A small
+  first-party adapter preserves its callable CommonJS interface; simply forcing
+  the new major version would break source matching. The regression invokes
+  Spectral's actual selector, including path, brace and negated patterns.
+- Update FastMCP and fastmcp-slim to 4.1.4, Authlib to 1.9.1 and joserfc to 1.7.7
+  in the development lock. The broader Python audit found the Authlib and
+  joserfc advisories beyond the initial Dependabot proposals.
+- Let boto3 resolve within aiobotocore's botocore constraint instead of pinning
+  three incompatible versions independently. The lock still fixes boto3 and
+  botocore at 1.43.117 and aiobotocore at 3.10.0.
+- Update the Schemathesis worker's version gate with its dependency pin.
+  Keep the existing original-notice and packaged-copy checks, and regenerate
+  inventory from fresh supported installations.
+
+`tests/test_release_scope.py` checks the mirrored manifests, lockfiles and
+compatibility packages. `tests/test_openapi_contract.py` checks the optional
+validators through real local requests. The supported full collection, browser
+checks and connector CI commands remain separate release validation.
+
+## Earlier fixes retained
 
 - Pin `certifi` to 2026.10.19 in the runtime requirements and lockfile. This removes
   the `emSign ECC Root CA - G3` root affected by compromised intermediate CA keys
@@ -37,10 +67,10 @@ affected versions.
 
 ## Remaining limits
 
-The stub is first-party code under the project license, installed as a copy through
+The compatibility packages are first-party code under the project license, installed as copies through
 `install-links=true` in `tooling/api/.npmrc`, so the inventory's no-link rule still holds.
 Keep `.npmrc` and `stubs/` with the lockfile wherever it is copied. If a future Prism or
-http-spec release needs real Postman support, remove the stub and review the new chain.
+http-spec release needs real Postman support, remove the Postman stub and review the new chain.
 
 The worker's network restrictions are not a general code-execution sandbox. Do not use the
 optional Node API tools with untrusted specifications, customer data or production

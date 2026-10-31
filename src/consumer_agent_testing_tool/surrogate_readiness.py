@@ -7,10 +7,11 @@ from pathlib import Path
 from typing import Literal
 
 from jsonschema import Draft202012Validator
+from mcp_types.version import MODERN_PROTOCOL_VERSIONS
 from pydantic import BaseModel, ConfigDict, Field
 
 from .emulation import policy_record, surrogate_contract, validate_instinct
-from .errors import LabError, normalize_error
+from .errors import LabError, Unsupported, normalize_error
 from .evidence import Redactor
 from .permissions import classify_tool
 from .projection import ConnectorView, Projection, credential_shapes, mask_for_model
@@ -28,11 +29,27 @@ class ReadinessManifest(BaseModel):
     allow: list[str] | None = Field(None, min_length=1, max_length=1000)
     classes: dict[str, Literal["read", "write", "sensitive-write"]] = Field(default_factory=dict)
     host_arguments: dict[str, list[str]] = Field(default_factory=dict)
+    protocol_revision: Literal["2025-03-26", "2025-06-18", "2025-11-25", "2026-07-28"] | None = None
 
 
 def check(identifier, status, detail, *, required=True):
     return {"id": identifier, "layer": "surrogate", "status": status, "required": required,
             "detail": detail, "basis": BASIS}
+
+
+def protocol_check(expected, actual, profile):
+    """Require the observed wire revision; a modern SDK or legacy fallback is not modern availability."""
+    if expected not in profile.protocol_versions:
+        status = "unsupported"
+        detail = (f"Client profile {profile.name} cannot offer MCP {expected}. "
+                  "Use generic-sdk to check modern MCP availability.")
+    elif actual == expected:
+        status, detail = "passed", f"The server negotiated MCP {expected} and returned its tool catalog."
+    else:
+        status = "failed"
+        detail = (f"The server negotiated MCP {actual}, but this check requires {expected}. "
+                  "A legacy fallback does not establish modern MCP availability.")
+    return {**check("protocol.revision", status, detail), "expected": expected, "actual": actual}
 
 
 def contains_secret(value, secrets):
@@ -155,6 +172,10 @@ async def run_check(endpoint, *, auth, manifest_path, output, profile, emulation
             except ValidationError as error:
                 raise LabError(f"Invalid surrogate readiness manifest: {validation_message(error)}") from None
         event("surrogate_contract", contract)
+        if manifest and manifest.protocol_revision not in (None, *profile.protocol_versions):
+            checks.append(protocol_check(manifest.protocol_revision, None, profile))
+            stage = "protocol"
+            raise Unsupported(checks[-1]["detail"])
         stage = "link"
         store = Path(store) if store is not None else Path.cwd() / ".cache" / "connector-links"
         store.mkdir(parents=True, exist_ok=True, mode=0o700)
@@ -176,13 +197,18 @@ async def run_check(endpoint, *, auth, manifest_path, output, profile, emulation
         instructions = getattr(client, "instructions", None)
         checks, classified = catalog_checks(tools, manifest, target=emulation_target, projection=projection,
                                              secrets=credential.secrets, instructions=instructions)
+        if manifest and manifest.protocol_revision:
+            checks.insert(0, protocol_check(manifest.protocol_revision, client.protocol_version, profile))
         redactor.add(credential_shapes([tools, instructions]))
         # Catalog keys are untrusted too: the connector masker reaches schema property names, while
         # the general evidence redactor preserves them. Hash and record the same safe catalog.
         catalog, _ = mask_for_model(
             {"tools": tools, "instructions": instructions, "server_info": client.server_info}, redactor.secrets)
         catalog = redactor.clean_evidence(catalog)
+        modern = client.protocol_version in MODERN_PROTOCOL_VERSIONS
         server = {"server_info": catalog["server_info"], "protocol_version": client.protocol_version,
+                  "protocol_era": "modern" if modern else "handshake",
+                  "protocol_method": "server/discover" if modern else "initialize",
                   "tools_sha256": digest(catalog["tools"]),
                   "tool_count": len(tools) if isinstance(tools, list) else None,
                   "digest_basis": "sha256 of redacted catalog evidence"}
@@ -212,6 +238,9 @@ async def run_check(endpoint, *, auth, manifest_path, output, profile, emulation
         "target": {"endpoint": endpoint, "client_profile": profile.name, "auth": linked},
         "run_lock": {"emulation_target": emulation_target, "projection": projection,
                      "surrogate_contract": contract, "tools_sha256": server.get("tools_sha256"),
+                     "protocol_revision": manifest.protocol_revision if manifest else None,
+                     "negotiated_protocol_revision": server.get("protocol_version"),
+                     "client_profile": profile.model_dump(mode="json"),
                      "manifest_sha256": digest(manifest.model_dump(mode="json")) if manifest else None,
                      **({"emulation_policy": policy_record(emulation_target)} if emulation_target == "instinct" else {})},
         "evidence_limits": [
@@ -219,6 +248,7 @@ async def run_check(endpoint, *, auth, manifest_path, output, profile, emulation
             "Schema syntax and projection checks do not prove runtime instance validation or resolve references.",
             "Tool classes are declarations or heuristics. Review side effects and approval rules in a scenario.",
             "This is CATT's shared contract, not Instinct or Muse admission rules or real-host calibration.",
+            "Protocol availability records the observed wire revision, not an SDK major version or full conformance.",
         ],
     }
     result = finalize(path, redactor.clean_evidence(report))

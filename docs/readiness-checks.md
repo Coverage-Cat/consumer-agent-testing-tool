@@ -25,6 +25,30 @@ and projection limits. It never calls a service tool. It accepts `--junit` and
 See the [shared contract](surrogate-contract.md#shared-readiness) for the
 manifest, limitations and exit codes. `muse-guidelines` remains Muse-specific.
 
+### Modern MCP availability
+
+Set `protocol_revision: "2026-07-28"` in a shared readiness manifest to require
+that observed revision. The
+[modern manifest](../examples/connector/modern-readiness.yaml) works with either target:
+
+```sh
+uv run consumer-agent-testing-tool check http://127.0.0.1:8765/mcp \
+  --suite surrogate --emulation-target muse \
+  --manifest examples/connector/modern-readiness.yaml --summary-json reports/modern-mcp.json
+```
+
+`protocol.revision` passes only after modern discovery and catalog access succeed.
+A server reached through an older handshake can still expose usable tools, but it
+fails this requirement (exit 1). A client profile that cannot request the revision
+is unsupported before linking (exit 3). Setup, authorization or malformed-discovery
+errors never become availability passes.
+
+The result records `server.protocol_era`, `server.protocol_method` and
+`run_lock.negotiated_protocol_revision`. No service tool or model is called. SDK
+major version 2 and the dated MCP protocol revision are separate facts; availability
+does not prove full conformance. Use the
+[existing modern contract profile](#mcp-2026-07-28-contract-profile) for deeper checks.
+
 ## Shared behavior
 
 Each run writes a sealed evidence directory under `--output` (default `runs/`):

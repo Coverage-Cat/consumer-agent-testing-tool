@@ -1,0 +1,6 @@
+# An SDK package version is not a protocol revision. This requires observed modern discovery and catalog access.
+# Use: check ENDPOINT --suite surrogate --emulation-target muse --manifest examples/connector/modern-readiness.yaml
+# Repeat with --emulation-target instinct. No tool or model is called.
+version: 1
+kind: surrogate-readiness
+protocol_revision: "2026-07-28"

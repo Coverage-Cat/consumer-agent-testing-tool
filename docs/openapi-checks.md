@@ -122,7 +122,7 @@ the private worker wire format is not exported as a base64 copy.
 
 ## Upstream boundary and maintenance
 
-The optional group pins Schemathesis 4.30.1, Spectral core 1.24.0/rulesets 1.23.0,
+The optional group pins Schemathesis 4.32.6, Spectral core 1.24.0/rulesets 1.23.0,
 Prism HTTP 5.16.0 and HTTP spec 7.1.0. There are no vendored forks.
 The Prism adapter calls its pinned internal `dist/validator` export to validate
 requests/responses without starting a forwarding proxy. The Schemathesis

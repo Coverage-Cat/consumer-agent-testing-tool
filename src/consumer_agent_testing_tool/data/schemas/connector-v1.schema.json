@@ -464,6 +464,49 @@
       "title": "Call",
       "type": "object"
     },
+    "CapturePick": {
+      "additionalProperties": false,
+      "description": "The latest accepted value from one or more reviewed tools of the same connector.",
+      "properties": {
+        "from": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "items": {
+                "minLength": 1,
+                "type": "string"
+              },
+              "type": "array"
+            }
+          ],
+          "minLength": 1,
+          "title": "From"
+        },
+        "pointer": {
+          "title": "Pointer",
+          "type": "string"
+        },
+        "match": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Match"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "from",
+        "pointer"
+      ],
+      "title": "CapturePick",
+      "type": "object"
+    },
     "CheckSpec": {
       "additionalProperties": false,
       "properties": {
@@ -647,7 +690,8 @@
             "failed",
             "cancelled",
             "submitted",
-            "paid"
+            "paid",
+            "refunded"
           ],
           "title": "State",
           "type": "string"
@@ -3243,7 +3287,7 @@
         },
         "capture": {
           "additionalProperties": {
-            "$ref": "#/$defs/Pick"
+            "$ref": "#/$defs/CapturePick"
           },
           "title": "Capture",
           "type": "object"

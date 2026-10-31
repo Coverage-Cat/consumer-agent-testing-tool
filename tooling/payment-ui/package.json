@@ -5,10 +5,10 @@
   "description": "Isolated, explicitly authorized local consumer payment UI test host",
   "type": "module",
   "dependencies": {
-    "@modelcontextprotocol/client": "2.3.1",
-    "@modelcontextprotocol/ext-apps": "2.0.3",
+    "@modelcontextprotocol/client": "2.4.0",
+    "@modelcontextprotocol/ext-apps": "2.0.4",
     "@playwright/mcp": "0.0.83",
     "esbuild": "0.28.2",
-    "playwright": "1.63.0"
+    "playwright": "1.64.1"
   }
 }
