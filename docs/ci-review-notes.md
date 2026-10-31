@@ -53,3 +53,20 @@ this is not a security sandbox or a signed attestation against a malicious local
 Additional regressions separate the installed harness from the service's dependency lock, bind installed
 runtime dependencies into harness identity, validate legacy projection references, reject a fixed port
 that happens to equal the planning placeholder, and preserve a fatal shard error through aggregation.
+
+## Iteration 3: integrated workflows and failure boundaries
+
+Reviewed commit: `ab7625c`.
+
+| Finding | Disposition and evidence |
+| --- | --- |
+| A failed JUnit write could leave a green JSON artifact | Reproduced at both the first completed checkpoint and the final checkpoint. JSON now publishes after JUnit. A write error attempts to publish fatal JSON, then remove stale JSON if publishing also fails. The workflow gate also requires every shard job to succeed. Regression tests verify that the saved error cannot merge as a pass. |
+| Rerunning only failed jobs mixes attempt IDs | Keep strict attempt binding. The suite guide and workflow README now require **Re-run all jobs**. |
+| Large suites could not read their own reports | Reproduced with 512 cases and check details. Reports now have a separate 64 MiB read limit; input files retain the 4 MiB limit. The documented bound remains explicit. |
+
+The reviewer found no further defect in cancellation, cleanup, cause pins, explicit discovery, snapshots,
+merge/diff identity, purchase oracle counts or the no-inference boundary. It was a static review and did
+not substitute for local execution.
+
+A final template inspection also narrowed the optional paid job's upload to its two public report files.
+Raw review output and reproduction logs remain private.

@@ -62,7 +62,12 @@ CI reports contain diagnostics and check details, never raw worker/service outpu
 omit source snippets. Public and private output directories must be disjoint, and a public output directory
 cannot contain unrelated files. Reserved `.catt-ci-*` atomic temporary files may remain after a crash;
 upload only `report.json` and `junit.xml`. A write failure sets `fatal`, exits 2 and prints the in-memory
-observations as JSON even without `--summary-json -`. Older files are not that invocation's result.
+observations as JSON even without `--summary-json -`. CATT writes JUnit first, then publishes JSON. If a
+write fails, it tries to publish fatal JSON or remove the previous JSON file. Always require the command's
+exit status; a remaining file cannot establish success after a reporting error.
+
+Suite inputs have a 4 MiB file limit. Aggregate reports have a separate 64 MiB read limit, including
+`ci merge`, `ci diff` and `--failed-from`. Split unusually large suites if their reports exceed that bound.
 
 ## Cases and treatments
 
@@ -175,6 +180,8 @@ uv run consumer-agent-testing-tool ci plan examples/ci/booking.suite.yaml \
 Distributed execution needs two public labels. `--build-id` identifies the service build; use a commit or
 container digest from your build system. `--batch-id` identifies this CI invocation and attempt, such as
 `run-123-attempt-2`. All shards of that invocation must share both labels.
+In the GitHub Actions template, choose **Re-run all jobs** when rerunning a failed gate. **Re-run failed
+jobs** leaves successful shards from the older attempt, which merge rejects as a different batch.
 
 ```sh
 uv run consumer-agent-testing-tool ci run examples/ci/booking.suite.yaml \

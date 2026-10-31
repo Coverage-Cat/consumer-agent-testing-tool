@@ -73,7 +73,11 @@ credentials out of Git configuration, and uploads only explicit public JSON/JUni
 
 Every shard receives the commit SHA as its build ID and the CI run ID plus attempt as its batch ID.
 Merge rejects duplicate, stale or mismatched shards. A missing shard remains unrun and exits 3. Do not
-ignore exit 3 in a required gate. Reduce the shard matrix to one job and omit merging for a small suite;
+ignore exit 3 in a required gate. The gate also requires every shard job to succeed, even if an artifact
+survived a later reporting or upload error. To rerun a failed gate, choose **Re-run all jobs**. **Re-run failed
+jobs** mixes artifacts from different attempt IDs and merge rejects them.
+
+Reduce the shard matrix to one job and omit merging for a small suite;
 bounded local workers often avoid the cost of starting extra CI machines.
 
 Paid trials are off by default and stay outside `ci run`. To request them once, select **Run paid model

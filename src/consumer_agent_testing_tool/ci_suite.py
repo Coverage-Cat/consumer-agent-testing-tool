@@ -233,10 +233,10 @@ class PreparedSuite:
     redactor: Redactor
 
 
-def read_document(path, *, location):
+def read_document(path, *, location, max_bytes=MAX_INPUT_BYTES):
     try:
-        if path.stat().st_size > MAX_INPUT_BYTES:
-            raise PlanError("input.size", location, "Input exceeds the 4 MiB limit.")
+        if path.stat().st_size > max_bytes:
+            raise PlanError("input.size", location, f"Input exceeds the {max_bytes // (1024 * 1024)} MiB limit.")
         return load(path)
     except PlanError:
         raise

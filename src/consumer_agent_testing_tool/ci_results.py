@@ -3,6 +3,7 @@ import os
 import re
 import tempfile
 import uuid
+from contextlib import suppress
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Literal
@@ -19,6 +20,7 @@ CODE_STATUS = {0: "completed", 1: "failed", 2: "error", 3: "blocked"}
 CASE_CODE = {"passed": 0, "expected-failure": 0, "failed": 1, "error": 2,
              "blocked": 3, "cancelled": 3, "not-run": 3}
 ERROR_CLASSES = frozenset({"setup/infrastructure", "reporting", "harness", "infrastructure"})
+MAX_REPORT_BYTES = 64 * 1024 * 1024
 
 
 class Diagnostic(Strict):
@@ -199,7 +201,7 @@ def not_run(case):
 
 
 def load_report(path):
-    return validate_model(SuiteReport, read_document(Path(path), location="report"), "report")
+    return validate_model(SuiteReport, read_document(Path(path), location="report", max_bytes=MAX_REPORT_BYTES), "report")
 
 
 def atomic_write(path, text):
@@ -268,14 +270,24 @@ def write_failed(report):
                        seconds=report.seconds, diagnostics=report.diagnostics, report_id=report.report_id,
                        merged_from=report.merged_from, batch_id=report.batch_id, build_id=report.build_id,
                        fatal=Diagnostic(code="report.write", message="Cannot write public reports. Stdout preserves the "
-                                        "in-memory observations; any older files are not this invocation's result.",
+                                        "in-memory observations; do not treat leftover files as a successful invocation.",
                                         action="inspect-private-evidence"))
 
 
 def write_report(report, directory):
     directory = Path(directory)
-    atomic_write(directory / "report.json", report.model_dump_json(indent=2) + "\n")
-    atomic_write(directory / "junit.xml", junit(report))
+    try:
+        atomic_write(directory / "junit.xml", junit(report))
+        # Publish the authoritative report only after both formats have been written successfully.
+        atomic_write(directory / "report.json", report.model_dump_json(indent=2) + "\n")
+    except OSError:
+        try:
+            # A later checkpoint can fail after an earlier one was green. Preserve that error on disk too.
+            atomic_write(directory / "report.json", write_failed(report).model_dump_json(indent=2) + "\n")
+        except OSError:
+            with suppress(OSError):
+                (directory / "report.json").unlink(missing_ok=True)
+        raise
 
 
 def output_directories(root, report_dir, private_dir):

@@ -132,6 +132,16 @@ jobs:
           retention-days: 14
           if-no-files-found: warn
 
+      - name: Require successful shard jobs
+        if: always()
+        env:
+          SCRIPTED_RESULT: ${{ needs.scripted.result }}
+        run: |
+          if [[ "$SCRIPTED_RESULT" != "success" ]]; then
+            echo "Every scripted shard job must succeed. Select Re-run all jobs to rerun this gate." >&2
+            exit 1
+          fi
+
   agent-trials:
     if: >-
       (github.event_name == 'schedule' && vars.ENABLE_SCHEDULED_AGENT_TRIALS == 'true') ||
@@ -187,6 +197,8 @@ jobs:
         if: always()
         with:
           name: connector-lane-agent-${{ strategy.job-index }}
-          path: reports/
+          path: |
+            reports/agent.json
+            reports/agent.xml
           retention-days: 7
           if-no-files-found: ignore
