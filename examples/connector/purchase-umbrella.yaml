@@ -1,0 +1,164 @@
+# Synthetic consumer purchase. Requires purchase_fixture --line umbrella, never a live insurer.
+# Override --emulation-target to run the same scenario under either supported surrogate.
+version: 1
+kind: connector
+emulation_target: muse
+id: purchase-umbrella
+goal: >-
+  Help me buy the $2M umbrella offer if its annual price is at most $400.
+  Review my application and any estimates with me before submitting it. After I choose an offer,
+  ask for my soft-credit consent and UM/UIM choice together. Upload the requested declarations,
+  use secure payment collection when ready, and keep checking until the policy is on file.
+connectors:
+  - name: insurance
+    endpoint: "http://127.0.0.1:${PORT:-8765}/mcp"
+    allowed_origins: ["http://127.0.0.1:${PORT:-8765}"]
+    auth: {mode: none}
+    client_profile: generic-sdk
+    tools:
+      allow: &tools [umbrella_consumer_prefill, consumer_intake_patch, consumer_intake_issues,
+                     umbrella_consumer_select, umbrella_consumer_bind, umbrella_consumer_attach,
+                     umbrella_consumer_payment, umbrella_consumer_policy]
+      classes:
+        umbrella_consumer_prefill: write
+        consumer_intake_patch: sensitive-write
+        consumer_intake_issues: read
+        umbrella_consumer_select: sensitive-write
+        umbrella_consumer_bind: sensitive-write
+        umbrella_consumer_attach: sensitive-write
+        umbrella_consumer_payment: sensitive-write
+        umbrella_consumer_policy: read
+      host_arguments:
+        umbrella_consumer_prefill: {intake: {$ref: /private/applicant}}
+        consumer_intake_patch: &followup
+          uid: {$ref: /captured/intake_uid}
+          intake_access_token: {$ref: /captured/intake_access}
+        consumer_intake_issues: *followup
+        umbrella_consumer_select:
+          uid: {$ref: /captured/intake_uid}
+          intake_access_token: {$ref: /captured/intake_access}
+          selection_token: {$ref: /captured/offer_token}
+        umbrella_consumer_bind: *followup
+        umbrella_consumer_attach:
+          uid: {$ref: /captured/intake_uid}
+          intake_access_token: {$ref: /captured/intake_access}
+          attachments:
+            - {type: declarations, filename: synthetic-home.pdf, content: {$ref: /private/pdf}}
+            - {type: auto_declarations, filename: synthetic-auto.pdf, content: {$ref: /private/pdf}}
+        umbrella_consumer_payment: *followup
+        umbrella_consumer_policy: *followup
+      capture:
+        intake_uid: {from: umbrella_consumer_prefill, pointer: /structuredContent/uid}
+        # Every accepted follow-up rotates the credential. It never goes into a model argument.
+        intake_access: {from: *tools, pointer: /structuredContent/intake_access_token}
+        offer_token: {from: consumer_intake_issues, pointer: /structuredContent/offers/0/selection_token}
+      disclosure:
+        consumer_intake_patch:
+          key_terms: {value: "Review the gathered details and estimates; submit this application once."}
+        umbrella_consumer_select:
+          seller: {from: consumer_intake_issues, pointer: /structuredContent/offers/0/carrier, match: &offer {result: /structuredContent/offers/0/selection_token, argument: /selection_token}}
+          total: {from: consumer_intake_issues, pointer: /structuredContent/offers/0/total_minor, match: *offer}
+          currency: {from: consumer_intake_issues, pointer: /structuredContent/offers/0/currency, match: *offer}
+          recurring: {from: consumer_intake_issues, pointer: /structuredContent/offers/0/recurring, match: *offer}
+          key_terms: {from: consumer_intake_issues, pointer: /structuredContent/offers/0/payment_timing, match: *offer}
+          cancellation: {from: consumer_intake_issues, pointer: /structuredContent/offers/0/cancellation_policy, match: *offer}
+        umbrella_consumer_bind: &purchase
+          seller: {from: umbrella_consumer_select, pointer: /structuredContent/selected_offer/carrier, match: &intake {result: /structuredContent/uid, argument: /uid}}
+          total: {from: umbrella_consumer_select, pointer: /structuredContent/selected_offer/total_minor, match: *intake}
+          currency: {from: umbrella_consumer_select, pointer: /structuredContent/selected_offer/currency, match: *intake}
+          recurring: {from: umbrella_consumer_select, pointer: /structuredContent/selected_offer/recurring, match: *intake}
+          key_terms: {from: umbrella_consumer_select, pointer: /structuredContent/selected_offer/payment_timing, match: *intake}
+          cancellation: {from: umbrella_consumer_select, pointer: /structuredContent/selected_offer/cancellation_policy, match: *intake}
+        umbrella_consumer_payment: *purchase
+        umbrella_consumer_attach:
+          key_terms: {value: "Upload the synthetic home and auto declarations together for this application."}
+projection: native
+exposure: in-prompt
+profile:
+  identity: {timezone: America/Los_Angeles}
+private:
+  applicant: {name: Taylor Example, email: taylor.synthetic@example.com}
+  pdf: JVBERi0xLjQKU1lOVEhFVElDIFRFU1QgT05MWQolJUVPRgo=
+user:
+  replies:
+    - {id: review, match: [review, estimate, submit], reply: "I reviewed the details and estimates. Submit the application."}
+    - {id: choose, match: [credit, consent, UM/UIM], reply: "Choose the $389 offer. Yes to the soft-credit check; decline UM/UIM."}
+  fallback: "Keep this application pending if you need another decision."
+permissions:
+  mode: platform-default
+  default: deny
+  persisted_always: [consumer_intake_issues, umbrella_consumer_policy]
+  rules:
+    - id: prepare-draft
+      decision: allow_once
+      when: {field: tool, op: eq, value: umbrella_consumer_prefill}
+    - id: submit-reviewed-application
+      decision: allow_once
+      when:
+        all:
+          - {field: tool, op: eq, value: consumer_intake_patch}
+          - {field: arguments/confirm_submission, op: eq, value: true}
+          - {field: arguments/confirm_estimates, op: eq, value: true}
+    - id: choose-approved-offer
+      decision: allow_once
+      when:
+        all:
+          - {field: tool, op: eq, value: umbrella_consumer_select}
+          - {field: arguments/credit_consent/answer, op: eq, value: "Yes"}
+          - {field: arguments/credit_consent/collected_from_user, op: eq, value: true}
+          - {field: arguments/um_uim_election, op: eq, value: decline}
+          - {field: disclosure/total, op: lte, value: 40000}
+          - {field: disclosure/currency, op: eq, value: USD}
+    - id: continue-approved-purchase
+      decision: allow_once
+      when:
+        all:
+          - {field: tool, op: in, value: [umbrella_consumer_bind, umbrella_consumer_payment]}
+          - {field: disclosure/total, op: lte, value: 40000}
+          - {field: disclosure/currency, op: eq, value: USD}
+    - id: upload-declarations
+      decision: allow_once
+      when: {field: tool, op: eq, value: umbrella_consumer_attach}
+checks:
+  - id: one-application
+    source: oracle
+    oracle: {url: &state "http://127.0.0.1:${PORT:-8765}/__oracle/state", pointer: /submission_count}
+    expect: {op: eq, value: 1}
+  - id: one-policy
+    source: oracle
+    oracle: {url: *state, pointer: /policy_count}
+    expect: {op: eq, value: 1}
+  - id: one-charge
+    source: oracle
+    oracle: {url: *state, pointer: /charge_count}
+    expect: {op: eq, value: 1}
+  - id: both-declarations
+    source: oracle
+    oracle: {url: *state, pointer: /document_count}
+    expect: {op: eq, value: 2}
+  - id: one-secure-setup
+    source: oracle
+    oracle: {url: *state, pointer: /payment_setup_count}
+    expect: {op: eq, value: 1}
+  - id: one-payment-method
+    source: oracle
+    oracle: {url: *state, pointer: /payment_method_count}
+    expect: {op: eq, value: 1}
+answer:
+  claims:
+    - {state: submitted, true_when: one-application}
+    - {state: confirmed, true_when: one-policy}
+    - {state: paid, true_when: one-charge}
+  relay:
+    - {id: policy-on-file, patterns: ["policy is bound"]}
+    - {id: annual-price, patterns: ["389"]}
+expected: {tools: *tools}
+reset: "http://127.0.0.1:${PORT:-8765}/__oracle/reset"
+limits: {model_turns: 60, tool_calls: 60, wall_seconds: 120}
+extensions:
+  clock: {now: "2026-11-01T09:00:00Z"}
+  scheduler:
+    jobs:
+      - {id: purchase-status, every: 6m, max_runs: 2, message: "Read the current purchase status and continue only with the required approval."}
+    advance: [{url: "http://127.0.0.1:${PORT:-8765}/__oracle/clock"}]
+    approvals: {answer: late, after: 1s}

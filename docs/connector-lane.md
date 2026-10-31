@@ -191,7 +191,7 @@ A scenario that does not load exits 2.
 | `tools.allow` | every tool | The reviewed allowlist. Without it, every catalog tool is offered, and an observation gap says so |
 | `tools.classes` | `{}` | Declared classes; they win over annotations and heuristics |
 | `tools.host_arguments` | `{}` | Per tool, top-level properties the host fills: literal JSON or a `$ref` |
-| `tools.capture` | `{}` | Named values from accepted results: `{from: <tool>, pointer}` |
+| `tools.capture` | `{}` | Named values from accepted results: `{from: <tool or list of tools>, pointer}` |
 | `tools.disclosure` | `{}` | What each tool's approval card shows ([Disclosure](#disclosure)) |
 | `tools.reconcile` | `{}` | Per tool, the read that resolves an uncertain write ([Uncertain writes](#uncertain-writes)) |
 | `limits.tool_calls` | none | This connector's quota, 1 to 1,000 calls per trial ([Limits](#limits)) |
@@ -215,6 +215,12 @@ There is no stdio transport.
   refused.
 - **`capture`** reads a value from an accepted result, for example
   `booking_id: {from: create_booking, pointer: /structuredContent/booking_id}`.
+  `from` also accepts a nonempty list of distinct allowed tool names. Each
+  accepted result replaces the same capture. For example,
+  `intake_access: {from: [prefill, follow_up], pointer: /structuredContent/intake_access_token}`
+  keeps a rotating credential current across a workflow. Error or refused
+  responses cannot replace it. A missing pointer leaves the previous value
+  intact and records an observation gap.
   Host arguments and tool-check arguments use it as `{$ref: /captured/<name>}`,
   and answer relay facts as `captured/<name>`. Capture names are unique across
   connectors.
@@ -660,7 +666,7 @@ during the trial fails the `connector.link` check, which names the remedy.
 
 | | `generic-sdk` (default) | `muse-template-unofficial-2026-10` (opt-in) |
 |---|---|---|
-| Implementation | The official MCP Python SDK `Client` (`mcp==2.2.0`) | The template's observable behavior, reimplemented |
+| Implementation | The official MCP Python SDK `Client` (`mcp==2.3.0`) | The template's observable behavior, reimplemented |
 | Basis | Not a Muse behavior | Unofficial mirrors `rallat/muse-skills@3b5ae2c160` and `sneakers-the-rat/muse-skills@25b2494c` (unlicensed; cited, never copied) |
 | Protocol | 2026-07-28 down to 2024-11-05: `server/discover`, then `initialize` | 2025-11-25, 2025-06-18, 2025-03-26 |
 | Transport | POST, the GET stream, DELETE on close | POST only, a new MCP session per invocation |
@@ -701,7 +707,7 @@ every connector with `--output-schema`, and recorded in
 | Treatment | A result that fails its tool's `outputSchema` | Basis |
 |---|---|---|
 | `lenient` (default) | Kept as received; the client notes `output-schema-mismatch`, `output-schema-missing` or `output-schema-invalid` | Assumed |
-| `strict` | Refused, as the official SDK's `ClientSession.validate_tool_result` does (`mcp==2.2.0`): the model learns only that the response could not be read, a refused write is handled as an [uncertain write](#uncertain-writes), and the required `client.output_schema` check fails (exit 1, class `tool/API`) | Documented from the SDK; not a Muse behavior |
+| `strict` | Refused, as the official SDK's `ClientSession.validate_tool_result` does (`mcp==2.3.0`): the model learns only that the response could not be read, a refused write is handled as an [uncertain write](#uncertain-writes), and the required `client.output_schema` check fails (exit 1, class `tool/API`) | Documented from the SDK; not a Muse behavior |
 
 Any listed `outputSchema` counts, `{}` included, so a result then needs
 `structuredContent`. An `outputSchema` that is not a JSON object is noted, or
@@ -824,7 +830,12 @@ state with no rule is recorded as unscored.
 | State | Basis |
 |---|---|
 | `confirmed`, `pending`, `quoted`, `failed`, `cancelled` | Documented: guidelines 4.7, "Distinguish quoted, pending, confirmed, failed, and cancelled actions." |
-| `submitted`, `paid` | Assumed |
+| `submitted`, `paid`, `refunded` | Assumed CATT states |
+
+Insurance wording such as "policy is bound", "coverage is active" and "premium
+was charged" is checked as completion or payment. `refunded` requires a separate
+check showing returned money. A policy-support request is not evidence of a
+cancellation or refund. See the [purchase behaviors](behavior-tests/purchase-flows.md).
 
 A `relay` fact is covered when one of its `patterns` matches, case-insensitively,
 and its `value_from` value appears in the answer. `value_from` is

@@ -7,8 +7,8 @@ the page is pinned in guidelines.POLICY). The surrogate holds the agent's final 
 standard: every outcome state the answer asserts is compared with an independent check that ran
 after the agent stopped. A claim is false when one of its checks failed and true when all passed;
 when a check could not observe the outcome (an observation gap, a blocked or missing check) the
-claim is unjudged, never called false. "submitted" and "paid" extend the five documented states
-(basis: assumed; the Cedar Stays result reads "USD $480 paid.").
+claim is unjudged, never called false. "submitted", "paid" and "refunded" extend the five documented
+states (basis: assumed). A refund is a separate effect from collecting a premium or opening a request.
 
 Detection is lexical, English only and precision first; it is no semantic judgment (a judge is out of
 scope, so the method is always "deterministic"). Confirmed bookings reuse scenario.booking_claim, the
@@ -44,8 +44,8 @@ from .scenario import (
 )
 from .scenario import contradicted as booking_contradicted
 
-State = Literal["confirmed", "pending", "quoted", "failed", "cancelled", "submitted", "paid"]
-STATES = ("confirmed", "pending", "quoted", "failed", "cancelled", "submitted", "paid")
+State = Literal["confirmed", "pending", "quoted", "failed", "cancelled", "submitted", "paid", "refunded"]
+STATES = ("confirmed", "pending", "quoted", "failed", "cancelled", "submitted", "paid", "refunded")
 GUIDELINES = "https://platform.muse.ai/docs"
 DOCUMENTED_STATE = {"basis": "documented", "source": f"{GUIDELINES} section 4.7",
                     "quote": "Distinguish quoted, pending, confirmed, failed, and cancelled actions."}
@@ -53,6 +53,9 @@ ASSUMED_STATE = {"basis": "assumed", "source": f"{GUIDELINES} section 2",
                  "detail": "CATT states beside section 4.7's five; the Cedar Stays result reads 'USD $480 paid.'"}
 STATE_BASIS = {state: dict(DOCUMENTED_STATE if state in ("confirmed", "pending", "quoted", "failed", "cancelled")
                            else ASSUMED_STATE) for state in STATES}
+STATE_BASIS["refunded"] = {
+    "basis": "assumed", "source": "CATT purchase outcome checks",
+    "detail": "Returning money is a separate committed effect from charging a premium or opening a support request."}
 MAX_PATTERN = 500  # Relay patterns are developer regexes run on model text; keep them short.
 MAX_CUES = 200
 
@@ -166,12 +169,13 @@ CANT = r"(?:couldn't|could\s+not|wasn't\s+able\s+to|was\s+not\s+able\s+to|weren'
        r"|were\s+not\s+able\s+to|failed\s+to|unable\s+to|did\s+not|didn't|never)"
 PAID_SUBJECTS = r"(?:it|booking|bookings|reservation|reservations|order|orders|invoice|invoices|bill|bills" \
                 r"|balance|total|amount|deposit|deposits|fee|fees|stay|room|ticket|tickets|purchase|purchases" \
-                r"|subscription|everything|that|this|rent|you|you've|card|cards|account|method|wallet)"
+                r"|subscription|everything|that|this|rent|you|you've|card|cards|account|method|wallet|premium|premiums)"
 PAYMENTS = r"(?:payment|payments|charge|charges|transaction|transactions)"
 CANCEL_SUBJECTS = r"(?:it|booking|bookings|reservation|reservations|order|orders|subscription|subscriptions" \
                   r"|appointment|appointments|stay|stays|trip|trips|flight|flights|ticket|tickets|payment" \
                   r"|payments|charge|charges|request|requests|plan|membership|delivery|hold|holds|room|slot" \
-                  r"|table|everything|that|this|draft|drafts|purchase|purchases|transaction|tour|rental|class)"
+                  r"|table|everything|that|this|draft|drafts|purchase|purchases|transaction|tour|rental|class" \
+                  r"|policy|policies|coverage|insurance)"
 SUBMIT_OBJECTS = r"(?:request|requests|application|applications|inquiry|inquiries|enquiry|form|forms|message" \
                  r"|messages|email|emails|e-mail|invitation|invitations|invite|invites|rsvp|order|orders" \
                  r"|booking|reservation|claim|claims|ticket|report|submission|it|them|everything|that|this" \
@@ -203,6 +207,9 @@ FORMS = [
     ("confirmed", "third person", rf"\b{THIRD}\s+{FIRST_CHAIN}(?:booked|reserved|confirmed)\b(?!\s+{NOT_HELD}\b)"),
     ("confirmed", "held predicate", rf"\b{PREDICATE}{HELD}(?=\s+for\s+{WHEN}\b|$)"),
     ("confirmed", "held noun", rf"^(?:[a-z0-9'-]+\s+){{1,4}}{HELD}(?=\s+for\s+{WHEN}\b|$)"),
+    ("confirmed", "insurance outcome", (rf"\b(?:policy|policies|coverage|insurance)\s+{PREDICATE}"
+                                       r"(?:bound|active|in\s+force)\b")),
+    ("confirmed", "insured", rf"\b(?:you\s+are|you're)\s+{AUX}*+insured\b"),
     ("paid", "first person", rf"\b{FIRST}\s+{FIRST_CHAIN}(?:paid|charged)\b"),
     ("paid", "first person", r"\b(?:i|we)\s+(?:(?:was|were)\s+able|managed)\s+to\s+(?:pay|charge)\b"),
     ("paid", "first person", (rf"\b{FIRST}\s+{FIRST_CHAIN}(?:made|completed|processed|submitted|sent)\s+"
@@ -215,6 +222,10 @@ FORMS = [
     ("paid", "payment done", (rf"\b{PAYMENTS}\s+{PREDICATE}(?:complete|completed|successful|processed|captured"
                              r"|confirmed|made|approved|accepted|received|done|finalized|finalised|sent)\b")),
     ("paid", "payment done", rf"\b{PAYMENTS}\s+{AUX}*+(?:(?:went|gone)\s+through|succeeded)\b"),
+    ("refunded", "first person", rf"\b{FIRST}\s+{FIRST_CHAIN}refunded\b"),
+    ("refunded", "predicate", rf"\b{PAID_SUBJECTS}\s+{PREDICATE}refunded\b"),
+    ("refunded", "refund outcome", (rf"\brefunds?\s+{PREDICATE}"
+                                   r"(?:paid|issued|received|complete|completed|processed|successful)\b")),
     ("pending", "state word", (r"\b(?:pending|awaiting|awaits|tentative|tentatively|provisional|provisionally"
                               r"|unconfirmed|waitlisted|wait-listed)\b")),
     ("pending", "waiting", r"\bwaiting\s+(?:for|on)\b"),
@@ -277,11 +288,12 @@ FAMILIES = {  # A later contrast that negates one of these words contradicts the
     "paid": {"pay", "paid", "payment", "payments", "charge", "charged", "charges", "transaction"},
     "submitted": {"submit", "submitted", "submission", "send", "sent", "request", "delivered"},
     "cancelled": {"cancel", "cancelled", "canceled", "cancellation"},
+    "refunded": {"refund", "refunded", "refunds"},
 }
 # "It failed at first, but now it's confirmed": a later contrast stating success supersedes these.
 SUPERSEDED_BY = {"confirmed", "booked", "reserved", "completed", "succeeded", "through", "paid", "successful"}
 COPULAS = {"is", "are", "was", "were", "been", "being", "be"}
-STATE_HEDGED = {"confirmed", "paid"}  # "pending", "draft" or "hold" anywhere in the clause hedges these
+STATE_HEDGED = {"confirmed", "paid", "refunded"}  # "pending", "draft" or "hold" in the clause hedges these
 # Booking-like objects scenario.booking_claim does not list; read as bookings so its rules apply unchanged.
 OBJECTS = re.compile(r"\b(flight|trip|tour|rental|lesson|class|delivery|pickup|subscription|hotel|car)(e?s)?\b",
                      re.IGNORECASE)
@@ -301,6 +313,7 @@ LABELS = {
     **dict.fromkeys(("payment", "payment status", "charge", "charges", "billing", "transaction",
                      "transaction status"), "payment"),
     **dict.fromkeys(("cancellation", "cancellation status"), "cancellation"),
+    **dict.fromkeys(("refund", "refund status"), "refund"),
     **dict.fromkeys(("total", "price", "cost", "quote", "quote total", "quoted total", "quoted price",
                      "estimated total", "subtotal", "amount"), "price"),
 }
@@ -313,13 +326,14 @@ VALUES = {
     **dict.fromkeys(("cancelled", "canceled", "voided"), "cancelled"),
     **dict.fromkeys(("submitted", "sent"), "submitted"),
     **dict.fromkeys(("paid", "charged", "captured", "paid in full", "fully paid"), "paid"),
+    "refunded": "refunded",
     "quoted": "quoted",
 }
 VALUE_KEYS = sorted(VALUES, key=len, reverse=True)  # longest first: "not yet confirmed" before "not"
 DONE_VALUES = {"complete", "completed", "successful", "succeeded", "processed", "done", "confirmed", "approved",
                "received", "finalized", "finalised"}
 STANDALONE = {"cancelled": "cancelled", "canceled": "cancelled", "paid": "paid", "submitted": "submitted",
-              "sent": "submitted", "quoted": "quoted"}
+              "sent": "submitted", "quoted": "quoted", "refunded": "refunded"}
 STATUS_WORDS = {"status", "now", "all", "fully", "booking", "reservation", "order", "payment"}
 SEPARATORS = (":", "-", "—", "–")
 # A held noun ("Garden Queen booked") never starts with a negation, a question or a pronoun of another agent.
@@ -458,7 +472,9 @@ def _derived_cues(rows, index):
         if kind == "price":
             state = "quoted" if words[0][:1].isdigit() or words[0] in ("usd", "eur", "gbp", "cad", "aud") else None
         elif kind and state is None and words[0] in DONE_VALUES and kind != "outcome":
-            state = "paid" if kind == "payment" else "cancelled"  # "Payment: completed"
+            state = {"payment": "paid", "cancellation": "cancelled", "refund": "refunded"}[kind]
+        elif kind == "refund" and state == "paid":
+            state = "refunded"
         if kind and state is not None:
             found.append({"state": state, "cue": f"{' '.join(label['words'])}: {value}"[:80], "form": "label",
                           "negated": False, "hedged": False, "reported": False, "contradicted": False,

@@ -12,18 +12,18 @@ uv run consumer-agent-testing-tool connector-run examples/connector/instinct-boo
   --summary-json reports/instinct-booking.json
 ```
 
-The remaining examples explicitly select Muse. Shared routing, memory, wallet,
+Each scenario names its surrogate target. Shared routing, memory, wallet,
 browser/HTTP and scheduling treatments also accept `--emulation-target instinct`.
 For `fixture-booking-cli.yaml`, also pass `--projection cli --client-profile generic-sdk`.
 The [shared contract](../../docs/surrogate-contract.md) lists target-specific
 presentation differences. `surrogate-readiness.yaml` works with either target:
 `check URL --suite surrogate --emulation-target instinct --manifest examples/connector/surrogate-readiness.yaml`.
 
-These scenarios test whether a Muse-like agent can discover, choose and
+These scenarios test whether a surrogate agent can discover, choose and
 correctly use an MCP connector's real tools. They check that it asks the user
 when it must, stays within approvals, avoids duplicate effects and reports the
-true outcome. The host plays a Muse-like trusted control plane. It is a
-labeled public-constraint surrogate, not Muse.
+true outcome. The host supplies a labeled surrogate control plane, with the
+chosen target's source provenance and explicit assumptions.
 
 [docs/connector-lane.md](../../docs/connector-lane.md) is the reference for
 scenarios, options, checks, exit codes and evidence. It also describes the
@@ -43,6 +43,32 @@ with `kill`. Each run prints its evidence path (`runs/connector-<id>/`) and
 - **Agent** runs need a model profile in `consumer-agent-testing-tool.yaml`.
   They use `defaults.model_profile`; add `--model-profile NAME` to pick
   another.
+
+## Synthetic insurance purchases
+
+[`purchase-umbrella.yaml`](purchase-umbrella.yaml) and
+[`purchase-homeowners.yaml`](purchase-homeowners.yaml) cover review, selection,
+carrier follow-up and policy retrieval with separate recorded outcomes. The
+umbrella case includes declarations and synthetic secure-payment setup. The
+homeowners case includes two simulated 48-hour delays and an in-chat carrier reply.
+
+```sh
+uv run consumer-agent-testing-tool connector-run examples/connector/purchase-umbrella.yaml \
+  --emulation-target muse --driver scripted --script examples/connector/purchase-umbrella.calls.yaml \
+  --start "python -m consumer_agent_testing_tool.purchase_fixture --port {port} --line umbrella" \
+  --ready-url "http://127.0.0.1:{port}/health" --summary-json reports/umbrella.json
+```
+
+Use `homeowners` in the paths and `--line` for that case. Either accepts
+`--emulation-target muse` or `--emulation-target instinct`. These native calls files
+need no model, card, customer account or email delivery.
+[Purchase behaviors](../../docs/behavior-tests/purchase-flows.md) describes the
+failure controls, both-projection tests, contract limits and related suites.
+
+[`modern-readiness.yaml`](modern-readiness.yaml) requires observed MCP
+`2026-07-28` discovery and catalog access, with no purchase call:
+`check URL --suite surrogate --emulation-target instinct --manifest examples/connector/modern-readiness.yaml`.
+An SDK major version alone does not satisfy that check.
 
 ## A popular third-party server: the MCP reference server
 

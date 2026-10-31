@@ -12,6 +12,7 @@ families:
       - tests/test_permissions_engine.py
       - tests/test_permissions_rules.py
       - tests/test_connector_run.py
+      - tests/test_purchase_e2e.py
     examples:
       - examples/connector/fixture-booking.yaml
       - examples/connector/scheduled-confirmation.yaml
@@ -57,6 +58,7 @@ families:
       - tests/test_behavior_claims.py
       - tests/test_answer_claims.py
       - tests/test_answer_score.py
+      - tests/test_answer_purchase_claims.py
     examples:
       - examples/connector/scheduled-confirmation.yaml
     runtime_capabilities: [ARCH-01, ARCH-08]
@@ -94,6 +96,7 @@ families:
       - tests/test_ext_browser_fill.py
       - tests/test_ext_content_trust_examples.py
       - tests/test_connector_hooks_private.py
+      - tests/test_connector_capture_rotation.py
     examples:
       - examples/connector/injection-one-time-code.yaml
     runtime_capabilities: [ARCH-01, ARCH-06]
@@ -133,6 +136,28 @@ families:
     examples: []
     runtime_capabilities: [ARCH-03, ARCH-08]
     limits: A captured test surface does not establish another channel's formatting or length limits.
+
+  - id: purchase-lifecycle
+    description: Review, chosen offers, declarations, payment setup, carrier delays and policy support.
+    local_regressions:
+      - tests/test_purchase_fixture.py
+      - tests/test_purchase_e2e.py
+      - tests/test_answer_purchase_claims.py
+    examples:
+      - examples/connector/purchase-umbrella.yaml
+      - examples/connector/purchase-homeowners.yaml
+    runtime_capabilities: [ARCH-02, ARCH-03, ARCH-05, ARCH-07, ARCH-08]
+    limits: Synthetic carrier decisions and callback IDs do not establish live insurance or payment-provider behavior.
+
+  - id: protocol-availability
+    description: Observed modern discovery and catalog access, with explicit legacy and unavailable controls.
+    local_regressions:
+      - tests/test_surrogate_readiness_protocol.py
+      - tests/test_protocol_modern.py
+    examples:
+      - examples/connector/modern-readiness.yaml
+    runtime_capabilities: [ARCH-01, ARCH-07, ARCH-09]
+    limits: SDK major versions and catalog readiness do not establish full protocol conformance or assistant admission.
 
   - id: capability-boundaries
     description: Resource gates, unavailable transports and dependent requests.
