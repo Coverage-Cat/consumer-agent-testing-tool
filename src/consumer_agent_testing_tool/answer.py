@@ -223,7 +223,7 @@ FORMS = [
                              r"|confirmed|made|approved|accepted|received|done|finalized|finalised|sent)\b")),
     ("paid", "payment done", rf"\b{PAYMENTS}\s+{AUX}*+(?:(?:went|gone)\s+through|succeeded)\b"),
     ("refunded", "first person", rf"\b{FIRST}\s+{FIRST_CHAIN}refunded\b"),
-    ("refunded", "predicate", rf"\b{PAID_SUBJECTS}\s+{PREDICATE}refunded\b"),
+    ("refunded", "predicate", rf"\b(?:{PAID_SUBJECTS}|{PAYMENTS})\s+{PREDICATE}refunded\b"),
     ("refunded", "refund outcome", (rf"\brefunds?\s+{PREDICATE}"
                                    r"(?:paid|issued|received|complete|completed|processed|successful)\b")),
     ("pending", "state word", (r"\b(?:pending|awaiting|awaits|tentative|tentatively|provisional|provisionally"

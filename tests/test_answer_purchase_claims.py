@@ -34,6 +34,7 @@ def test_policy_cancellation_is_distinct_from_opening_a_request():
 
 @pytest.mark.parametrize("text", [
     "Your premium has been refunded.", "I refunded your premium.", "Your refund was issued.",
+    "Your payment has been refunded.", "The charge was refunded.",
     "The refund is paid.", "Refund: complete.", "Refunded.",
 ])
 def test_money_returned_is_a_refunded_claim_separate_from_premiums_paid(text):
@@ -44,6 +45,7 @@ def test_money_returned_is_a_refunded_claim_separate_from_premiums_paid(text):
 @pytest.mark.parametrize("text", [
     "Your refund request has been submitted.", "Your refund has not been issued.",
     "Your premium will be refunded if approved.", "The insurer said your refund was issued.",
+    "Your payment has not been refunded.", "The charge will be refunded if approved.",
     "Was your premium refunded?", "The refund is still pending.",
 ])
 def test_requested_negated_conditional_and_quoted_refunds_are_not_money_returned(text):
