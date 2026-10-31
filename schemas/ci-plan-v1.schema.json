@@ -92,6 +92,32 @@
           "maxProperties": 100,
           "title": "Checks",
           "type": "object"
+        },
+        "failure_class": {
+          "anyOf": [
+            {
+              "pattern": "^[A-Za-z][A-Za-z0-9 _./-]{0,99}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Failure Class"
+        },
+        "failure_stage": {
+          "anyOf": [
+            {
+              "pattern": "^[A-Za-z][A-Za-z0-9 _./-]{0,99}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Failure Stage"
         }
       },
       "title": "Expectation",

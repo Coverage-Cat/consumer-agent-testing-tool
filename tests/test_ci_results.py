@@ -87,7 +87,8 @@ def test_junit_preserves_underlying_blocked_and_expected_failure_status(tmp_path
     row = plan.cases[0]
     rows = [CaseResult(id=row.id, definition_sha256=row.definition_sha256, status="expected-failure",
                        exit_code=0, seconds=1.0, attempts=1, outcome=outcome(3),
-                       checks=[check("one-confirmed-booking", "blocked")],
+                       checks=[check(key, "blocked" if key == "one-confirmed-booking" else "passed")
+                               for key in row.required_checks],
                        compatibility_pass=False, run_id="connector-test"),
             *[not_run(case) for case in plan.cases[1:]]]
     report = make_report(plan=plan, cases=rows, harness={"version": "test"})
@@ -113,3 +114,18 @@ def test_artifact_directory_cannot_mix_existing_private_data(tmp_path):
     with pytest.raises(PlanError, match="empty report directory"):
         output_directories(tmp_path, "reports", "private")
     assert (public / "private.log").read_text() == "do not upload"
+
+
+def test_underlying_outcome_cannot_contradict_its_exit_code():
+    with pytest.raises(ValueError):
+        Outcome(exit_code=0, status="blocked", failure_stage=None, failure_class=None, reason=None)
+
+
+def test_loaded_report_cannot_pass_with_a_missing_required_observation(tmp_path):
+    plan = prepare_suite(write_inputs(tmp_path), root=tmp_path).plan
+    rows = [CaseResult(id=row.id, definition_sha256=row.definition_sha256, status="passed", exit_code=0,
+                       seconds=1, attempts=1, outcome=outcome(0), checks=[check("unrelated-host-check")],
+                       compatibility_pass=True, run_id=f"connector-{index}")
+            for index, row in enumerate(plan.cases)]
+    with pytest.raises(ValueError, match="required"):
+        make_report(plan=plan, cases=rows, harness={"version": "test"})

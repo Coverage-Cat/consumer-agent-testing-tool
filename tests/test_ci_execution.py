@@ -215,15 +215,22 @@ async def test_inputs_are_frozen_before_worker_execution(tmp_path, monkeypatch):
 
 async def test_external_task_cancellation_stops_owned_work(tmp_path, monkeypatch):
     monkeypatch.chdir(tmp_path)
-    path, _ = fixture_inputs(tmp_path, count=1, command=barrier_command(
+    path, suite = fixture_inputs(tmp_path, count=3, command=barrier_command(
         tmp_path / "ownership", participants=1, hang=True))
+    for case in suite["cases"]:
+        case["timeout_seconds"] = 2
+    path.write_text(json.dumps(suite))
     task = asyncio.create_task(run_suite(prepare_suite(path, root=tmp_path),
                                          public=tmp_path / "reports", private=tmp_path / "private"))
     async with asyncio.timeout(60):
         while not list((tmp_path / "ownership").glob("*.json")):
             await asyncio.sleep(0.05)
         task.cancel()
-        report = await task
+        with pytest.raises(asyncio.CancelledError):
+            await task
+    report = load_report(tmp_path / "reports/report.json")
     assert report.exit_code == 3
+    assert [row.status for row in report.cases] == ["cancelled", "not-run", "not-run"]
+    assert len(list((tmp_path / "ownership").glob("*.json"))) == 1
     record = json.loads(next((tmp_path / "ownership").glob("*.json")).read_text())
     assert gone(record["pid"])

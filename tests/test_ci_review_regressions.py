@@ -139,3 +139,26 @@ def test_known_environment_credentials_cannot_be_hashed_as_public_input(tmp_path
     with pytest.raises(PlanError, match="environment credential") as caught:
         prepare_suite(write_inputs(tmp_path, steps=steps), root=tmp_path)
     assert value not in str(caught.value)
+
+
+def test_fixed_port_cannot_match_the_offline_placeholder_by_coincidence(tmp_path):
+    doc = json.loads(json.dumps(scenario()).replace(":8765", ":49152"))
+    with pytest.raises(PlanError):
+        prepare_suite(write_inputs(tmp_path, doc=doc), root=tmp_path)
+
+
+@pytest.mark.parametrize("projection,tool,envelope", [("native", "search_rooms", "stdout"), ("cli", "exec", "result")])
+def test_nonportable_references_also_require_the_actual_projection(tmp_path, projection, tool, envelope):
+    suite = suite_document()
+    suite["cases"][0]["matrix"]["projection"] = [projection]
+    steps = [{"tool": tool, "arguments": {"command": "cedar-stays list-tools"} if tool == "exec" else {}},
+             {"answer": [{"$ref": f"/results/0/{envelope}/structuredContent"}]}]
+    with pytest.raises(PlanError):
+        prepare_suite(write_inputs(tmp_path, suite=suite, steps=steps), root=tmp_path)
+
+
+def test_malformed_script_url_returns_a_static_plan_error(tmp_path):
+    steps = portable_script()
+    steps[0]["arguments"]["callback"] = "http://127.0.0.1:bad/path"
+    with pytest.raises(PlanError):
+        prepare_suite(write_inputs(tmp_path, steps=steps), root=tmp_path)

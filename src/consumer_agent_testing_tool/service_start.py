@@ -87,8 +87,20 @@ class Service:
             return None
 
     async def astop(self):
-        """Stop concurrently with other cases; cancellation cannot abandon the owned process group."""
-        cleanup = asyncio.create_task(asyncio.to_thread(self.stop))
+        """Poll without an executor queue; cancellation cannot abandon the owned process group."""
+        async def stop():
+            if self.process.poll() is None:
+                _signal_group(self.process.pid, signal.SIGTERM)
+                deadline = asyncio.get_running_loop().time() + STOP_SECONDS
+                while self.process.poll() is None and asyncio.get_running_loop().time() < deadline:
+                    await asyncio.sleep(0.05)
+            _signal_group(self.process.pid, signal.SIGKILL)
+            deadline = asyncio.get_running_loop().time() + STOP_SECONDS
+            while self.process.poll() is None and asyncio.get_running_loop().time() < deadline:
+                await asyncio.sleep(0.05)
+            return self.process.poll()
+
+        cleanup = asyncio.create_task(stop())
         while not cleanup.done():
             try:
                 await asyncio.shield(cleanup)

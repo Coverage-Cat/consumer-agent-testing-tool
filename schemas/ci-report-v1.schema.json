@@ -281,6 +281,32 @@
           "maxProperties": 100,
           "title": "Checks",
           "type": "object"
+        },
+        "failure_class": {
+          "anyOf": [
+            {
+              "pattern": "^[A-Za-z][A-Za-z0-9 _./-]{0,99}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Failure Class"
+        },
+        "failure_stage": {
+          "anyOf": [
+            {
+              "pattern": "^[A-Za-z][A-Za-z0-9 _./-]{0,99}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Failure Stage"
         }
       },
       "title": "Expectation",
@@ -629,6 +655,24 @@
       "title": "Harness",
       "type": "object"
     },
+    "batch_id": {
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,159}$",
+      "title": "Batch Id",
+      "type": "string"
+    },
+    "build_id": {
+      "anyOf": [
+        {
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,159}$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Build Id"
+    },
     "plan": {
       "anyOf": [
         {
@@ -694,6 +738,17 @@
       "title": "Diagnostics",
       "type": "array"
     },
+    "fatal": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/Diagnostic"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
     "merged_from": {
       "items": {
         "type": "string"
@@ -711,6 +766,7 @@
     "report_id",
     "created_at",
     "harness",
+    "batch_id",
     "plan",
     "cases",
     "exit_code",

@@ -3,6 +3,8 @@ import asyncio
 import copy
 import json
 import os
+import platform
+import re
 import shlex
 import signal
 import subprocess
@@ -10,7 +12,7 @@ import sys
 import time
 import uuid
 from contextlib import asynccontextmanager
-from importlib.metadata import version
+from importlib.metadata import PackageNotFoundError, requires, version
 from pathlib import Path
 
 from jsonschema import Draft202012Validator
@@ -26,19 +28,36 @@ from .ci_results import (
     judge,
     make_report,
     not_run,
+    write_failed,
     write_report,
 )
 from .ci_suite import PlanError, read_document
+from .ci_validation import script_urls
 from .connector_scenario import substitute
 from .errors import LabError
-from .serialization import digest, implementation_lock
+from .serialization import digest, file_digest, implementation_lock
 from .service_start import Service, free_port, started
 
 
 def harness_identity(root):
-    lock = implementation_lock(root)
+    package = Path(__file__).resolve().parent
+    lock = implementation_lock(package.parents[1])
+    bundled = package / "data/locks/uv.lock"
+    if "uv.lock" not in lock["dependency_locks"] and bundled.is_file():
+        lock["dependency_locks"]["uv.lock"] = file_digest(bundled)
+    installed = {}
+    for requirement in requires("consumer-agent-testing-tool") or []:
+        if "extra" in requirement.partition(";")[2]:
+            continue
+        name = re.match(r"[A-Za-z0-9_.-]+", requirement)[0]
+        try:
+            installed[name] = version(name)
+        except PackageNotFoundError:
+            installed[name] = "not-installed"
     return {"version": version("consumer-agent-testing-tool"), "implementation": lock["implementation"],
-            "dependency_locks": digest(lock["dependency_locks"])}
+            "dependency_locks": digest(lock["dependency_locks"]),
+            "runtime": digest({"python": platform.python_version(), "os": platform.system(),
+                               "architecture": platform.machine(), "packages": installed})}
 
 
 def private_json(path, value):
@@ -70,7 +89,7 @@ def snapshot(case, workspace, port, namespace):
                 stream.write(text)
     private_json(workspace / "input/scenario.json", document)
     if case.script is not None:
-        private_json(workspace / "input/calls.json", substitute(copy.deepcopy(case.script), variables))
+        private_json(workspace / "input/calls.json", script_urls(copy.deepcopy(case.script), variables))
     request = {"kind": case.spec.kind, "treatment": case.public.treatment.model_dump(),
                "port": port, "namespace": namespace}
     if case.manifest is not None:
@@ -169,15 +188,30 @@ def stopped_result(case, status, code, message, *, attempted, seconds, action):
 
 
 class Coordinator:
-    def __init__(self, prepared, *, public, private, jobs=1):
+    def __init__(self, prepared, *, public, private, jobs=1, batch_id=None, build_id=None, handle_signals=False):
+        from .ci_history import validate_binding
+
+        validate_binding(prepared, batch_id, build_id)
+        if type(jobs) is not int or not 1 <= jobs <= 64 or jobs > 1 and any(
+                prepared.cases[key].public.state == "shared" for key in prepared.plan.scheduled):
+            raise PlanError("execution.jobs", "jobs", "Use 1–64 workers and only one worker for shared state.")
         self.prepared, self.public, self.jobs = prepared, Path(public), jobs
         self.report_id = uuid.uuid4().hex
+        self.batch_id, self.build_id = batch_id or self.report_id, build_id
         self.private = Path(private) / self.report_id
         self.rows = {key: not_run(prepared.cases[key].public) for key in prepared.plan.scheduled}
         self.harness = harness_identity(prepared.root)
         self.started_at = time.monotonic()
         self.ports = set()
         self.cancelled = False
+        self.fatal, self.tasks, self.handle_signals = None, [], handle_signals
+
+    def cancel(self):
+        self.cancelled = True
+        current = asyncio.current_task()
+        for task in self.tasks:
+            if task is not current and not task.done():
+                task.cancel()
 
     def port(self):
         for _ in range(100):
@@ -189,11 +223,19 @@ class Coordinator:
 
     def report(self):
         return make_report(plan=self.prepared.plan, cases=list(self.rows.values()), harness=self.harness,
-                           jobs=self.jobs, seconds=time.monotonic() - self.started_at, report_id=self.report_id)
+                           jobs=self.jobs, seconds=time.monotonic() - self.started_at, report_id=self.report_id,
+                           batch_id=self.batch_id, build_id=self.build_id, fatal=self.fatal)
 
     def checkpoint(self):
         report = self.report()
-        write_report(report, self.public)
+        if self.fatal and self.fatal.code == "report.write":
+            return report
+        try:
+            write_report(report, self.public)
+        except OSError:
+            self.fatal = write_failed(report).fatal
+            self.cancel()
+            return self.report()
         return report
 
     async def case(self, case):
@@ -231,6 +273,7 @@ class Coordinator:
                                     "Case deadline reached. Owned processes were stopped; the outcome may be incomplete.",
                                     attempted=attempted, seconds=0, action="reconcile-before-rerun")
         except asyncio.CancelledError:
+            self.cancelled = True
             result = stopped_result(case, "cancelled", "case.cancelled",
                                     "Case interrupted. Owned processes were stopped; reconcile any possible writes.",
                                     attempted=attempted, seconds=0, action="reconcile-before-rerun")
@@ -244,8 +287,15 @@ class Coordinator:
         self.checkpoint()
 
     async def run(self):
-        self.private.mkdir(parents=True, mode=0o700)
+        try:
+            self.private.mkdir(parents=True, mode=0o700)
+        except OSError:
+            self.fatal = Diagnostic(code="suite.private", message="Cannot create private evidence storage; no cases ran.",
+                                    action="inspect-private-evidence")
+            return self.checkpoint()
         self.checkpoint()  # Interrupted or unfinished cases are already visible, never an empty green report.
+        if self.fatal:
+            return self.report()
         queue = asyncio.Queue()
         for identifier in self.prepared.plan.scheduled:
             queue.put_nowait(self.prepared.cases[identifier])
@@ -259,39 +309,44 @@ class Coordinator:
                 await self.case(case)
 
         tasks = [asyncio.create_task(consume()) for _ in range(min(self.jobs, queue.qsize()))]
+        self.tasks = tasks
         loop = asyncio.get_running_loop()
 
         def cancel():
             if not self.cancelled:
-                self.cancelled = True
-                for task in tasks:
-                    task.cancel()
+                self.cancel()
 
         previous, handlers = {}, []
-        for number in (signal.SIGTERM, signal.SIGINT):
+        for number in (signal.SIGTERM, signal.SIGINT) if self.handle_signals else ():
             try:
                 previous[number] = signal.getsignal(number)
                 loop.add_signal_handler(number, cancel)
                 handlers.append(number)
             except (NotImplementedError, RuntimeError, ValueError):
                 pass
+        cancelled_by_caller = False
         try:
             try:
                 await asyncio.gather(*tasks)
             except asyncio.CancelledError:
-                cancel()
+                cancelled_by_caller = True
+                self.cancel()
                 await asyncio.gather(*tasks, return_exceptions=True)
             except BaseException:
-                cancel()
+                self.cancel()
                 await asyncio.gather(*tasks, return_exceptions=True)
                 raise
         finally:
             for number in handlers:
                 loop.remove_signal_handler(number)
                 signal.signal(number, previous[number])
-        return self.checkpoint()
+        report = self.checkpoint()
+        if cancelled_by_caller:
+            raise asyncio.CancelledError
+        return report
 
 
-async def run_suite(prepared, *, public, private, jobs=1):
-    coordinator = Coordinator(prepared, public=public, private=private, jobs=jobs)
+async def run_suite(prepared, *, public, private, jobs=1, batch_id=None, build_id=None, handle_signals=False):
+    coordinator = Coordinator(prepared, public=public, private=private, jobs=jobs, batch_id=batch_id,
+                              build_id=build_id, handle_signals=handle_signals)
     return await coordinator.run()

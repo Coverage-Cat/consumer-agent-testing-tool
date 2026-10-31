@@ -15,7 +15,6 @@ from .connector_scenario import (
     check_url,
     is_loopback,
     parse_scenario,
-    substitute,
 )
 from .emulation import SHARED_EXTENSIONS, EmulationTarget, ProjectionMode
 from .errors import LabError
@@ -87,6 +86,8 @@ class Treatment(Strict):
 class Expectation(Strict):
     exit_code: Literal[0, 1, 3] = 0
     checks: dict[str, CheckStatus] = Field(default_factory=dict, max_length=100)
+    failure_class: str | None = Field(default=None, pattern=r"^[A-Za-z][A-Za-z0-9 _./-]{0,99}$")
+    failure_stage: str | None = Field(default=None, pattern=r"^[A-Za-z][A-Za-z0-9 _./-]{0,99}$")
 
     @model_validator(mode="after")
     def specific(self):
@@ -97,6 +98,10 @@ class Expectation(Strict):
         if self.exit_code == 1 and "failed" not in self.checks.values() \
                 or self.exit_code == 3 and "failed" in self.checks.values():
             raise ValueError("Exit 1 needs a failed check; exit 3 cannot expect a failed check")
+        if self.exit_code == 0 and (self.failure_class or self.failure_stage):
+            raise ValueError("A passing expectation cannot pin a failure")
+        if {"execution", "answer"}.intersection(self.checks) and not (self.failure_class and self.failure_stage):
+            raise ValueError("Generic execution/answer findings need failure_class and failure_stage")
         return self
 
 
@@ -277,6 +282,7 @@ def _prepared(case, treatment, service, *, root, base, redactor, location, sourc
     from .ci_validation import (
         check_owned_urls,
         literal_mask,
+        script_urls,
         urls,
         validate_expectation,
         validate_script_surface,
@@ -304,7 +310,7 @@ def _prepared(case, treatment, service, *, root, base, redactor, location, sourc
     if case.script:
         script = read_document(input_path(root, base, case.script, location + ".script"), location=location + ".script")
         try:
-            ScriptedDriver(substitute(script, variables))
+            ScriptedDriver(script_urls(script, variables))
         except LabError:
             raise PlanError("script.invalid", location, "Invalid scripted steps; review the calls file locally.") from None
         for index, step in enumerate(script):
@@ -329,13 +335,13 @@ def _prepared(case, treatment, service, *, root, base, redactor, location, sourc
             raise PlanError("readiness.treatment", location,
                             "Readiness has no exposure or result-schema treatment; leave those matrix defaults.")
     if case.network == "loopback":
-        declared_urls = [*urls(effective.model_dump(mode="json")), *urls(substitute(script, variables))]
+        declared_urls = [*urls(effective.model_dump(mode="json")), *urls(script_urls(script, variables))]
         if service.ready_url:
             declared_urls.append(service.ready_url.replace("{port}", PLAN_PORT).replace("{case}", "ci-case"))
         if any(not is_loopback(url) for url in declared_urls):
             raise PlanError("network.remote", location,
                             "A declared URL is remote; use a test endpoint or explicitly set network: remote.")
-    check_owned_urls(case, service, effective, substitute(script, variables), location)
+    check_owned_urls(case, service, effective, script_urls(script, variables), location, source=[document, script])
     validate_expectation(case, effective, location)
     bundles = {}
     custom = effective.extensions.get("custom_connector") or {}
@@ -446,7 +452,8 @@ def prepare_suite(path, *, root=None, cases=(), tags=(), shard="1/1", jobs=1):
                      selected=selected, scheduled=selected[index - 1::count], shard_index=index, shard_count=count)
     identifiers = [plan.suite_id, *plan.selected, *(
         value for row in plan.cases for value in (row.source_id, row.service, *row.tags,
-                                                  *row.required_checks, *row.expect.checks))]
+                                                  *row.required_checks, *row.expect.checks,
+                                                  row.expect.failure_class or "", row.expect.failure_stage or ""))]
     if any(redactor.text(value) != value for value in identifiers):
         raise PlanError("privacy.identity", "suite",
                         "A public case identifier or plan field contains a private value; change the identifier.")

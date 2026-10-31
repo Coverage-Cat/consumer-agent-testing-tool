@@ -232,7 +232,7 @@ def test_readiness_uses_the_scenarios_auth_and_validates_the_manifest_offline(tm
 def test_shipped_booking_suite_validates_without_setup_or_keys(offline):
     root = Path(__file__).resolve().parents[1]
     found = prepare_suite(root / "examples/ci/booking.suite.yaml", root=root, jobs=4)
-    assert len(found.plan.cases) == 8
+    assert len(found.plan.cases) == 12
 
 
 @pytest.mark.parametrize("value", [123456, ["private-list"], "private-scalar"])

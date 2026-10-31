@@ -23,3 +23,12 @@ cases:
     service: hotel
     tags: [smoke, readiness]
     matrix: *shared
+  - id: booking-search
+    scenario: ../connector/fixture-booking.yaml
+    script: booking-search.calls.yaml
+    service: hotel
+    tags: [booking, discovery]
+    matrix:
+      emulation_target: [muse, instinct]
+      projection: [native, cli]
+      exposure: [search-only]

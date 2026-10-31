@@ -1,5 +1,6 @@
 """Public CI reports: exact expectations, honest incomplete coverage, JSON and JUnit."""
 import os
+import re
 import tempfile
 import uuid
 from datetime import UTC, datetime
@@ -43,6 +44,12 @@ class Outcome(Strict):
     failure_class: str | None
     reason: str | None = Field(max_length=2000)
 
+    @model_validator(mode="after")
+    def consistent(self):
+        if self.status != CODE_STATUS[self.exit_code]:
+            raise ValueError("Underlying outcome status disagrees with its exit code")
+        return self
+
 
 def significant(checks):
     return {row.id: row.status for row in checks
@@ -57,7 +64,13 @@ def judge(outcome, checks, expectation):
         return "error"
     if outcome.exit_code == 0:
         return "passed" if expectation.exit_code == 0 and not significant(checks) else "failed"
-    if expectation.exit_code != 0 and outcome.exit_code == expectation.exit_code \
+    cause_matches = (not expectation.failure_class or outcome.failure_class == expectation.failure_class) and (
+        not expectation.failure_stage or outcome.failure_stage == expectation.failure_stage)
+    if {"execution", "answer"}.intersection(expectation.checks):
+        cause_matches = cause_matches and all(
+            row.failure_class == expectation.failure_class for row in checks if row.id in ("execution", "answer")
+            and row.id in expectation.checks)
+    if expectation.exit_code != 0 and outcome.exit_code == expectation.exit_code and cause_matches \
             and significant(checks) == expectation.checks:
         return "expected-failure"
     if expectation.exit_code != 0:
@@ -108,6 +121,8 @@ class SuiteReport(Strict):
     evidence_label: Literal["scripted surrogate compatibility; no model inference"] = (
         "scripted surrogate compatibility; no model inference")
     harness: dict[str, str]
+    batch_id: str = Field(pattern=r"^[A-Za-z0-9][A-Za-z0-9_.:-]{0,159}$")
+    build_id: str | None = Field(default=None, pattern=r"^[A-Za-z0-9][A-Za-z0-9_.:-]{0,159}$")
     plan: SuitePlan | None
     cases: list[CaseResult]
     exit_code: Literal[0, 1, 2, 3]
@@ -117,6 +132,7 @@ class SuiteReport(Strict):
     model_requests: Literal[0] = 0
     compatibility_pass: bool
     diagnostics: list[Diagnostic] = Field(default_factory=list)
+    fatal: Diagnostic | None = None
     merged_from: list[str] = Field(default_factory=list)
     content_sha256: str = Field(pattern=r"^[a-f0-9]{64}$")
 
@@ -131,6 +147,8 @@ class SuiteReport(Strict):
             if self.exit_code != 2 or self.cases or not self.diagnostics or self.compatibility_pass:
                 raise ValueError("A report without a validated plan is a setup error")
             return self
+        if self.plan.shard_count > 1 and not self.build_id:
+            raise ValueError("Shard reports need an explicit build identity")
         expected = {row.id: row for row in self.plan.cases}
         if sorted(row.id for row in self.cases) != sorted(self.plan.scheduled):
             raise ValueError("Report must contain exactly one row per scheduled case, including unrun cases")
@@ -140,26 +158,35 @@ class SuiteReport(Strict):
             if row.outcome and row.status not in ("cancelled", "blocked", "error") and row.status != judge(
                     row.outcome, row.checks, expected[row.id].expect):
                 raise ValueError("Gate result does not satisfy its exact expectation")
-        if self.exit_code != aggregate_code(self.cases):
+            if row.status in ("passed", "expected-failure") and (
+                    expected[row.id].kind == "connector" or row.status == "passed") and not set(
+                        expected[row.id].required_checks).issubset(
+                            check.id for check in row.checks if check.required):
+                raise ValueError("A passing gate must include every required observation")
+        if self.exit_code != (2 if self.fatal else aggregate_code(self.cases)):
             raise ValueError("Report exit code disagrees with its cases")
         full = self.plan.scheduled == [row.id for row in self.plan.cases]
-        if self.compatibility_pass != (full and all(row.compatibility_pass for row in self.cases)):
+        if self.compatibility_pass != (not self.fatal and full and all(row.compatibility_pass for row in self.cases)):
             raise ValueError("Incomplete or negative coverage cannot claim full-suite compatibility")
         return self
 
 
-def make_report(*, plan, cases, harness, jobs=1, seconds=0, diagnostics=(), report_id=None, merged_from=()):
-    code = aggregate_code(cases) if plan else 2
+def make_report(*, plan, cases, harness, jobs=1, seconds=0, diagnostics=(), report_id=None, merged_from=(),
+                batch_id=None, build_id=None, fatal=None):
+    code = aggregate_code(cases) if plan and not fatal else 2
+    identifier = report_id or uuid.uuid4().hex
     document = {
-        "schema_version": 1, "kind": "catt-ci-report", "report_id": report_id or uuid.uuid4().hex,
+        "schema_version": 1, "kind": "catt-ci-report", "report_id": identifier,
         "created_at": datetime.now(UTC).isoformat(),
         "evidence_label": "scripted surrogate compatibility; no model inference",
         "harness": harness, "plan": plan.model_dump() if plan else None,
+        "batch_id": batch_id or identifier, "build_id": build_id,
         "cases": [row.model_dump() for row in cases], "exit_code": code, "status": CODE_STATUS[code],
         "seconds": float(round(seconds, 6)), "jobs": jobs, "model_requests": 0,
-        "compatibility_pass": bool(plan and plan.scheduled == [row.id for row in plan.cases]
+        "compatibility_pass": bool(not fatal and plan and plan.scheduled == [row.id for row in plan.cases]
                                    and all(row.compatibility_pass for row in cases)),
         "diagnostics": [row.model_dump() for row in diagnostics], "merged_from": list(merged_from),
+        "fatal": fatal.model_dump() if fatal else None,
     }
     return SuiteReport.model_validate({**document, "content_sha256": digest(document)})
 
@@ -182,6 +209,7 @@ def atomic_write(path, text):
     try:
         with os.fdopen(descriptor, "w", encoding="utf-8") as stream:
             stream.write(text)
+            os.fchmod(stream.fileno(), 0o644)
         os.replace(temporary, path)
     finally:
         Path(temporary).unlink(missing_ok=True)
@@ -193,6 +221,11 @@ def xml_text(value):
 
 def junit(report):
     root = ElementTree.Element("testsuites", name="CATT scripted surrogate CI")
+    if report.fatal:
+        suite = ElementTree.SubElement(root, "testsuite", name="suite-reporting", tests="1", errors="1",
+                                       failures="0", skipped="0")
+        node = ElementTree.SubElement(suite, "testcase", name="public-report")
+        ElementTree.SubElement(node, "error", message=report.fatal.code).text = xml_text(report.fatal.message)
     if report.plan is None:
         suite = ElementTree.SubElement(root, "testsuite", name="suite-input", tests="1", errors="1",
                                        failures="0", skipped="0")
@@ -227,7 +260,16 @@ def junit(report):
             suite.set("tests", str(len(suite.findall("testcase"))))
             for attribute, element in (("failures", "failure"), ("errors", "error"), ("skipped", "skipped")):
                 suite.set(attribute, str(len(suite.findall(f"testcase/{element}"))))
-    return ElementTree.tostring(root, encoding="unicode", xml_declaration=True) + "\n"
+    return ElementTree.tostring(root, encoding="utf-8", xml_declaration=True).decode("utf-8") + "\n"
+
+
+def write_failed(report):
+    return make_report(plan=report.plan, cases=report.cases, harness=report.harness, jobs=report.jobs,
+                       seconds=report.seconds, diagnostics=report.diagnostics, report_id=report.report_id,
+                       merged_from=report.merged_from, batch_id=report.batch_id, build_id=report.build_id,
+                       fatal=Diagnostic(code="report.write", message="Cannot write public reports. Stdout preserves the "
+                                        "in-memory observations; any older files are not this invocation's result.",
+                                        action="inspect-private-evidence"))
 
 
 def write_report(report, directory):
@@ -244,8 +286,10 @@ def output_directories(root, report_dir, private_dir):
     if public.is_relative_to(private) or private.is_relative_to(public):
         raise PlanError("output.private", "output", "Public reports and private evidence need separate directories.")
     if public.exists() and (not public.is_dir() or any(
-            row.name not in {"report.json", "junit.xml"} or not row.is_file() or row.is_symlink()
+            (row.name not in {"report.json", "junit.xml"} and not re.fullmatch(r"\.catt-ci-[a-z0-9_]{8}", row.name))
+            or not row.is_file() or row.is_symlink()
             for row in public.iterdir())):
         raise PlanError("output.mixed", "report-dir",
-                        "Use an empty report directory or one containing only CI report.json and junit.xml.")
+                        "Use an empty report directory or one containing only CI reports and their atomic temporary files. "
+                        "Existing files are not this invocation's result.")
     return public, private
