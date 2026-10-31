@@ -3690,6 +3690,11 @@ class ScriptedDriver:
     (one model turn; an optional "text" is what it said): run.idle() runs the queued resume messages or
     the extensions' on_idle hooks, its result is the resume message (null when nothing resumed it) and the
     script goes on, so background work (a scheduler's jobs) runs without a model.
+
+    A step with "connector" names that connector's server tool, independent of projection. It becomes a
+    native function or an exec call-tool command, through the same admission and permission checks.
+    /responses/<step> holds only that call's host-visible MCP response (native result or CLI stdout).
+    Deferred tools still need explicit tool_search steps; nothing is loaded or retried implicitly.
     """
     name = "scripted"
 
@@ -3712,56 +3717,82 @@ class ScriptedDriver:
                     raise LabError(f"Script step {index}: an idle step is {{\"idle\": true}}, with an optional "
                                    "\"text\" the agent said")
                 continue
-            if not isinstance(step, dict) or set(step) - {"tool", "arguments"} \
+            if not isinstance(step, dict) or set(step) - {"tool", "arguments", "connector"} \
                     or not isinstance(step.get("tool"), str) or not isinstance(step.get("arguments", {}), dict):
                 raise LabError(f"Script step {index}: use {{\"tool\": name, \"arguments\": {{...}}}}, "
                                "{\"idle\": true} or {\"answer\": text}")
+            if "connector" in step:
+                from .connector_scenario import CONNECTOR_NAME
+                if not isinstance(step["connector"], str) or not re.fullmatch(CONNECTOR_NAME, step["connector"]):
+                    raise LabError(f"Script step {index}: connector must be a connector name")
         self.steps = steps
 
     def lock(self):
         return {"scripted": True, "steps_sha256": digest(self.steps)}
 
     async def run(self, run: ConnectorRun):
-        results = []
+        results, responses = [], []
         for index, step in enumerate(self.steps):
             if run.terminal:
                 raise run.terminal
             if "answer" in step:
                 answer = step["answer"]
                 return answer if isinstance(answer, str) else "".join(
-                    part if isinstance(part, str) else str(_script_refs(part, results, index)) for part in answer)
+                    part if isinstance(part, str) else str(_script_refs(part, results, index, responses))
+                    for part in answer)
             if run.turns >= run.scenario.limits.model_turns:
                 raise LimitExhausted("Scenario model-turn limit reached")
             if "idle" in step:
                 run.turns += 1  # The stop is a model turn, as in the agent driver.
                 results.append(await run.idle(step.get("text")))
+                responses.append(None)
                 continue
-            arguments = _script_refs(step.get("arguments", {}), results, index)
-            if step["tool"] == "exec" and isinstance(arguments.get("command"), list):
+            arguments = _script_refs(step.get("arguments", {}), results, index, responses)
+            name = step["tool"]
+            if "connector" in step:
+                name, arguments = _portable_call(run, step["connector"], name, arguments, index)
+            if name == "exec" and isinstance(arguments.get("command"), list):
                 arguments["command"] = shlex.join(part if isinstance(part, str) else compact(part)
                                                   for part in arguments["command"])
-            text = await run.scripted_call(step["tool"], arguments)
+            text = await run.scripted_call(name, arguments)
             run.turns += 1
             try:
                 results.append(json.loads(text))
             except ValueError:
                 results.append(text)
+            visible = results[-1]
+            field = "stdout" if run.projection.mode in CLI_PROJECTIONS else "result"
+            responses.append(copy.deepcopy(visible.get(field)) if "connector" in step
+                             and isinstance(visible, dict) else None)
         if run.terminal:
             raise run.terminal
         return None
 
 
-def _script_refs(value, results, index):
+def _portable_call(run, connector, tool, arguments, index):
+    if connector not in run.projection.connectors:
+        raise LabError(f"Script step {index}: connector {connector!r} is not connected")
+    if not run.projection.allowed(connector, tool):
+        raise LabError(f"Script step {index}: connector {connector!r} does not expose tool {tool!r}")
+    if run.projection.mode in CLI_PROJECTIONS:
+        return "exec", {"command": [connector, "call-tool", "--name", tool, "--arguments-json", arguments]}
+    name = next((name for name, server in run.projection.model_names(connector).items() if server == tool), None)
+    if name is None:
+        raise LabError(f"Script step {index}: connector {connector!r} does not expose tool {tool!r}")
+    return name, arguments
+
+
+def _script_refs(value, results, index, responses=None):
     from .surface import pointer
     if isinstance(value, dict):
         if set(value) == {"$ref"}:
             try:
-                return copy.deepcopy(pointer({"results": results}, value["$ref"]))
+                return copy.deepcopy(pointer({"results": results, "responses": responses or []}, value["$ref"]))
             except (KeyError, IndexError, TypeError, ValueError, LabError):
                 raise LabError(f"Script step {index}: {value['$ref']} does not resolve in earlier results") from None
-        return {key: _script_refs(item, results, index) for key, item in value.items()}
+        return {key: _script_refs(item, results, index, responses) for key, item in value.items()}
     if isinstance(value, list):
-        return [_script_refs(item, results, index) for item in value]
+        return [_script_refs(item, results, index, responses) for item in value]
     return value
 
 

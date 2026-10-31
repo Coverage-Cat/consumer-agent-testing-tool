@@ -802,9 +802,23 @@ For more detail, see the [documentation index](docs/README.md),
 
 ## Use it in CI
 
-Scripted connector runs need no model and no key, and they replay the same calls every time, so they
-work as a pull-request check. `connector-run` can start the service itself and write reports a CI
-system reads:
+Run a suite of scripted connector cases and shared readiness checks with one command. Both surrogate
+targets and their native/CLI treatments are declared in the suite. No model or key is needed:
+
+```sh
+uv run consumer-agent-testing-tool ci run examples/ci/booking.suite.yaml \
+  --jobs 4 --build-id local --report-dir reports/booking
+uv run consumer-agent-testing-tool ci run examples/ci/purchase.suite.yaml \
+  --jobs 4 --build-id local --report-dir reports/purchase
+```
+
+The runner validates every input before starting a service, bounds concurrent workers, and writes public
+JSON and JUnit separately from private evidence. Use `ci plan` for offline inspection, `--case`/`--tag` for
+selection, `--failed-from` for a new run of unresolved cases, and `ci merge`/`ci diff` for distributed runs
+and build comparison. Missing observations cannot become passing coverage.
+The [suite guide](docs/ci-suites.md) describes state isolation, exact negative expectations and report schemas.
+
+For a single case, `connector-run` can also start the service and write reports:
 
 ```sh
 uv run consumer-agent-testing-tool connector-run my-connector.yaml \
@@ -834,9 +848,9 @@ uv run consumer-agent-testing-tool connector-run my-connector.yaml \
 
 The exit codes in [Outcomes and exit codes](#outcomes-and-exit-codes) decide the step. A 3 (blocked
 or unsupported) is not a pass.
-[`examples/ci/connector-lane.yml`](examples/ci/connector-lane.yml) is a GitHub Actions template with
-two jobs. On pull requests, it runs the scripted calls and the readiness review. Nightly or on demand,
-it runs agent trials under each Muse-like treatment, and only when a model key secret is set.
+[`examples/ci/connector-lane.yml`](examples/ci/connector-lane.yml) runs suite shards and a required merge
+gate on pull requests. Separate agent trials for both targets require explicit manual or scheduled opt-in
+and a model key. A key alone never enables paid inference.
 [`.github/workflows/ci.yml`](.github/workflows/ci.yml) runs this repository's tests and shipped
 examples on macOS and Linux. Coding agents should start with [`AGENTS.md`](AGENTS.md).
 All matrix jobs feed the required `CI` check; Linux failures are not allowed to pass silently.

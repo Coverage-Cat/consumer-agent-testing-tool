@@ -86,6 +86,29 @@ class Service:
         except subprocess.TimeoutExpired:
             return None
 
+    async def astop(self):
+        """Poll without an executor queue; cancellation cannot abandon the owned process group."""
+        async def stop():
+            if self.process.poll() is None:
+                _signal_group(self.process.pid, signal.SIGTERM)
+                deadline = asyncio.get_running_loop().time() + STOP_SECONDS
+                while self.process.poll() is None and asyncio.get_running_loop().time() < deadline:
+                    await asyncio.sleep(0.05)
+            _signal_group(self.process.pid, signal.SIGKILL)
+            deadline = asyncio.get_running_loop().time() + STOP_SECONDS
+            while self.process.poll() is None and asyncio.get_running_loop().time() < deadline:
+                await asyncio.sleep(0.05)
+            return self.process.poll()
+
+        cleanup = asyncio.create_task(stop())
+        while not cleanup.done():
+            try:
+                await asyncio.shield(cleanup)
+            except asyncio.CancelledError:
+                # A suite cancels work, then waits for this bounded cleanup before recording its result.
+                continue
+        return cleanup.result()
+
 
 def _signal_group(pid, number):
     try:
@@ -128,7 +151,8 @@ async def wait_ready(service, timeout) -> None:
 
 
 @asynccontextmanager
-async def started(command, *, port, output, ready_url, timeout, environment, announce=None):
+async def started(command, *, port, output, ready_url, timeout, environment, announce=None,
+                  handle_signals=True, async_cleanup=False):
     """The running service, stopped on every way out (an error, a cancellation, Ctrl-C, SIGTERM); announce(service)
     runs once it is started, before it is ready, so a summary of a failed start still names it."""
     argv = start_argv(command, port)
@@ -154,11 +178,13 @@ async def started(command, *, port, output, ready_url, timeout, environment, ann
         terminated.append(True)
         _signal_group(process.pid, signal.SIGTERM)
         task.cancel()
-    try:
-        loop.add_signal_handler(signal.SIGTERM, terminate)
-        handled = True
-    except (NotImplementedError, RuntimeError, ValueError):
-        handled = False
+    handled = False
+    if handle_signals:
+        try:
+            loop.add_signal_handler(signal.SIGTERM, terminate)
+            handled = True
+        except (NotImplementedError, RuntimeError, ValueError):
+            pass
     try:
         try:
             await wait_ready(service, timeout)
@@ -171,7 +197,10 @@ async def started(command, *, port, output, ready_url, timeout, environment, ann
                            category="interrupted")
     finally:
         try:
-            service.stop()
+            if async_cleanup:
+                await service.astop()
+            else:
+                service.stop()
         finally:
             if handled:
                 loop.remove_signal_handler(signal.SIGTERM)

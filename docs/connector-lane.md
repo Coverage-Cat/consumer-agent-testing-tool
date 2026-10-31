@@ -1086,6 +1086,7 @@ A script replays tool calls through the same host path, with no model:
 | Step | Meaning |
 |---|---|
 | `{"tool": NAME, "arguments": {...}}` | One call of a model tool: a native function, `exec`, `ask_user`, `tool_search` or an extension tool |
+| `{"connector": CONNECTOR, "tool": NAME, "arguments": {...}}` | One server tool through the selected host projection; the same trace works with native and CLI |
 | `{"idle": true, "text": "..."}` | The agent stops (one model turn). Queued resume messages or the extensions' `on_idle` hooks run; the step's result is the resume message, or null |
 | `{"answer": TEXT}` | The final answer, the last step. A list of strings and references is joined |
 
@@ -1095,6 +1096,13 @@ model received it. A native result is an envelope, so pointers look like
 `/results/4/stdout/structuredContent/quote_id`. An `exec` command may be a list
 of argv parts: non-string parts are JSON-encoded and the list is joined with
 shell quoting.
+
+Portable connector steps use `{"$ref": "/responses/<step>/structuredContent/quote_id"}`.
+`responses` holds only that step's visible MCP response: the native envelope's `result` or the CLI
+envelope's `stdout`. Other steps have a null response. Truncated, masked or absent fields stay unavailable.
+Portable calls still pass through host admission, allowlists, permissions and argument validation.
+They do not load deferred tools, add calls or retry writes. Use explicit `tool_search` steps when testing
+search-only exposure. [The CI booking trace](../examples/ci/booking.calls.yaml) is a complete example.
 
 A script holds 1 to 1,000 steps. Each call and each idle step is a model turn,
 within `limits.model_turns`. The scripted agent stops only at idle steps, so
