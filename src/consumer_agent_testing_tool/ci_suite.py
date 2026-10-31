@@ -15,18 +15,19 @@ from .connector_scenario import (
     check_url,
     is_loopback,
     parse_scenario,
-    published_digest,
     substitute,
 )
 from .emulation import SHARED_EXTENSIONS, EmulationTarget, ProjectionMode
 from .errors import LabError
-from .evidence import Redactor
+from .evidence import Redactor, SecretList
 from .serialization import digest, load
 
 MAX_CASES = 512
 MAX_INPUT_BYTES = 4 * 1024 * 1024
 PLAN_PORT = "49152"
+PLAN_VARIABLES = {"PORT": PLAN_PORT, "CASE": "ci-case"}
 Identifier = Annotated[str, Field(pattern=IDENTIFIER)]
+Sha256 = Annotated[str, Field(pattern=r"^[a-f0-9]{64}$")]
 CheckStatus = Literal["failed", "blocked", "unsupported", "observation-gap", "not-evaluated"]
 
 
@@ -93,6 +94,9 @@ class Expectation(Strict):
             raise ValueError("A negative expectation needs an exit code and exact nonpassing check IDs")
         if any(not re.fullmatch(r"[A-Za-z0-9_.:/-]{1,200}", key) for key in self.checks):
             raise ValueError("Expected checks name exact check IDs; patterns are not supported")
+        if self.exit_code == 1 and "failed" not in self.checks.values() \
+                or self.exit_code == 3 and "failed" in self.checks.values():
+            raise ValueError("Exit 1 needs a failed check; exit 3 cannot expect a failed check")
         return self
 
 
@@ -137,6 +141,15 @@ class SuiteSpec(Strict):
         return self
 
 
+class CaseInputs(Strict):
+    scenario: Sha256
+    script: Sha256 | None
+    manifest: Sha256 | None
+    docs: Sha256
+    service: Sha256
+    readiness_connector: str | None
+
+
 class PlanCase(Strict):
     id: str = Field(pattern=r"^[A-Za-z][A-Za-z0-9_-]{0,299}$")
     source_id: Identifier
@@ -149,6 +162,18 @@ class PlanCase(Strict):
     tags: list[str]
     timeout_seconds: float
     expect: Expectation
+    inputs: CaseInputs
+    required_checks: list[str]
+
+    @model_validator(mode="after")
+    def identity(self):
+        if self.id != "--".join([self.source_id, *self.treatment.model_dump().values()]):
+            raise ValueError("Case ID differs from its treatment")
+        if self.definition_sha256 != digest(self.model_dump(exclude={"definition_sha256"})):
+            raise ValueError("Case definition digest differs from its public metadata and input digests")
+        if self.required_checks != sorted(set(self.required_checks)):
+            raise ValueError("Declared required check IDs must be distinct and sorted")
+        return self
 
 
 class SuitePlan(Strict):
@@ -165,6 +190,22 @@ class SuitePlan(Strict):
     shard_index: int = Field(ge=1, le=MAX_CASES)
     shard_count: int = Field(ge=1, le=MAX_CASES)
 
+    @model_validator(mode="after")
+    def coverage(self):
+        identifiers = [row.id for row in self.cases]
+        if identifiers != sorted(set(identifiers)):
+            raise ValueError("Plan cases must be distinct and sorted")
+        identity = {row.id: row.definition_sha256 for row in self.cases}
+        if self.suite_sha256 != digest(identity) or self.selected != sorted(set(self.selected)) \
+                or not set(self.selected).issubset(identity):
+            raise ValueError("Plan selection or suite identity is inconsistent")
+        if self.scope_sha256 != digest({key: identity[key] for key in self.selected}):
+            raise ValueError("Selection digest is inconsistent")
+        if not 1 <= self.shard_index <= self.shard_count <= len(self.selected) \
+                or self.scheduled != self.selected[self.shard_index - 1::self.shard_count]:
+            raise ValueError("Scheduled cases differ from the declared shard")
+        return self
+
 
 @dataclass
 class PreparedCase:
@@ -176,6 +217,7 @@ class PreparedCase:
     manifest: dict | None
     loaded: LoadedScenario
     readiness_connector: str | None
+    extension_documents: dict[str, dict[str, str]]
 
 
 @dataclass
@@ -215,17 +257,6 @@ def validate_model(model, document, location):
         raise PlanError("input.schema", location, f"Invalid {model.__name__} ({types}); check its JSON Schema.") from None
 
 
-def _urls(document):
-    if isinstance(document, dict):
-        for item in document.values():
-            yield from _urls(item)
-    elif isinstance(document, list):
-        for item in document:
-            yield from _urls(item)
-    elif isinstance(document, str) and document.startswith(("http://", "https://")):
-        yield document
-
-
 def _validate_script_refs(value, index):
     if isinstance(value, dict):
         if set(value) == {"$ref"}:
@@ -242,22 +273,26 @@ def _validate_script_refs(value, index):
             _validate_script_refs(item, index)
 
 
-def _prepared(case, treatment, service, *, root, base, redactor, location):
+def _prepared(case, treatment, service, *, root, base, redactor, location, source, private_values, environment_values):
+    from .ci_validation import (
+        check_owned_urls,
+        literal_mask,
+        urls,
+        validate_expectation,
+        validate_script_surface,
+    )
     from .connector_run import ScriptedDriver, effective_scenario, profile_named
     from .surrogate_readiness import ReadinessManifest
 
-    path = input_path(root, base, case.scenario, location + ".scenario")
-    document = read_document(path, location=location + ".scenario")
-    if not isinstance(document, dict):
-        raise PlanError("scenario.mapping", location, "A scenario must be an object.")
-    redactor.add(document.get("private") or {})
+    path, document = source
+    variables = PLAN_VARIABLES if service.command else {}
     extensions = document.get("extensions") or {}
     if not isinstance(extensions, dict) or set(extensions) - SHARED_EXTENSIONS:
         raise PlanError("scenario.inference", location,
                         "CI accepts only shipped shared extensions; user_simulator and custom factories are excluded.")
     try:
         loaded = parse_scenario({**document, "emulation_target": document.get("emulation_target", "muse")},
-                                base=path.parent, path=path, variables={"PORT": PLAN_PORT})
+                                base=path.parent, path=path, variables=variables)
         effective = effective_scenario(loaded.scenario, **treatment.model_dump())
         loaded = replace(loaded, scenario=effective)
     except (LabError, ValueError, TypeError):
@@ -269,13 +304,14 @@ def _prepared(case, treatment, service, *, root, base, redactor, location):
     if case.script:
         script = read_document(input_path(root, base, case.script, location + ".script"), location=location + ".script")
         try:
-            ScriptedDriver(substitute(script, {"PORT": PLAN_PORT}))
+            ScriptedDriver(substitute(script, variables))
         except LabError:
             raise PlanError("script.invalid", location, "Invalid scripted steps; review the calls file locally.") from None
         for index, step in enumerate(script):
             _validate_script_refs(step, index)
             if "connector" in step and step["connector"] not in {item.name for item in effective.connectors}:
                 raise PlanError("script.connector", location, "A portable call names an undeclared connector.")
+        validate_script_surface(script, effective, location)
     if case.kind == "readiness":
         choices = [item for item in effective.connectors if case.connector in (None, item.name)]
         if len(choices) != 1:
@@ -293,25 +329,55 @@ def _prepared(case, treatment, service, *, root, base, redactor, location):
             raise PlanError("readiness.treatment", location,
                             "Readiness has no exposure or result-schema treatment; leave those matrix defaults.")
     if case.network == "loopback":
-        urls = [*_urls(effective.model_dump(mode="json")), *_urls(substitute(script, {"PORT": PLAN_PORT}))]
+        declared_urls = [*urls(effective.model_dump(mode="json")), *urls(substitute(script, variables))]
         if service.ready_url:
-            urls.append(service.ready_url.replace("{port}", PLAN_PORT).replace("{case}", "ci-case"))
-        if any(not is_loopback(url) for url in urls):
+            declared_urls.append(service.ready_url.replace("{port}", PLAN_PORT).replace("{case}", "ci-case"))
+        if any(not is_loopback(url) for url in declared_urls):
             raise PlanError("network.remote", location,
                             "A declared URL is remote; use a test endpoint or explicitly set network: remote.")
+    check_owned_urls(case, service, effective, substitute(script, variables), location)
+    validate_expectation(case, effective, location)
+    bundles = {}
+    custom = effective.extensions.get("custom_connector") or {}
+    if custom.get("docs"):
+        from .ext_custom_connector import SERVICE_URL, DocsBundle, Operations
+        try:
+            bundle = DocsBundle.load(path.parent, custom["docs"], service_url=SERVICE_URL)
+            Operations.from_bundle(bundle)
+        except (LabError, OSError, ValueError):
+            raise PlanError("extension.docs", location,
+                            "The custom_connector documentation bundle is missing or invalid; inspect it locally.") from None
+        bundles["custom_connector"] = bundle.files
     identifier = "--".join([case.id, *treatment.model_dump().values()])
     # Private values are masked before hashing; public evidence must not allow offline guesses of them.
-    definition = {
-        "case": case.model_dump(exclude={"matrix", "scenario", "script", "manifest"}),
-        "treatment": treatment.model_dump(), "scenario": published_digest(effective),
-        "script": redactor.clean(script), "manifest": redactor.clean(manifest),
-        "docs": redactor.clean(loaded.docs), "service": redactor.clean(service.model_dump()),
+    from .connector_scenario import _masked
+    scenario_public = effective.model_dump(mode="json", by_alias=True)
+    scenario_public["private"] = _masked(scenario_public["private"])
+
+    def input_digest(value):
+        public = literal_mask(value, private_values)
+        if literal_mask(public, environment_values) != public:
+            raise PlanError("input.inline-secret", location,
+                            "A public input embeds an environment credential; use environment-based auth or private host inputs.")
+        return digest(public)
+
+    inputs = CaseInputs(scenario=input_digest(scenario_public),
+                        script=input_digest(script) if script is not None else None,
+                        manifest=input_digest(manifest) if manifest is not None else None,
+                        docs=input_digest({"connectors": loaded.docs, "extensions": bundles}),
+                        service=input_digest(service.model_dump()),
+                        readiness_connector=readiness_connector)
+    public_document = {
+        "id": identifier, "source_id": case.id, "kind": case.kind, "treatment": treatment.model_dump(),
+        "service": case.service, "state": service.state, "network": case.network, "tags": sorted(case.tags),
+        "timeout_seconds": float(case.timeout_seconds), "expect": case.expect.model_dump(),
+        "inputs": inputs.model_dump(),
+        "required_checks": sorted(row.id for row in effective.checks if row.required)
+        if case.kind == "connector" else [],
     }
-    public = PlanCase(id=identifier, source_id=case.id, kind=case.kind, definition_sha256=digest(definition),
-                      treatment=treatment, service=case.service, state=service.state, network=case.network,
-                      tags=sorted(case.tags), timeout_seconds=case.timeout_seconds, expect=case.expect)
+    public = PlanCase.model_validate({**public_document, "definition_sha256": digest(public_document)})
     return PreparedCase(public, case, service, copy.deepcopy(document), copy.deepcopy(script), manifest, loaded,
-                        readiness_connector)
+                        readiness_connector, bundles)
 
 
 def parse_shard(text):
@@ -331,6 +397,19 @@ def prepare_suite(path, *, root=None, cases=(), tags=(), shard="1/1", jobs=1):
         raise PlanError("execution.jobs", "jobs", "Use between 1 and 64 workers.")
     redactor = Redactor.environment()
     redactor.numbers = True
+    environment_values = SecretList(redactor.credentials)
+    private_values = SecretList()
+    sources = {}
+    # Learn every private value before hashing any case, and read each scenario only once.
+    for index, case in enumerate(spec.cases):
+        location = f"cases.{index}.scenario"
+        source = input_path(root, path.parent, case.scenario, location)
+        document = read_document(source, location=location)
+        if not isinstance(document, dict) or not isinstance(document.get("private", {}), dict):
+            raise PlanError("scenario.mapping", location, "A scenario and its private field must be objects.")
+        redactor.add(document.get("private") or {})
+        private_values.add(document.get("private") or {})
+        sources[case.id] = source, document
     prepared = {}
     for index, case in enumerate(spec.cases):
         matrix = case.matrix.model_dump()
@@ -339,7 +418,8 @@ def prepare_suite(path, *, root=None, cases=(), tags=(), shard="1/1", jobs=1):
                 raise PlanError("matrix.limit", "cases", f"A suite expands to at most {MAX_CASES} cases.")
             treatment = Treatment.model_validate(dict(zip(matrix, values, strict=True)))
             item = _prepared(case, treatment, spec.services[case.service], root=root, base=path.parent,
-                             redactor=redactor, location=f"cases.{index}")
+                             redactor=redactor, location=f"cases.{index}", source=sources[case.id],
+                             private_values=private_values, environment_values=environment_values)
             if item.public.id in prepared:
                 raise PlanError("matrix.duplicate", "cases", "Expanded case IDs must be unique.")
             prepared[item.public.id] = item
@@ -364,7 +444,10 @@ def prepare_suite(path, *, root=None, cases=(), tags=(), shard="1/1", jobs=1):
     plan = SuitePlan(suite_id=spec.id, suite_sha256=digest(identity),
                      scope_sha256=digest({key: identity[key] for key in selected}), cases=ordered,
                      selected=selected, scheduled=selected[index - 1::count], shard_index=index, shard_count=count)
-    if redactor.clean(plan.model_dump()) != plan.model_dump():
+    identifiers = [plan.suite_id, *plan.selected, *(
+        value for row in plan.cases for value in (row.source_id, row.service, *row.tags,
+                                                  *row.required_checks, *row.expect.checks))]
+    if any(redactor.text(value) != value for value in identifiers):
         raise PlanError("privacy.identity", "suite",
                         "A public case identifier or plan field contains a private value; change the identifier.")
     return PreparedSuite(plan, prepared, root, redactor)

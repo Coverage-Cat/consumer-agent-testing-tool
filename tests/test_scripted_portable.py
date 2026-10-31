@@ -83,3 +83,13 @@ async def test_portable_unknown_connector_cannot_fall_back_to_another_service(tm
     run, code, hotel = await run_connector(tmp_path, driver=ScriptedDriver(steps))
     assert code == 2 and not hotel.calls
     assert "connector" in result_of(run)["detail"]
+
+
+@pytest.mark.parametrize("projection", ["native", "cli"])
+async def test_unavailable_portable_tool_has_the_same_setup_outcome(tmp_path, projection):
+    doc = scenario()
+    doc.update(checks=[], answer=None, expected={})
+    steps = [{"connector": "cedar-stays", "tool": "not-allowed", "arguments": {}}, {"answer": "No action."}]
+    run, code, hotel = await run_connector(tmp_path, doc, driver=ScriptedDriver(steps), projection=projection)
+    assert code == 2 and not hotel.calls
+    assert "does not expose" in result_of(run)["detail"]

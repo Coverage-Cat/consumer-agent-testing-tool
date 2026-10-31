@@ -7,7 +7,8 @@ from pathlib import Path
 
 import pytest
 from jsonschema import Draft202012Validator
-from test_connector_support import native_script, scenario
+from test_connector_support import scenario
+from test_scripted_portable import portable_script
 
 from consumer_agent_testing_tool.ci_suite import PlanError, SuitePlan, SuiteSpec, prepare_suite
 from consumer_agent_testing_tool.cli import execute, parser
@@ -24,8 +25,9 @@ def suite_document():
 
 def write_inputs(root, *, suite=None, doc=None, steps=None):
     root.mkdir(parents=True, exist_ok=True)
-    for name, value in (("suite.json", suite or suite_document()), ("scenario.json", doc or scenario()),
-                        ("calls.json", steps or native_script())):
+    doc = json.loads(json.dumps(doc or scenario()).replace(":8765", ":${PORT:-8765}"))
+    for name, value in (("suite.json", suite or suite_document()), ("scenario.json", doc),
+                        ("calls.json", steps or portable_script())):
         (root / name).write_text(json.dumps(value))
     return root / "suite.json"
 
@@ -231,3 +233,55 @@ def test_shipped_booking_suite_validates_without_setup_or_keys(offline):
     root = Path(__file__).resolve().parents[1]
     found = prepare_suite(root / "examples/ci/booking.suite.yaml", root=root, jobs=4)
     assert len(found.plan.cases) == 8
+
+
+@pytest.mark.parametrize("value", [123456, ["private-list"], "private-scalar"])
+async def test_invalid_private_container_has_a_structured_diagnostic(tmp_path, offline, monkeypatch, capsys, value):
+    doc = scenario()
+    doc["private"] = value
+    path = write_inputs(tmp_path, doc=doc)
+    monkeypatch.chdir(tmp_path)
+    assert await execute(parser().parse_args(["ci", "validate", str(path), "--json"])) == 2
+    text = capsys.readouterr().out
+    assert json.loads(text)["valid"] is False and str(value) not in text
+
+
+def test_plan_digest_is_independent_of_case_order_when_private_values_overlap(tmp_path, offline):
+    first = scenario()
+    first["goal"] = "Inspect shared-private-marker-8346."
+    second = scenario()
+    second["private"]["email"] = "shared-private-marker-8346"
+    (tmp_path / "second.json").write_text(json.dumps(second).replace(":8765", ":${PORT:-8765}"))
+    suite = suite_document()
+    suite["cases"].append({**copy.deepcopy(suite["cases"][0]), "id": "second", "scenario": "second.json"})
+    steps = portable_script()
+    steps[-1] = {"answer": "Nothing booked. shared-private-marker-8346"}
+    path = write_inputs(tmp_path, suite=suite, doc=first, steps=steps)
+    before = prepare_suite(path, root=tmp_path).plan
+    suite["cases"].reverse()
+    path.write_text(json.dumps(suite))
+    after = prepare_suite(path, root=tmp_path).plan
+    assert before == after
+
+
+@pytest.mark.parametrize("mutation", [
+    lambda value: value["cases"][0]["expect"].update(exit_code=1, checks={"one-policy": "failed"}),
+    lambda value: value["selected"].pop(),
+    lambda value: value["scheduled"].append(value["scheduled"][0]),
+    lambda value: value.update(scope_sha256="0" * 64),
+    lambda value: value["cases"][0]["treatment"].update(projection="muse-cli"),
+])
+def test_loaded_plans_reject_inconsistent_identity_or_coverage(tmp_path, offline, mutation):
+    plan = prepare_suite(write_inputs(tmp_path), root=tmp_path).plan.model_dump()
+    mutation(plan)
+    with pytest.raises(ValueError):
+        SuitePlan.model_validate(plan)
+
+
+def test_case_isolation_placeholder_is_validated_offline(tmp_path, offline):
+    doc = scenario()
+    doc["connectors"][0]["endpoint"] += "/${CASE}"
+    suite = suite_document()
+    suite["services"]["hotel"]["state"] = "case-isolated"
+    found = prepare_suite(write_inputs(tmp_path, suite=suite, doc=doc), root=tmp_path)
+    assert all(row.loaded.scenario.connectors[0].endpoint.endswith("/ci-case") for row in found.cases.values())

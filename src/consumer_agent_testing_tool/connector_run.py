@@ -3772,6 +3772,8 @@ class ScriptedDriver:
 def _portable_call(run, connector, tool, arguments, index):
     if connector not in run.projection.connectors:
         raise LabError(f"Script step {index}: connector {connector!r} is not connected")
+    if not run.projection.allowed(connector, tool):
+        raise LabError(f"Script step {index}: connector {connector!r} does not expose tool {tool!r}")
     if run.projection.mode in CLI_PROJECTIONS:
         return "exec", {"command": [connector, "call-tool", "--name", tool, "--arguments-json", arguments]}
     name = next((name for name, server in run.projection.model_names(connector).items() if server == tool), None)

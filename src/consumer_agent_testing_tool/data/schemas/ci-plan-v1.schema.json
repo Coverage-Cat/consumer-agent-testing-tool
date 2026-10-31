@@ -1,5 +1,70 @@
 {
   "$defs": {
+    "CaseInputs": {
+      "additionalProperties": false,
+      "properties": {
+        "scenario": {
+          "pattern": "^[a-f0-9]{64}$",
+          "title": "Scenario",
+          "type": "string"
+        },
+        "script": {
+          "anyOf": [
+            {
+              "pattern": "^[a-f0-9]{64}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Script"
+        },
+        "manifest": {
+          "anyOf": [
+            {
+              "pattern": "^[a-f0-9]{64}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Manifest"
+        },
+        "docs": {
+          "pattern": "^[a-f0-9]{64}$",
+          "title": "Docs",
+          "type": "string"
+        },
+        "service": {
+          "pattern": "^[a-f0-9]{64}$",
+          "title": "Service",
+          "type": "string"
+        },
+        "readiness_connector": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Readiness Connector"
+        }
+      },
+      "required": [
+        "scenario",
+        "script",
+        "manifest",
+        "docs",
+        "service",
+        "readiness_connector"
+      ],
+      "title": "CaseInputs",
+      "type": "object"
+    },
     "Expectation": {
       "additionalProperties": false,
       "properties": {
@@ -96,6 +161,16 @@
         },
         "expect": {
           "$ref": "#/$defs/Expectation"
+        },
+        "inputs": {
+          "$ref": "#/$defs/CaseInputs"
+        },
+        "required_checks": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Required Checks",
+          "type": "array"
         }
       },
       "required": [
@@ -109,7 +184,9 @@
         "network",
         "tags",
         "timeout_seconds",
-        "expect"
+        "expect",
+        "inputs",
+        "required_checks"
       ],
       "title": "PlanCase",
       "type": "object"
