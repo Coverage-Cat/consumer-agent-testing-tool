@@ -78,6 +78,7 @@ def test_failed_json_replacement_removes_an_older_green_report(tmp_path, monkeyp
     with pytest.raises(OSError):
         write_report(report, public)
     assert not (public / "report.json").exists()
+    assert (public / "junit.xml").exists()
     assert_reporting_error_or_missing_xml(public / "junit.xml")
 
 

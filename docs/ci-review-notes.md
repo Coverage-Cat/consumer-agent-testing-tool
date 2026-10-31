@@ -86,3 +86,16 @@ replacement and removal. A remaining artifact cannot override the command's fail
 
 The existing locale-dependent input reader was a nonblocking review note. This change's supported CI jobs
 use UTF-8; the aggregate files explicitly use UTF-8. No input-loader behavior was changed for that note.
+
+## Iteration 5: final implementation
+
+Reviewed commit: `f93ba57`.
+
+The reviewer found no material correctness, privacy, artifact or false-green defect. It checked repair and
+removal of both public formats, fatal propagation, exact artifact selection by attempt, the required shard
+job guard and the matching documentation. Its review was static; local verification remains separate.
+
+Accepted its suggestion to require that writable JUnit is repaired, rather than allowing the test to pass
+if the file is missing. Its other optional note was that a reporting error replaces an earlier fatal code;
+the command still preserves observations and returns 2. Retaining both fatal causes is a diagnostic
+enhancement, not a gate correctness fix, and remains outside this change.
