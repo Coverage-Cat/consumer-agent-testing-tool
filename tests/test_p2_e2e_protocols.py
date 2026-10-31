@@ -4,7 +4,7 @@ stdout and stderr contract, and the sealed evidence it leaves):
 - check --suite poppy against the loopback draft 0.1 test company (test_poppy_support.py), discovery only and
   with a probe manifest;
 - check --suite gadget on a valid and an over-limit link.register;
-- the contract lane's mcp-contract-2026-07-28 profile against the loopback connector fixture, an MCP SDK 2.2.0
+- the contract lane's mcp-contract-2026-07-28 profile against the loopback connector fixture, an MCP SDK 2.3.0
   server, and against its handshake-only variant;
 - surface-run with the shipped examples/surface-preferences.yaml against scripts/surface_fixture.mjs: the
   restrictive-default CSP, the sandbox proxy's own origin and _meta.ui.visibility.

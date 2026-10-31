@@ -102,11 +102,14 @@ def test_optional_api_lock_excludes_postman_and_flagged_packages():
     root = Path(__file__).resolve().parents[1]
     packaged = root / "src/consumer_agent_testing_tool/data/tooling/api"
     names = ["package.json", "package-lock.json", ".npmrc",
-             *(f"stubs/postman-collection/{name}" for name in ("package.json", "index.js", "LICENSE"))]
+             *(f"stubs/postman-collection/{name}" for name in ("package.json", "index.js", "LICENSE")),
+             *(f"stubs/minimatch/{name}" for name in ("package.json", "index.cjs", "LICENSE"))]
     for name in names:
         assert (packaged / name).read_bytes() == (root / "tooling/api" / name).read_bytes(), name
     packages = json.loads((root / "tooling/api/package-lock.json").read_text())["packages"]
     assert packages["node_modules/postman-collection"]["resolved"] == "file:stubs/postman-collection"
+    assert packages["node_modules/minimatch"]["resolved"] == "file:stubs/minimatch"
+    assert packages["node_modules/minimatch-patched"]["version"] == "11.0.3"
     for location, package in packages.items():
         name = package.get("name", location.rsplit("node_modules/", 1)[-1])
         assert name not in ("sprintf-js", "uuid"), location
@@ -114,9 +117,12 @@ def test_optional_api_lock_excludes_postman_and_flagged_packages():
             assert int(package["version"].split(".")[0]) >= 10, location
 
 
-def test_development_initialization_stages_postman_stub(tmp_path):
+def test_development_initialization_stages_api_compatibility_packages(tmp_path):
     initialize(parser(development=True).parse_args(
         ["init", "--provider", "none", "--config", str(tmp_path / "lab.yaml")]))
     api = tmp_path / "tooling/api"
     assert "install-links=true" in (api / ".npmrc").read_text()
     assert json.loads((api / "stubs/postman-collection/package.json").read_text())["version"] == "0.0.0-catt.1"
+    assert json.loads((api / "stubs/minimatch/package.json").read_text())["dependencies"] == {
+        "minimatch-patched": "npm:minimatch@11.0.3"}
+    assert (api / "stubs/minimatch/index.cjs").is_file() and (api / "stubs/minimatch/LICENSE").is_file()

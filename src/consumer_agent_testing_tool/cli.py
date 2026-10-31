@@ -452,7 +452,8 @@ def initialize(args):
     tooling.mkdir(exist_ok=True)
     for name in ("package.json", "package-lock.json", "payment-ui/package.json", "payment-ui/package-lock.json",
                  "api/package.json", "api/package-lock.json", "api/.npmrc",
-                 *(f"api/stubs/postman-collection/{stub}" for stub in ("package.json", "index.js", "LICENSE"))):
+                 *(f"api/stubs/postman-collection/{stub}" for stub in ("package.json", "index.js", "LICENSE")),
+                 *(f"api/stubs/minimatch/{stub}" for stub in ("package.json", "index.cjs", "LICENSE"))):
         if name.startswith("api/") and not getattr(args, "development_extensions", False):
             continue
         source = files("consumer_agent_testing_tool").joinpath("data/tooling", name)

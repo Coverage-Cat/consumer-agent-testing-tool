@@ -12,147 +12,147 @@
     "browser-runtime:workspace-playwright": {
       "scope": "browser-runtime",
       "artifacts": {
-        "chromium-1243/chrome-mac-arm64/Google Chrome for Testing.app/Contents/Frameworks/Google Chrome for Testing Framework.framework/Google Chrome for Testing Framework": {
-          "sha256": "ba5a96e0dd60c1567f0930fbb410b316b6d9aad7546e1a363cfcddd18549053a",
-          "bytes": 246074272,
+        "chromium-1248/chrome-mac-arm64/Google Chrome for Testing.app/Contents/Frameworks/Google Chrome for Testing Framework.framework/Google Chrome for Testing Framework": {
+          "sha256": "6373f7e8990350a8dfb729f9af25c349b0f926e3ac25984cdf3692a21c4b1e35",
+          "bytes": 251226256,
           "format": "mach-o",
           "kind": "binary"
         },
-        "chromium-1243/chrome-mac-arm64/Google Chrome for Testing.app/Contents/Frameworks/Google Chrome for Testing Framework.framework/Versions/153.0.8010.12/Google Chrome for Testing Framework": {
-          "sha256": "ba5a96e0dd60c1567f0930fbb410b316b6d9aad7546e1a363cfcddd18549053a",
-          "bytes": 246074272,
+        "chromium-1248/chrome-mac-arm64/Google Chrome for Testing.app/Contents/Frameworks/Google Chrome for Testing Framework.framework/Versions/156.0.8078.4/Google Chrome for Testing Framework": {
+          "sha256": "6373f7e8990350a8dfb729f9af25c349b0f926e3ac25984cdf3692a21c4b1e35",
+          "bytes": 251226256,
           "format": "mach-o",
           "kind": "binary"
         },
-        "chromium-1243/chrome-mac-arm64/Google Chrome for Testing.app/Contents/Frameworks/Google Chrome for Testing Framework.framework/Versions/153.0.8010.12/Helpers/Google Chrome for Testing Helper (Alerts).app/Contents/MacOS/Google Chrome for Testing Helper (Alerts)": {
-          "sha256": "f3f5340dd0ab7feae6cb3b0d4c3d5145421979031e4288ef80a58fe446dcfadf",
+        "chromium-1248/chrome-mac-arm64/Google Chrome for Testing.app/Contents/Frameworks/Google Chrome for Testing Framework.framework/Versions/156.0.8078.4/Helpers/Google Chrome for Testing Helper (Alerts).app/Contents/MacOS/Google Chrome for Testing Helper (Alerts)": {
+          "sha256": "d145ca0ce6fe302724e5bad48c900f88c81a8f62e32b4a26635bd993d2fcd9a0",
           "bytes": 69792,
           "format": "mach-o",
           "kind": "binary"
         },
-        "chromium-1243/chrome-mac-arm64/Google Chrome for Testing.app/Contents/Frameworks/Google Chrome for Testing Framework.framework/Versions/153.0.8010.12/Helpers/Google Chrome for Testing Helper (Aperitif Alerts).app/Contents/MacOS/Google Chrome for Testing Helper (Aperitif Alerts)": {
-          "sha256": "b44910edf6f6ec5265f1321af88824dacb0c888157d3990eb326f575c59ba77e",
+        "chromium-1248/chrome-mac-arm64/Google Chrome for Testing.app/Contents/Frameworks/Google Chrome for Testing Framework.framework/Versions/156.0.8078.4/Helpers/Google Chrome for Testing Helper (Aperitif Alerts).app/Contents/MacOS/Google Chrome for Testing Helper (Aperitif Alerts)": {
+          "sha256": "d5af05c9bc69cf81f40cc3ecb499fc3c703767909df5844e2066d7f611a459ab",
           "bytes": 33600,
           "format": "mach-o",
           "kind": "binary"
         },
-        "chromium-1243/chrome-mac-arm64/Google Chrome for Testing.app/Contents/Frameworks/Google Chrome for Testing Framework.framework/Versions/153.0.8010.12/Helpers/Google Chrome for Testing Helper (Aperitif GPU).app/Contents/MacOS/Google Chrome for Testing Helper (Aperitif GPU)": {
-          "sha256": "6635bac098acee15c3a2d38ff7c273d381b07650693dad931545b83ef6c57dbb",
+        "chromium-1248/chrome-mac-arm64/Google Chrome for Testing.app/Contents/Frameworks/Google Chrome for Testing Framework.framework/Versions/156.0.8078.4/Helpers/Google Chrome for Testing Helper (Aperitif GPU).app/Contents/MacOS/Google Chrome for Testing Helper (Aperitif GPU)": {
+          "sha256": "37b9d745f5c6f3e3b4c0551a0611e23370730ace2d20c7b532968517a3a762f6",
           "bytes": 33584,
           "format": "mach-o",
           "kind": "binary"
         },
-        "chromium-1243/chrome-mac-arm64/Google Chrome for Testing.app/Contents/Frameworks/Google Chrome for Testing Framework.framework/Versions/153.0.8010.12/Helpers/Google Chrome for Testing Helper (Aperitif Renderer).app/Contents/MacOS/Google Chrome for Testing Helper (Aperitif Renderer)": {
-          "sha256": "403332ebc902a0b0dbea5abfbae80bf3a53dc07eb3f22464d2bf8a9c411de379",
+        "chromium-1248/chrome-mac-arm64/Google Chrome for Testing.app/Contents/Frameworks/Google Chrome for Testing Framework.framework/Versions/156.0.8078.4/Helpers/Google Chrome for Testing Helper (Aperitif Renderer).app/Contents/MacOS/Google Chrome for Testing Helper (Aperitif Renderer)": {
+          "sha256": "774cf55bf62e670f9bfb33ff2727f3216f4e5e69f368b2157c6f557319623fec",
           "bytes": 33600,
           "format": "mach-o",
           "kind": "binary"
         },
-        "chromium-1243/chrome-mac-arm64/Google Chrome for Testing.app/Contents/Frameworks/Google Chrome for Testing Framework.framework/Versions/153.0.8010.12/Helpers/Google Chrome for Testing Helper (Aperitif).app/Contents/MacOS/Google Chrome for Testing Helper (Aperitif)": {
-          "sha256": "bfea4ae0223b5d02ec007b2ed4620db0fb32982077ab8d7745e27a6e396faa75",
+        "chromium-1248/chrome-mac-arm64/Google Chrome for Testing.app/Contents/Frameworks/Google Chrome for Testing Framework.framework/Versions/156.0.8078.4/Helpers/Google Chrome for Testing Helper (Aperitif).app/Contents/MacOS/Google Chrome for Testing Helper (Aperitif)": {
+          "sha256": "8efc8d986086484abbf70d269edbcd91bd00182fca27d90ee98e503daf9283ae",
           "bytes": 33584,
           "format": "mach-o",
           "kind": "binary"
         },
-        "chromium-1243/chrome-mac-arm64/Google Chrome for Testing.app/Contents/Frameworks/Google Chrome for Testing Framework.framework/Versions/153.0.8010.12/Helpers/Google Chrome for Testing Helper (GPU).app/Contents/MacOS/Google Chrome for Testing Helper (GPU)": {
-          "sha256": "b8a5701b57bc8180b0da2f1b5a2df83a272534443d5345c53eb976e8a35324d2",
+        "chromium-1248/chrome-mac-arm64/Google Chrome for Testing.app/Contents/Frameworks/Google Chrome for Testing Framework.framework/Versions/156.0.8078.4/Helpers/Google Chrome for Testing Helper (GPU).app/Contents/MacOS/Google Chrome for Testing Helper (GPU)": {
+          "sha256": "b80eb6e934dc4a21c26f4561dbb7f4fa35e78ad05b88abc90e110d405cfc3346",
           "bytes": 69792,
           "format": "mach-o",
           "kind": "binary"
         },
-        "chromium-1243/chrome-mac-arm64/Google Chrome for Testing.app/Contents/Frameworks/Google Chrome for Testing Framework.framework/Versions/153.0.8010.12/Helpers/Google Chrome for Testing Helper (Renderer).app/Contents/MacOS/Google Chrome for Testing Helper (Renderer)": {
-          "sha256": "84529bc15b9914ffb09fafc74a3cac25f8903f5f5fe389911fc25a668f52019f",
+        "chromium-1248/chrome-mac-arm64/Google Chrome for Testing.app/Contents/Frameworks/Google Chrome for Testing Framework.framework/Versions/156.0.8078.4/Helpers/Google Chrome for Testing Helper (Renderer).app/Contents/MacOS/Google Chrome for Testing Helper (Renderer)": {
+          "sha256": "3e4f95cc73e0c5becd64c405e1f4eb8d66d8173da6ae7b471b82b868b7617ac6",
           "bytes": 69792,
           "format": "mach-o",
           "kind": "binary"
         },
-        "chromium-1243/chrome-mac-arm64/Google Chrome for Testing.app/Contents/Frameworks/Google Chrome for Testing Framework.framework/Versions/153.0.8010.12/Helpers/Google Chrome for Testing Helper.app/Contents/MacOS/Google Chrome for Testing Helper": {
-          "sha256": "d15aacd37fecc09c03509339682016562b54a72fdb4410f8a70ed7d22e0fd6f8",
+        "chromium-1248/chrome-mac-arm64/Google Chrome for Testing.app/Contents/Frameworks/Google Chrome for Testing Framework.framework/Versions/156.0.8078.4/Helpers/Google Chrome for Testing Helper.app/Contents/MacOS/Google Chrome for Testing Helper": {
+          "sha256": "20de44187df30fe2eee3e6bfed24391e89a35f5da16981ae4cf01003230ab42d",
           "bytes": 69792,
           "format": "mach-o",
           "kind": "binary"
         },
-        "chromium-1243/chrome-mac-arm64/Google Chrome for Testing.app/Contents/Frameworks/Google Chrome for Testing Framework.framework/Versions/153.0.8010.12/Helpers/app_mode_loader": {
-          "sha256": "1595a85009d4d41488b507af48e1fbef1d6654f066a8c5b7c7b5aee663cde9fd",
-          "bytes": 1009168,
+        "chromium-1248/chrome-mac-arm64/Google Chrome for Testing.app/Contents/Frameworks/Google Chrome for Testing Framework.framework/Versions/156.0.8078.4/Helpers/app_mode_loader": {
+          "sha256": "27eccaecffd440c6402de5a56cf218accb93681e3d0f1a1925ac7da1f1e68d47",
+          "bytes": 810608,
           "format": "mach-o",
           "kind": "binary"
         },
-        "chromium-1243/chrome-mac-arm64/Google Chrome for Testing.app/Contents/Frameworks/Google Chrome for Testing Framework.framework/Versions/153.0.8010.12/Helpers/chrome_crashpad_handler": {
-          "sha256": "706d3e2792d53e3b3046d7377e4905b444550016543562c9c28fe64bb7419eec",
-          "bytes": 1575328,
+        "chromium-1248/chrome-mac-arm64/Google Chrome for Testing.app/Contents/Frameworks/Google Chrome for Testing Framework.framework/Versions/156.0.8078.4/Helpers/chrome_crashpad_handler": {
+          "sha256": "8420a9cd5d1f1802ba427607a6f3465dfd557be5361698c01dc0a02c56bda73d",
+          "bytes": 1360608,
           "format": "mach-o",
           "kind": "binary"
         },
-        "chromium-1243/chrome-mac-arm64/Google Chrome for Testing.app/Contents/Frameworks/Google Chrome for Testing Framework.framework/Versions/153.0.8010.12/Helpers/web_app_shortcut_copier": {
-          "sha256": "1655383123820ee44cc03d6e41f1c44ed6fce1bde512b0e803cdbfcf2a29a06b",
+        "chromium-1248/chrome-mac-arm64/Google Chrome for Testing.app/Contents/Frameworks/Google Chrome for Testing Framework.framework/Versions/156.0.8078.4/Helpers/web_app_shortcut_copier": {
+          "sha256": "8f0f1963f026f4469d13008b19cd1f8d11dc19629a318e32994eec12c1f2aa6d",
           "bytes": 33488,
           "format": "mach-o",
           "kind": "binary"
         },
-        "chromium-1243/chrome-mac-arm64/Google Chrome for Testing.app/Contents/Frameworks/Google Chrome for Testing Framework.framework/Versions/153.0.8010.12/Libraries/WidevineCdm/_platform_specific/mac_arm64/libwidevinecdm.dylib": {
+        "chromium-1248/chrome-mac-arm64/Google Chrome for Testing.app/Contents/Frameworks/Google Chrome for Testing Framework.framework/Versions/156.0.8078.4/Libraries/WidevineCdm/_platform_specific/mac_arm64/libwidevinecdm.dylib": {
           "sha256": "e1e9f6b0c77f4251542a2f49dda419c85eda88c5d9ef2721d5d594dc195a6e5f",
           "bytes": 20416896,
           "format": "mach-o",
           "kind": "binary"
         },
-        "chromium-1243/chrome-mac-arm64/Google Chrome for Testing.app/Contents/Frameworks/Google Chrome for Testing Framework.framework/Versions/153.0.8010.12/Libraries/libaperitif.dylib": {
-          "sha256": "ce1aba3e6bf8b564b018b9669ad20c5ff4a2086a65c95d70e628bd78db55fdb9",
+        "chromium-1248/chrome-mac-arm64/Google Chrome for Testing.app/Contents/Frameworks/Google Chrome for Testing Framework.framework/Versions/156.0.8078.4/Libraries/libaperitif.dylib": {
+          "sha256": "f601048958cbe07c25117d56a43e498e79ccecc13682e3249c0589b18f279df5",
           "bytes": 69760,
           "format": "mach-o",
           "kind": "binary"
         },
-        "chromium-1243/chrome-mac-arm64/Google Chrome for Testing.app/Contents/Frameworks/Google Chrome for Testing Framework.framework/Versions/153.0.8010.12/Libraries/libvk_swiftshader.dylib": {
-          "sha256": "a992e2126966d15be0345d1bc59abb7ca61cc0072f8bba57e052bd0b6026d81c",
-          "bytes": 16376112,
+        "chromium-1248/chrome-mac-arm64/Google Chrome for Testing.app/Contents/Frameworks/Google Chrome for Testing Framework.framework/Versions/156.0.8078.4/Libraries/libvk_swiftshader.dylib": {
+          "sha256": "ffac89c5953500b93fc97e3191a8b38f446594bd503126f67c221608057f2160",
+          "bytes": 16326576,
           "format": "mach-o",
           "kind": "binary"
         },
-        "chromium-1243/chrome-mac-arm64/Google Chrome for Testing.app/Contents/Frameworks/Google Chrome for Testing Framework.framework/Versions/153.0.8010.12/Libraries/libvulkan.dylib": {
-          "sha256": "b2f0778061f6bf9619404ff79c813454175787d562cbf3fb2c7ae7615e0bc1fc",
-          "bytes": 499472,
+        "chromium-1248/chrome-mac-arm64/Google Chrome for Testing.app/Contents/Frameworks/Google Chrome for Testing Framework.framework/Versions/156.0.8078.4/Libraries/libvulkan.dylib": {
+          "sha256": "39fd23b6edf852a12cefb0c801f687282ae4763fdf48469d62fe76073ef48a31",
+          "bytes": 499488,
           "format": "mach-o",
           "kind": "binary"
         },
-        "chromium-1243/chrome-mac-arm64/Google Chrome for Testing.app/Contents/MacOS/Google Chrome for Testing": {
-          "sha256": "8319963f6625accf51c0dd4f55091ceaf9f09ed39e7a52fed4fae12b2a6b668a",
+        "chromium-1248/chrome-mac-arm64/Google Chrome for Testing.app/Contents/MacOS/Google Chrome for Testing": {
+          "sha256": "c8509aee32abd6977968e9999769980b7a420dea05402d90042d9e5b41db15ef",
           "bytes": 52112,
           "format": "mach-o",
           "kind": "binary"
         },
-        "chromium_headless_shell-1243/chrome-headless-shell-mac-arm64/chrome-headless-shell": {
-          "sha256": "a0bfe7b4da4787b66058477d696cd1d09065d25f06a548947722b9af77ee8282",
-          "bytes": 169253248,
+        "chromium_headless_shell-1248/chrome-headless-shell-mac-arm64/chrome-headless-shell": {
+          "sha256": "77d8278b1ac9d0687fad4e817ea83023ede09b1deef36e1864b49ba194ac9634",
+          "bytes": 176747664,
           "format": "mach-o",
           "kind": "binary"
         },
-        "chromium_headless_shell-1243/chrome-headless-shell-mac-arm64/libEGL.dylib": {
+        "chromium_headless_shell-1248/chrome-headless-shell-mac-arm64/libEGL.dylib": {
           "sha256": "8b7e5b3ebed9cd5fc1cde7ff1458fd5eb150d496d7474e13f963d43546c08aeb",
           "bytes": 736,
           "format": "mach-o",
           "kind": "binary"
         },
-        "chromium_headless_shell-1243/chrome-headless-shell-mac-arm64/libGLESv2.dylib": {
+        "chromium_headless_shell-1248/chrome-headless-shell-mac-arm64/libGLESv2.dylib": {
           "sha256": "7765bf768e52ced295a67cb362e3ca9714e64208e6ecea4e67e5b4b85e094934",
           "bytes": 736,
           "format": "mach-o",
           "kind": "binary"
         },
-        "chromium_headless_shell-1243/chrome-headless-shell-mac-arm64/libvk_swiftshader.dylib": {
-          "sha256": "a992e2126966d15be0345d1bc59abb7ca61cc0072f8bba57e052bd0b6026d81c",
-          "bytes": 16376112,
+        "chromium_headless_shell-1248/chrome-headless-shell-mac-arm64/libvk_swiftshader.dylib": {
+          "sha256": "ffac89c5953500b93fc97e3191a8b38f446594bd503126f67c221608057f2160",
+          "bytes": 16326576,
           "format": "mach-o",
           "kind": "binary"
         },
-        "chromium_headless_shell-1243/chrome-headless-shell-mac-arm64/libvulkan.dylib": {
-          "sha256": "b2f0778061f6bf9619404ff79c813454175787d562cbf3fb2c7ae7615e0bc1fc",
-          "bytes": 499472,
+        "chromium_headless_shell-1248/chrome-headless-shell-mac-arm64/libvulkan.dylib": {
+          "sha256": "39fd23b6edf852a12cefb0c801f687282ae4763fdf48469d62fe76073ef48a31",
+          "bytes": 499488,
           "format": "mach-o",
           "kind": "binary"
         },
-        "ffmpeg-1011/ffmpeg-mac": {
-          "sha256": "662398c99429f5493ff0ff40cdcd97ea25132addcbdedafd0741389964147825",
-          "bytes": 2580312,
+        "ffmpeg-1013/ffmpeg-mac": {
+          "sha256": "e71dd6610cbc984022ff51b07a95f8d2526aba120406d8cdd0686f6421c464ac",
+          "bytes": 3012616,
           "format": "mach-o",
           "kind": "binary"
         }
@@ -168,29 +168,29 @@
         "reason": "Original notices for embedded components and fonts need separate review"
       }
     },
-    "core-python:pypi:aiohttp@3.14.4": {
+    "core-python:pypi:aiohttp@3.14.5": {
       "scope": "core-python",
       "artifacts": {
         "lib/python3.14/site-packages/aiohttp/_http_parser.cpython-314-darwin.so": {
-          "sha256": "14e747aca75ccf2d11e39a59ee0ec29bdf3c10a3d5303966be42b75ccea33276",
+          "sha256": "5a411001af8653d16a12e11936e328e0aea099ab02f859141d890f0da27eb9ff",
           "bytes": 579632,
           "format": "mach-o",
           "kind": "binary"
         },
         "lib/python3.14/site-packages/aiohttp/_http_writer.cpython-314-darwin.so": {
-          "sha256": "500b07ca7b7c790a94194d6ed263c3ad0825459588432b7467635cdfa509c119",
+          "sha256": "d473b66bfe856cdf46dd406a20a45f7ef201ece7e81945a079ebc258fe653560",
           "bytes": 91520,
           "format": "mach-o",
           "kind": "binary"
         },
         "lib/python3.14/site-packages/aiohttp/_websocket/mask.cpython-314-darwin.so": {
-          "sha256": "2e1299e75af67c8ce0c425949882002e3931cc2e4ad575b586cd7f064fde9551",
+          "sha256": "0c9238061202860e680217b5dfe90195020ec2b16841a9620693f234d86bdfab",
           "bytes": 86168,
           "format": "mach-o",
           "kind": "binary"
         },
         "lib/python3.14/site-packages/aiohttp/_websocket/reader_c.cpython-314-darwin.so": {
-          "sha256": "6111e90c18289b106f4cb25e2b0c2c3685a4ea4c095bc2dcfcbb3c685752ff3d",
+          "sha256": "6ae72db09349e64824b1a84e4c2d7db460e36548458bfb1d61a4a71df7833b9c",
           "bytes": 249792,
           "format": "mach-o",
           "kind": "binary"
@@ -198,7 +198,7 @@
       },
       "package": {
         "name": "aiohttp",
-        "version": "3.14.4"
+        "version": "3.14.5"
       },
       "upstream_documents": [],
       "dependency_coverage": {
@@ -381,7 +381,7 @@
         "reason": "Original notices for embedded components and fonts need separate review"
       }
     },
-    "core-python:pypi:inspect-ai@0.3.273": {
+    "core-python:pypi:inspect-ai@0.3.285": {
       "scope": "core-python",
       "artifacts": {
         "lib/python3.14/site-packages/inspect_ai/_view/dist/assets/BricolageGrotesque-Bold-BIJrwikb.ttf": {
@@ -395,11 +395,29 @@
           "bytes": 72920,
           "format": "woff2",
           "kind": "font"
+        },
+        "lib/python3.14/site-packages/inspect_ai/_view/dist/assets/bootstrap-icons.woff": {
+          "sha256": "24929e8a44da027588f833d4e82240ee734bd65bf962b08b0545af58a9ce80fa",
+          "bytes": 180288,
+          "format": "woff",
+          "kind": "font"
+        },
+        "lib/python3.14/site-packages/inspect_ai/_view/dist/assets/bootstrap-icons.woff2": {
+          "sha256": "2b7689746f87e0beeae25338bc021dd2515c2f6f003f3d3d064d878d380b2150",
+          "bytes": 134012,
+          "format": "woff2",
+          "kind": "font"
+        },
+        "lib/python3.14/site-packages/inspect_ai/_view/dist/assets/codicon.ttf": {
+          "sha256": "2bb558cb693451e73c28c33fe64aa89bc19b1a4b70f95948322c243f93476920",
+          "bytes": 125828,
+          "format": "truetype",
+          "kind": "font"
         }
       },
       "package": {
         "name": "inspect_ai",
-        "version": "0.3.273"
+        "version": "0.3.285"
       },
       "upstream_documents": [],
       "dependency_coverage": {
@@ -668,24 +686,24 @@
         "reason": "Original notices for embedded components and fonts need separate review"
       }
     },
-    "core-python:pypi:pydantic-core@2.46.5": {
+    "core-python:pypi:pydantic-core@2.50.1": {
       "scope": "core-python",
       "artifacts": {
         "lib/python3.14/site-packages/pydantic_core/_pydantic_core.cpython-314-darwin.so": {
-          "sha256": "98d54ca07e997965210cb5596bc8314ffd3e44cdd1270b06d2173bda3125154e",
-          "bytes": 4120192,
+          "sha256": "3d0fffd6abc935e05258b57598c7847cc1938358d8c93a3e450ad282dfaf24e7",
+          "bytes": 4336192,
           "format": "mach-o",
           "kind": "binary"
         }
       },
       "package": {
         "name": "pydantic_core",
-        "version": "2.46.5"
+        "version": "2.50.1"
       },
       "upstream_documents": [
         {
-          "path": "third_party/notices/core-python/pydantic-core-2.46.5/786fc70e8b0b-pydantic-core.cyclonedx.json",
-          "sha256": "786fc70e8b0bb3de0277d377b82c29fff6e9d65485d856b566e52b6c8a4b8835"
+          "path": "third_party/notices/core-python/pydantic-core-2.50.1/68d32fc845a7-pydantic-core.cyclonedx.json",
+          "sha256": "68d32fc845a79241348ef3ee8b21fb334a7332f4726af48c63f14d365b74520b"
         }
       ],
       "dependency_coverage": {
@@ -972,7 +990,7 @@
       },
       "package": {
         "name": "playwright-core",
-        "version": "1.63.0"
+        "version": "1.64.1"
       },
       "upstream_documents": [],
       "dependency_coverage": {
@@ -1083,9 +1101,9 @@
   },
   "summary": {
     "components": 30,
-    "artifact_paths": 85,
-    "unique_payload_sha256": 76,
-    "font_paths": 8
+    "artifact_paths": 88,
+    "unique_payload_sha256": 79,
+    "font_paths": 11
   },
   "gaps": [
     {
@@ -1105,11 +1123,11 @@
       "reason": "Original notices for embedded components and fonts need separate review"
     },
     {
-      "scope": "core-python:pypi:aiohttp@3.14.4",
+      "scope": "core-python:pypi:aiohttp@3.14.5",
       "reason": "Payload hashes and package documents do not establish embedded dependency completeness"
     },
     {
-      "scope": "core-python:pypi:aiohttp@3.14.4",
+      "scope": "core-python:pypi:aiohttp@3.14.5",
       "reason": "Original notices for embedded components and fonts need separate review"
     },
     {
@@ -1161,11 +1179,11 @@
       "reason": "Original notices for embedded components and fonts need separate review"
     },
     {
-      "scope": "core-python:pypi:inspect-ai@0.3.273",
+      "scope": "core-python:pypi:inspect-ai@0.3.285",
       "reason": "Payload hashes and package documents do not establish embedded dependency completeness"
     },
     {
-      "scope": "core-python:pypi:inspect-ai@0.3.273",
+      "scope": "core-python:pypi:inspect-ai@0.3.285",
       "reason": "Original notices for embedded components and fonts need separate review"
     },
     {
@@ -1217,11 +1235,11 @@
       "reason": "Original notices for embedded components and fonts need separate review"
     },
     {
-      "scope": "core-python:pypi:pydantic-core@2.46.5",
+      "scope": "core-python:pypi:pydantic-core@2.50.1",
       "reason": "Payload hashes and package documents do not establish embedded dependency completeness"
     },
     {
-      "scope": "core-python:pypi:pydantic-core@2.46.5",
+      "scope": "core-python:pypi:pydantic-core@2.50.1",
       "reason": "Original notices for embedded components and fonts need separate review"
     },
     {

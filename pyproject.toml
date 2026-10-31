@@ -1,10 +1,10 @@
 [build-system]
-requires = ["hatchling==1.29.0"]
+requires = ["hatchling==1.32.4"]
 build-backend = "hatchling.build"
 
 [project]
 name = "consumer-agent-testing-tool"
-version = "0.3.0"
+version = "0.4.0"
 description = "Test your service with Muse and Instinct consumer-assistant surrogates"
 readme = "README.md"
 authors = [{name = "Coverage Cat, Inc."}]
@@ -18,25 +18,27 @@ classifiers = [
 ]
 requires-python = ">=3.12"
 dependencies = [
-  "inspect-ai==0.3.273",
-  "mcp==2.2.0",
-  "pydantic==2.13.5",
+  "inspect-ai==0.3.285",
+  "mcp==2.3.0",
+  "pydantic==2.14.1",
   "PyYAML==6.0.3",
   "jsonschema==4.26.0",
   "httpx==0.28.1",
-  "httpx2==2.13.1",
-  "aiohttp==3.14.4",
-  "certifi==2026.10.19",
+  "httpx2==2.16.0",
+  "aiohttp==3.14.5",
+  "certifi==2026.10.23",
 ]
 
 [project.optional-dependencies]
-openrouter = ["openai==3.1.0"]
-dev = ["pytest==9.1.1", "pytest-asyncio==1.4.0", "ruff==0.16.9"]
+openrouter = ["openai==3.40.0"]
+dev = ["pytest==9.2.0", "pytest-asyncio==1.4.1", "ruff==0.17.3"]
 
 [dependency-groups]
 development-extensions = [
-  "gguf==0.19.0", "schemathesis==4.30.1", "fastmcp==4.1.0",
-  "boto3==1.43.106", "aiobotocore==3.9.2", "botocore==1.43.106",
+  "gguf==0.19.0", "schemathesis==4.32.6", "fastmcp==4.1.4",
+  # aiobotocore constrains botocore; boto3 resolves within that constraint.
+  # uv.lock pins all three; independent exact pins made Dependabot updates unsatisfiable.
+  "boto3>=1.43,<2", "aiobotocore==3.10.0",
 ]
 
 [project.scripts]
@@ -71,6 +73,7 @@ only-include = [
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"
 filterwarnings = [
   "error::pytest.PytestUnraisableExceptionWarning",
   "error::pytest.PytestUnhandledThreadExceptionWarning",

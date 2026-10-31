@@ -2,4 +2,4 @@
 name = "consumer-agent-testing-tool-build-tools"
 version = "0.1.0"
 requires-python = ">=3.12"
-dependencies = ["hatchling==1.29.0"]
+dependencies = ["hatchling==1.32.4"]

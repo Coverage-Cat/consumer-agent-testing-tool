@@ -1,0 +1,11 @@
+{
+  "name": "@catt/minimatch-compat",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Spectral's callable CommonJS interface backed by patched upstream minimatch",
+  "license": "MIT",
+  "main": "index.cjs",
+  "dependencies": {
+    "minimatch-patched": "npm:minimatch@11.0.3"
+  }
+}
