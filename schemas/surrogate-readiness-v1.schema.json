@@ -51,6 +51,24 @@
       },
       "title": "Host Arguments",
       "type": "object"
+    },
+    "protocol_revision": {
+      "anyOf": [
+        {
+          "enum": [
+            "2025-03-26",
+            "2025-06-18",
+            "2025-11-25",
+            "2026-07-28"
+          ],
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Protocol Revision"
     }
   },
   "title": "ReadinessManifest",

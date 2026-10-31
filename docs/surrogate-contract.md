@@ -151,11 +151,13 @@ uv run consumer-agent-testing-tool check http://127.0.0.1:8765/mcp \
   --junit reports/readiness.xml --summary-json reports/readiness.json
 ```
 
-This suite calls `initialize` and `tools/list`, and never `tools/call`. It checks
+This suite uses `server/discover` or the older `initialize` handshake, then
+`tools/list`, and never `tools/call`. It checks
 names, credential exposure, the reviewed allowlist, schema syntax and the actual
 selected projection. It records inferred or declared tool classes for review.
 The optional manifest has `version: 1`, `kind: surrogate-readiness`, `allow`,
-`classes` and `host_arguments` (tool names mapped to host-owned field names).
+`classes`, `host_arguments` (tool names mapped to host-owned field names) and an
+optional dated `protocol_revision` requirement.
 Validate it against `schemas/surrogate-readiness-v1.schema.json`.
 Linked credentials use the workspace's `.cache/connector-links/`, shared with
 `connector-run`. The Python `run_check` API accepts an explicit `store` path.
@@ -166,6 +168,11 @@ Without an allowlist or class declarations those checks are explicitly not
 evaluated. Schema syntax does not prove runtime argument validation, and
 references are never fetched. Readiness does not establish behavior: run
 scripted scenarios against the service's oracle too.
+
+`protocol_revision: "2026-07-28"` requires observed modern discovery and catalog
+access. Legacy fallback is a failure of that requirement, even with a usable
+catalog. A client unable to request it is unsupported before traffic.
+See [modern MCP availability](readiness-checks.md#modern-mcp-availability).
 
 `muse-guidelines` remains the separate, pinned Meta-guidelines review. There is
 no fabricated Instinct guidelines suite.
