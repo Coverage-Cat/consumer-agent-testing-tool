@@ -1,0 +1,319 @@
+{
+  "$defs": {
+    "CaseSpec": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "pattern": "^[A-Za-z][A-Za-z0-9_-]{0,63}$",
+          "title": "Id",
+          "type": "string"
+        },
+        "kind": {
+          "default": "connector",
+          "enum": [
+            "connector",
+            "readiness"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "scenario": {
+          "title": "Scenario",
+          "type": "string"
+        },
+        "script": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Script"
+        },
+        "manifest": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Manifest"
+        },
+        "connector": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Connector"
+        },
+        "service": {
+          "pattern": "^[A-Za-z][A-Za-z0-9_-]{0,63}$",
+          "title": "Service",
+          "type": "string"
+        },
+        "matrix": {
+          "$ref": "#/$defs/Matrix"
+        },
+        "tags": {
+          "items": {
+            "pattern": "^[A-Za-z][A-Za-z0-9_-]{0,63}$",
+            "type": "string"
+          },
+          "maxItems": 20,
+          "title": "Tags",
+          "type": "array"
+        },
+        "timeout_seconds": {
+          "default": 120,
+          "exclusiveMinimum": 0,
+          "maximum": 7200,
+          "title": "Timeout Seconds",
+          "type": "number"
+        },
+        "network": {
+          "default": "loopback",
+          "enum": [
+            "loopback",
+            "remote"
+          ],
+          "title": "Network",
+          "type": "string"
+        },
+        "expect": {
+          "$ref": "#/$defs/Expectation"
+        }
+      },
+      "required": [
+        "id",
+        "scenario",
+        "service",
+        "matrix"
+      ],
+      "title": "CaseSpec",
+      "type": "object"
+    },
+    "Expectation": {
+      "additionalProperties": false,
+      "properties": {
+        "exit_code": {
+          "default": 0,
+          "enum": [
+            0,
+            1,
+            3
+          ],
+          "title": "Exit Code",
+          "type": "integer"
+        },
+        "checks": {
+          "additionalProperties": {
+            "enum": [
+              "failed",
+              "blocked",
+              "unsupported",
+              "observation-gap",
+              "not-evaluated"
+            ],
+            "type": "string"
+          },
+          "maxProperties": 100,
+          "title": "Checks",
+          "type": "object"
+        }
+      },
+      "title": "Expectation",
+      "type": "object"
+    },
+    "Matrix": {
+      "additionalProperties": false,
+      "properties": {
+        "emulation_target": {
+          "items": {
+            "enum": [
+              "muse",
+              "instinct"
+            ],
+            "type": "string"
+          },
+          "maxItems": 2,
+          "minItems": 1,
+          "title": "Emulation Target",
+          "type": "array"
+        },
+        "projection": {
+          "items": {
+            "enum": [
+              "native",
+              "cli",
+              "muse-cli"
+            ],
+            "type": "string"
+          },
+          "maxItems": 3,
+          "minItems": 1,
+          "title": "Projection",
+          "type": "array"
+        },
+        "exposure": {
+          "items": {
+            "enum": [
+              "in-prompt",
+              "search-only"
+            ],
+            "type": "string"
+          },
+          "maxItems": 2,
+          "minItems": 1,
+          "title": "Exposure",
+          "type": "array"
+        },
+        "client_profile": {
+          "items": {
+            "enum": [
+              "generic-sdk",
+              "muse-template-unofficial-2026-10"
+            ],
+            "type": "string"
+          },
+          "maxItems": 2,
+          "minItems": 1,
+          "title": "Client Profile",
+          "type": "array"
+        },
+        "output_schema": {
+          "items": {
+            "enum": [
+              "lenient",
+              "strict"
+            ],
+            "type": "string"
+          },
+          "maxItems": 2,
+          "minItems": 1,
+          "title": "Output Schema",
+          "type": "array"
+        }
+      },
+      "required": [
+        "emulation_target"
+      ],
+      "title": "Matrix",
+      "type": "object"
+    },
+    "ServiceSpec": {
+      "additionalProperties": false,
+      "properties": {
+        "command": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "maxItems": 100,
+              "minItems": 1,
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Command"
+        },
+        "ready_url": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Ready Url"
+        },
+        "startup_seconds": {
+          "default": 30,
+          "exclusiveMinimum": 0,
+          "maximum": 300,
+          "title": "Startup Seconds",
+          "type": "number"
+        },
+        "state": {
+          "enum": [
+            "process-local",
+            "case-isolated",
+            "shared"
+          ],
+          "title": "State",
+          "type": "string"
+        }
+      },
+      "required": [
+        "state"
+      ],
+      "title": "ServiceSpec",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "version": {
+      "const": 1,
+      "title": "Version",
+      "type": "integer"
+    },
+    "kind": {
+      "const": "ci-suite",
+      "title": "Kind",
+      "type": "string"
+    },
+    "id": {
+      "pattern": "^[A-Za-z][A-Za-z0-9_-]{0,63}$",
+      "title": "Id",
+      "type": "string"
+    },
+    "services": {
+      "maxProperties": 64,
+      "minProperties": 1,
+      "patternProperties": {
+        "^[A-Za-z][A-Za-z0-9_-]{0,63}$": {
+          "$ref": "#/$defs/ServiceSpec"
+        }
+      },
+      "title": "Services",
+      "type": "object"
+    },
+    "cases": {
+      "items": {
+        "$ref": "#/$defs/CaseSpec"
+      },
+      "maxItems": 128,
+      "minItems": 1,
+      "title": "Cases",
+      "type": "array"
+    }
+  },
+  "required": [
+    "version",
+    "kind",
+    "id",
+    "services",
+    "cases"
+  ],
+  "title": "SuiteSpec",
+  "type": "object",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:consumer-agent-testing-tool:ci-suite-v1"
+}

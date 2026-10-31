@@ -1,0 +1,25 @@
+# Every case owns a fresh, loopback-only fixture. No key, model, Node, or browser is needed.
+version: 1
+kind: ci-suite
+id: booking-compatibility
+services:
+  hotel:
+    command: [python, -m, consumer_agent_testing_tool.connector_fixture, --port, "{port}", --variant, good, --auth, none]
+    ready_url: "http://127.0.0.1:{port}/mcp"
+    state: process-local
+cases:
+  - id: booking
+    scenario: ../connector/fixture-booking.yaml
+    script: booking.calls.yaml
+    service: hotel
+    tags: [smoke, booking]
+    matrix: &shared
+      emulation_target: [muse, instinct]
+      projection: [native, cli]
+  - id: readiness
+    kind: readiness
+    scenario: ../connector/fixture-booking.yaml
+    manifest: ../connector/surrogate-readiness.yaml
+    service: hotel
+    tags: [smoke, readiness]
+    matrix: *shared

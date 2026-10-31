@@ -1,0 +1,262 @@
+{
+  "$defs": {
+    "Expectation": {
+      "additionalProperties": false,
+      "properties": {
+        "exit_code": {
+          "default": 0,
+          "enum": [
+            0,
+            1,
+            3
+          ],
+          "title": "Exit Code",
+          "type": "integer"
+        },
+        "checks": {
+          "additionalProperties": {
+            "enum": [
+              "failed",
+              "blocked",
+              "unsupported",
+              "observation-gap",
+              "not-evaluated"
+            ],
+            "type": "string"
+          },
+          "maxProperties": 100,
+          "title": "Checks",
+          "type": "object"
+        }
+      },
+      "title": "Expectation",
+      "type": "object"
+    },
+    "PlanCase": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "pattern": "^[A-Za-z][A-Za-z0-9_-]{0,299}$",
+          "title": "Id",
+          "type": "string"
+        },
+        "source_id": {
+          "pattern": "^[A-Za-z][A-Za-z0-9_-]{0,63}$",
+          "title": "Source Id",
+          "type": "string"
+        },
+        "kind": {
+          "enum": [
+            "connector",
+            "readiness"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "definition_sha256": {
+          "pattern": "^[a-f0-9]{64}$",
+          "title": "Definition Sha256",
+          "type": "string"
+        },
+        "treatment": {
+          "$ref": "#/$defs/Treatment"
+        },
+        "service": {
+          "pattern": "^[A-Za-z][A-Za-z0-9_-]{0,63}$",
+          "title": "Service",
+          "type": "string"
+        },
+        "state": {
+          "enum": [
+            "process-local",
+            "case-isolated",
+            "shared"
+          ],
+          "title": "State",
+          "type": "string"
+        },
+        "network": {
+          "enum": [
+            "loopback",
+            "remote"
+          ],
+          "title": "Network",
+          "type": "string"
+        },
+        "tags": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Tags",
+          "type": "array"
+        },
+        "timeout_seconds": {
+          "title": "Timeout Seconds",
+          "type": "number"
+        },
+        "expect": {
+          "$ref": "#/$defs/Expectation"
+        }
+      },
+      "required": [
+        "id",
+        "source_id",
+        "kind",
+        "definition_sha256",
+        "treatment",
+        "service",
+        "state",
+        "network",
+        "tags",
+        "timeout_seconds",
+        "expect"
+      ],
+      "title": "PlanCase",
+      "type": "object"
+    },
+    "Treatment": {
+      "additionalProperties": false,
+      "properties": {
+        "emulation_target": {
+          "enum": [
+            "muse",
+            "instinct"
+          ],
+          "title": "Emulation Target",
+          "type": "string"
+        },
+        "projection": {
+          "enum": [
+            "native",
+            "cli",
+            "muse-cli"
+          ],
+          "title": "Projection",
+          "type": "string"
+        },
+        "exposure": {
+          "enum": [
+            "in-prompt",
+            "search-only"
+          ],
+          "title": "Exposure",
+          "type": "string"
+        },
+        "client_profile": {
+          "enum": [
+            "generic-sdk",
+            "muse-template-unofficial-2026-10"
+          ],
+          "title": "Client Profile",
+          "type": "string"
+        },
+        "output_schema": {
+          "enum": [
+            "lenient",
+            "strict"
+          ],
+          "title": "Output Schema",
+          "type": "string"
+        }
+      },
+      "required": [
+        "emulation_target",
+        "projection",
+        "exposure",
+        "client_profile",
+        "output_schema"
+      ],
+      "title": "Treatment",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "const": 1,
+      "default": 1,
+      "title": "Schema Version",
+      "type": "integer"
+    },
+    "kind": {
+      "const": "catt-ci-plan",
+      "default": "catt-ci-plan",
+      "title": "Kind",
+      "type": "string"
+    },
+    "suite_id": {
+      "pattern": "^[A-Za-z][A-Za-z0-9_-]{0,63}$",
+      "title": "Suite Id",
+      "type": "string"
+    },
+    "suite_sha256": {
+      "pattern": "^[a-f0-9]{64}$",
+      "title": "Suite Sha256",
+      "type": "string"
+    },
+    "scope_sha256": {
+      "pattern": "^[a-f0-9]{64}$",
+      "title": "Scope Sha256",
+      "type": "string"
+    },
+    "evidence_label": {
+      "const": "scripted surrogate compatibility; no model inference",
+      "default": "scripted surrogate compatibility; no model inference",
+      "title": "Evidence Label",
+      "type": "string"
+    },
+    "cases": {
+      "items": {
+        "$ref": "#/$defs/PlanCase"
+      },
+      "maxItems": 512,
+      "minItems": 1,
+      "title": "Cases",
+      "type": "array"
+    },
+    "selected": {
+      "items": {
+        "type": "string"
+      },
+      "maxItems": 512,
+      "minItems": 1,
+      "title": "Selected",
+      "type": "array"
+    },
+    "scheduled": {
+      "items": {
+        "type": "string"
+      },
+      "maxItems": 512,
+      "minItems": 1,
+      "title": "Scheduled",
+      "type": "array"
+    },
+    "shard_index": {
+      "maximum": 512,
+      "minimum": 1,
+      "title": "Shard Index",
+      "type": "integer"
+    },
+    "shard_count": {
+      "maximum": 512,
+      "minimum": 1,
+      "title": "Shard Count",
+      "type": "integer"
+    }
+  },
+  "required": [
+    "suite_id",
+    "suite_sha256",
+    "scope_sha256",
+    "cases",
+    "selected",
+    "scheduled",
+    "shard_index",
+    "shard_count"
+  ],
+  "title": "SuitePlan",
+  "type": "object",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:consumer-agent-testing-tool:ci-plan-v1"
+}
