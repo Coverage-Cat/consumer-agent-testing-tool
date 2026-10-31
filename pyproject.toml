@@ -1,5 +1,5 @@
 [build-system]
-requires = ["hatchling==1.32.4"]
+requires = ["hatchling==1.33.0"]
 build-backend = "hatchling.build"
 
 [project]
@@ -35,7 +35,7 @@ dev = ["pytest==9.2.0", "pytest-asyncio==1.4.1", "ruff==0.17.3"]
 
 [dependency-groups]
 development-extensions = [
-  "gguf==0.19.0", "schemathesis==4.32.6", "fastmcp==4.1.4",
+  "gguf==0.19.0", "schemathesis==4.32.7", "fastmcp==4.1.4",
   # aiobotocore constrains botocore; boto3 resolves within that constraint.
   # uv.lock pins all three; independent exact pins made Dependabot updates unsatisfiable.
   "boto3>=1.43,<2", "aiobotocore==3.10.0",
