@@ -137,6 +137,16 @@ jobs:
       - run: uv sync --locked --extra dev
       - run: npm --prefix tooling/ci ci --ignore-scripts
 
+      - name: Surrogate suites with bounded workers and independent purchase outcomes
+        env:
+          BUILD_ID: ${{ github.sha }}
+        run: |
+          uv run --no-sync python scripts/generate_ci_purchase_examples.py --check
+          uv run --no-sync consumer-agent-testing-tool ci run examples/ci/booking.suite.yaml \
+            --jobs 4 --build-id "$BUILD_ID" --report-dir reports/ci-booking
+          uv run --no-sync consumer-agent-testing-tool ci run examples/ci/purchase.suite.yaml \
+            --jobs 4 --build-id "$BUILD_ID" --report-dir reports/ci-purchase
+
       - name: Scripted booking against the bundled test service
         run: >-
           uv run --no-sync consumer-agent-testing-tool connector-run examples/connector/fixture-booking.yaml
