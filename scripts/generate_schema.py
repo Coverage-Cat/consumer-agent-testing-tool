@@ -8,6 +8,7 @@ from consumer_agent_testing_tool.behavior_sandbox import BatchSpec
 from consumer_agent_testing_tool.calibration import NeutralCohort
 from consumer_agent_testing_tool.ci_outputs import SUMMARY_SCHEMA
 from consumer_agent_testing_tool.connector_schema import connector_schema
+from consumer_agent_testing_tool.discovery_report import DiscoveryStudy
 from consumer_agent_testing_tool.event_contract import event_schema
 from consumer_agent_testing_tool.scenario import (
     MAX_GRANT_SECONDS,
@@ -136,7 +137,8 @@ for path in [Path("schemas/surrogate-readiness-v1.schema.json"),
              Path("src/consumer_agent_testing_tool/data/schemas/surrogate-readiness-v1.schema.json")]:
     path.write_text(json.dumps(readiness, indent=2) + "\n")
 
-for name, model in (("behavior-observation-v3", NeutralPair), ("behavior-cohort-v3", NeutralCohort),
+for name, model in (("discovery-study-v1", DiscoveryStudy),
+                    ("behavior-observation-v3", NeutralPair), ("behavior-cohort-v3", NeutralCohort),
                     ("behavior-batch-v1", BatchSpec)):
     document = model.model_json_schema()
     document.update({"$schema": "https://json-schema.org/draft/2020-12/schema",

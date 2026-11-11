@@ -51,6 +51,8 @@ def parser(*, development=False):
                       default=development,
                       help="Enable experiments outside the supported release")
     commands = root.add_subparsers(dest="command", required=True)
+    discovery = commands.add_parser("discovery-report", help="Summarize reviewed cold and connected discovery trials; no model calls")
+    discovery.add_argument("study", type=Path, help="Private discovery-study-v1 JSON; prints aggregate counts only")
     targets = commands.add_parser("targets", help="List supported surrogate targets and their testing contract")
     targets.add_argument("--json", action="store_true", help="Print the versioned target capabilities as JSON")
     initialize = commands.add_parser("init", help="Write a local configuration; no assistant account required")
@@ -644,6 +646,9 @@ async def execute(args):
     if isinstance(getattr(args, "target", None), DefaultTarget):
         args.target, args.target_given = str(args.target), False  # A plain str from here on.
     require_supported(experimental=getattr(args, "development_extensions", False), command=args.command)
+    if args.command == "discovery-report":
+        from .discovery_report import run_from_cli
+        return run_from_cli(args)
     if args.command == "targets":
         from .emulation import TARGETS, surrogate_contract
         targets = [surrogate_contract(target) for target in TARGETS]
