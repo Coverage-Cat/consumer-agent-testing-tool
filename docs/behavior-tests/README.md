@@ -104,3 +104,9 @@ a named-assistant scorecard from these exploratory exercises.
 Historical study invitations do not authorize another run. Further external
 testing requires a new bounded scope; the completed exploratory campaign is
 closed.
+
+## Discovery and acquisition
+
+[Discovery to purchase](discovery-to-purchase.md) separates cold discovery from
+connected tool selection and reports reviewed observations without exposing prompts
+or private evidence references.
