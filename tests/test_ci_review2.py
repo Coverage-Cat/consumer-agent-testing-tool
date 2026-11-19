@@ -16,6 +16,7 @@ from consumer_agent_testing_tool.ci_results import SuiteReport, atomic_write
 from consumer_agent_testing_tool.ci_suite import Expectation, PlanError, prepare_suite
 from consumer_agent_testing_tool.ci_validation import validate_expectation
 from consumer_agent_testing_tool.cli import execute, parser
+from consumer_agent_testing_tool.connector_scenario import ExpectedSpec
 from consumer_agent_testing_tool.service_start import Service
 
 
@@ -58,7 +59,8 @@ def test_real_wallet_receipt_finding_is_an_admissible_negative_expectation():
         SimpleNamespace(status="captured", receipt_id=None, charge_id="synthetic-charge")])}, False)
     assert emitted["id"] == "wallet.receipt" and emitted["status"] == "failed"
     case = SimpleNamespace(kind="connector", expect=Expectation(exit_code=1, checks={emitted["id"]: emitted["status"]}))
-    document = SimpleNamespace(checks=[], extensions={"wallet": {}}, connectors=[], limits=SimpleNamespace(tool_calls=4))
+    document = SimpleNamespace(checks=[], expected=ExpectedSpec(), extensions={"wallet": {}}, connectors=[],
+                               limits=SimpleNamespace(tool_calls=4))
     validate_expectation(case, document, "case")
 
 
@@ -69,7 +71,8 @@ def test_real_wallet_receipt_finding_is_an_admissible_negative_expectation():
 ])
 def test_emitted_extension_check_ids_are_supported(extension, identifier):
     case = SimpleNamespace(kind="connector", expect=Expectation(exit_code=1, checks={identifier: "failed"}))
-    document = SimpleNamespace(checks=[], extensions={extension: {}}, connectors=[], limits=SimpleNamespace(tool_calls=4))
+    document = SimpleNamespace(checks=[], expected=ExpectedSpec(), extensions={extension: {}}, connectors=[],
+                               limits=SimpleNamespace(tool_calls=4))
     validate_expectation(case, document, "case")
 
 
