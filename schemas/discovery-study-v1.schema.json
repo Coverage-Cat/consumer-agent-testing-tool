@@ -1,0 +1,203 @@
+{
+  "$defs": {
+    "Case": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "pattern": "^[a-zA-Z0-9_-]{1,80}$",
+          "title": "Id",
+          "type": "string"
+        },
+        "exposure": {
+          "enum": [
+            "cold",
+            "connected"
+          ],
+          "title": "Exposure",
+          "type": "string"
+        },
+        "intent": {
+          "enum": [
+            "purchase",
+            "research",
+            "negative"
+          ],
+          "title": "Intent",
+          "type": "string"
+        },
+        "host": {
+          "enum": [
+            "hosted",
+            "surrogate"
+          ],
+          "title": "Host",
+          "type": "string"
+        },
+        "trials": {
+          "maximum": 1000,
+          "minimum": 1,
+          "title": "Trials",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "id",
+        "exposure",
+        "intent",
+        "host",
+        "trials"
+      ],
+      "title": "Case",
+      "type": "object"
+    },
+    "Observation": {
+      "additionalProperties": false,
+      "properties": {
+        "status": {
+          "enum": [
+            "observed",
+            "absent",
+            "unobserved"
+          ],
+          "title": "Status",
+          "type": "string"
+        },
+        "source": {
+          "anyOf": [
+            {
+              "enum": [
+                "transcript",
+                "tool",
+                "service"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Source"
+        },
+        "evidence_ref": {
+          "anyOf": [
+            {
+              "maxLength": 2000,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Evidence Ref"
+        }
+      },
+      "required": [
+        "status"
+      ],
+      "title": "Observation",
+      "type": "object"
+    },
+    "Stages": {
+      "additionalProperties": false,
+      "properties": {
+        "discovered": {
+          "$ref": "#/$defs/Observation"
+        },
+        "recommended": {
+          "$ref": "#/$defs/Observation"
+        },
+        "invoked": {
+          "$ref": "#/$defs/Observation"
+        },
+        "started": {
+          "$ref": "#/$defs/Observation"
+        },
+        "completed": {
+          "$ref": "#/$defs/Observation"
+        }
+      },
+      "required": [
+        "discovered",
+        "recommended",
+        "invoked",
+        "started",
+        "completed"
+      ],
+      "title": "Stages",
+      "type": "object"
+    },
+    "Trial": {
+      "additionalProperties": false,
+      "properties": {
+        "case_id": {
+          "pattern": "^[a-zA-Z0-9_-]{1,80}$",
+          "title": "Case Id",
+          "type": "string"
+        },
+        "trial": {
+          "minimum": 1,
+          "title": "Trial",
+          "type": "integer"
+        },
+        "target_seeded": {
+          "title": "Target Seeded",
+          "type": "boolean"
+        },
+        "stages": {
+          "$ref": "#/$defs/Stages"
+        }
+      },
+      "required": [
+        "case_id",
+        "trial",
+        "target_seeded",
+        "stages"
+      ],
+      "title": "Trial",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "const": 1,
+      "title": "Schema Version",
+      "type": "integer"
+    },
+    "study_id": {
+      "pattern": "^[a-zA-Z0-9_-]{1,80}$",
+      "title": "Study Id",
+      "type": "string"
+    },
+    "cases": {
+      "items": {
+        "$ref": "#/$defs/Case"
+      },
+      "maxItems": 1000,
+      "minItems": 1,
+      "title": "Cases",
+      "type": "array"
+    },
+    "observations": {
+      "items": {
+        "$ref": "#/$defs/Trial"
+      },
+      "maxItems": 100000,
+      "title": "Observations",
+      "type": "array"
+    }
+  },
+  "required": [
+    "schema_version",
+    "study_id",
+    "cases",
+    "observations"
+  ],
+  "title": "DiscoveryStudy",
+  "type": "object",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:consumer-agent-testing-tool:discovery-study-v1"
+}
