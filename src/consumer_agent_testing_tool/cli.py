@@ -51,7 +51,10 @@ def parser(*, development=False):
                       default=development,
                       help="Enable experiments outside the supported release")
     commands = root.add_subparsers(dest="command", required=True)
-    discovery = commands.add_parser("discovery-report", help="Summarize reviewed cold and connected discovery trials; no model calls")
+    from .ci_cli import add_arguments as ci_suite_arguments
+    ci_suite_arguments(commands)
+    discovery = commands.add_parser("discovery-report",
+                                    help="Summarize reviewed cold and connected discovery trials; no model calls")
     discovery.add_argument("study", type=Path, help="Private discovery-study-v1 JSON; prints aggregate counts only")
     targets = commands.add_parser("targets", help="List supported surrogate targets and their testing contract")
     targets.add_argument("--json", action="store_true", help="Print the versioned target capabilities as JSON")
@@ -671,6 +674,9 @@ async def execute(args):
     if args.command == "connector-run":
         from .connector_run import run_from_cli as run_connector
         return await run_connector(args)
+    if args.command == "ci":
+        from .ci_cli import run_from_cli
+        return await run_from_cli(args)
     if args.command == "scaffold":
         from .connector_run import scaffold_from_cli
         return await scaffold_from_cli(args)

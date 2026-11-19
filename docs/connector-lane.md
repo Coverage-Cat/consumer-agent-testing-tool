@@ -173,9 +173,16 @@ A scenario that does not load exits 2.
 | `checks` | `[]` | Outcome checks ([below](#outcome-checks)) |
 | `answer` | none | Claims and relay facts the final answer is scored on ([below](#answer-checks)) |
 | `expected.tools` | `[]` | Tools the task should use; the selection metrics compare the calls with them |
+| `expected.forbidden_tools` | `[]` | Connector tools the agent must leave unused. `selection.forbidden_tools` scores attempts before approval and dispatch. |
 | `limits` | | Budgets ([below](#limits)) |
 | `reset` | none | A URL, or a list of distinct URLs (one per test service), POSTed in order before each trial |
 | `extensions` | `{}` | Extension configurations by name; `clock` is built in |
+
+An attempted forbidden call fails `selection.forbidden_tools` even if
+validation or permissions prevent dispatch. Verify the effects separately
+with an oracle. If there were no attempts, this required check needs every
+named tool to have been offered as a callable native function or named in a
+CLI discovery result. Missing exposure leaves an observation gap.
 
 ### Connectors
 
@@ -353,7 +360,7 @@ one:
 - Native functions are named `<connector>__<tool>` from the first turn, so a
   connector connected later never renames another's tools (`connector-prefix`,
   assumed). muse-cli addresses each connector by its command name.
-- `expected.tools`, `permissions.important_reads` and
+- `expected.tools`, `expected.forbidden_tools`, `permissions.important_reads` and
   `permissions.persisted_always` name tools as `<connector>/<tool>`, and a
   tool check sets `connector`. Two connectors can both list `create_booking`,
   so an unqualified name is refused.
@@ -1086,6 +1093,7 @@ A script replays tool calls through the same host path, with no model:
 | Step | Meaning |
 |---|---|
 | `{"tool": NAME, "arguments": {...}}` | One call of a model tool: a native function, `exec`, `ask_user`, `tool_search` or an extension tool |
+| `{"connector": CONNECTOR, "tool": NAME, "arguments": {...}}` | One server tool through the selected host projection; the same trace works with native and CLI |
 | `{"idle": true, "text": "..."}` | The agent stops (one model turn). Queued resume messages or the extensions' `on_idle` hooks run; the step's result is the resume message, or null |
 | `{"answer": TEXT}` | The final answer, the last step. A list of strings and references is joined |
 
@@ -1095,6 +1103,13 @@ model received it. A native result is an envelope, so pointers look like
 `/results/4/stdout/structuredContent/quote_id`. An `exec` command may be a list
 of argv parts: non-string parts are JSON-encoded and the list is joined with
 shell quoting.
+
+Portable connector steps use `{"$ref": "/responses/<step>/structuredContent/quote_id"}`.
+`responses` holds only that step's visible MCP response: the native envelope's `result` or the CLI
+envelope's `stdout`. Other steps have a null response. Truncated, masked or absent fields stay unavailable.
+Portable calls still pass through host admission, allowlists, permissions and argument validation.
+They do not load deferred tools, add calls or retry writes. Use explicit `tool_search` steps when testing
+search-only exposure. [The CI booking trace](../examples/ci/booking.calls.yaml) is a complete example.
 
 A script holds 1 to 1,000 steps. Each call and each idle step is a model turn,
 within `limits.model_turns`. The scripted agent stops only at idle steps, so

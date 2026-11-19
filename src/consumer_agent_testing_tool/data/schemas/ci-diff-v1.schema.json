@@ -1,0 +1,151 @@
+{
+  "$defs": {
+    "Difference": {
+      "additionalProperties": false,
+      "properties": {
+        "code": {
+          "title": "Code",
+          "type": "string"
+        },
+        "case_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Case Id"
+        },
+        "check_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Check Id"
+        },
+        "message": {
+          "title": "Message",
+          "type": "string"
+        }
+      },
+      "required": [
+        "code",
+        "message"
+      ],
+      "title": "Difference",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "const": 1,
+      "default": 1,
+      "title": "Schema Version",
+      "type": "integer"
+    },
+    "kind": {
+      "const": "catt-ci-diff",
+      "default": "catt-ci-diff",
+      "title": "Kind",
+      "type": "string"
+    },
+    "baseline_report": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Baseline Report"
+    },
+    "candidate_report": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Candidate Report"
+    },
+    "baseline_build": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Baseline Build"
+    },
+    "candidate_build": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Candidate Build"
+    },
+    "exit_code": {
+      "enum": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "title": "Exit Code",
+      "type": "integer"
+    },
+    "status": {
+      "enum": [
+        "no-regression",
+        "regression",
+        "error",
+        "incomparable"
+      ],
+      "title": "Status",
+      "type": "string"
+    },
+    "evidence_label": {
+      "const": "scripted surrogate comparison; no model inference",
+      "default": "scripted surrogate comparison; no model inference",
+      "title": "Evidence Label",
+      "type": "string"
+    },
+    "differences": {
+      "items": {
+        "$ref": "#/$defs/Difference"
+      },
+      "title": "Differences",
+      "type": "array"
+    }
+  },
+  "required": [
+    "baseline_report",
+    "candidate_report",
+    "baseline_build",
+    "candidate_build",
+    "exit_code",
+    "status"
+  ],
+  "title": "Comparison",
+  "type": "object",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:consumer-agent-testing-tool:ci-diff-v1"
+}

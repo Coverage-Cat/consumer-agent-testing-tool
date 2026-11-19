@@ -67,6 +67,17 @@ local wallet and MCP Apps mechanics remain in their existing suites below.
 | Lost or malformed acknowledgment | A submit can commit before its response is lost or malformed. The client does not retry it. Unreconciled effects remain blocked; strict schema failures remain failures. |
 | Policy support | The service previews the exact request before confirmation. A pending cancellation request changes neither policy status nor refund count. False cancellation and refund claims fail. |
 
+The [read-only watch](../../examples/connector/README.md#synthetic-insurance-purchases)
+starts with a submitted umbrella application. Four fixture-clock polls see two
+pending replies and two quoted replies. The inbox must receive exactly one
+update for that application after the first quoted reply. The oracle compares
+insurance effect counts with those at setup, including the already-submitted
+application. `selection.forbidden_tools` separately scores attempted writes.
+The [fresh-conversation regression](../../tests/test_memory_lifecycle.py)
+preserves the same synthetic application through recall, a live read, the
+watch, and forgetting. The application has a coverage limit distinct from
+the remembered preference.
+
 [Fixture tests](../../tests/test_purchase_fixture.py) exercise the state prerequisites.
 [Pipeline tests](../../tests/test_purchase_e2e.py) exercise dispatch, approvals,
 background work, independent checks and sealed evidence.

@@ -410,6 +410,7 @@ class CliError:
     # not loaded yet (muse-cli namespace deferral): still "command not found", but a call the model reached for,
     # logged like a native deferred tool's call.
     deferred: tuple[str, str] | None = None
+    attempted: tuple[str, str] | None = None
 
 
 class Projection:
@@ -676,17 +677,19 @@ class Projection:
             return CliError(2, f"{head} {subcommand}: --name is required\n{self.help(head)}")
         if subcommand == "describe-tool":
             return CliCommand("describe-tool", connector=head, tool=parsed["--name"])
+        target = (head, parsed["--name"])
         text = parsed.get("--arguments-json", "{}")
         if text == "-":
             if stdin is None:
-                return CliError(2, f"{head} call-tool: --arguments-json - reads stdin, but no stdin was given")
+                return CliError(2, f"{head} call-tool: --arguments-json - reads stdin, but no stdin was given",
+                                attempted=target)
             text = stdin
         try:
             arguments = loads(text, json_only=True)
         except LabError as error:
-            return CliError(2, f"{head} call-tool: --arguments-json is not valid JSON ({error})")
+            return CliError(2, f"{head} call-tool: --arguments-json is not valid JSON ({error})", attempted=target)
         if not isinstance(arguments, dict):
-            return CliError(2, f"{head} call-tool: --arguments-json must be a JSON object")
+            return CliError(2, f"{head} call-tool: --arguments-json must be a JSON object", attempted=target)
         return CliCommand("call-tool", connector=head, tool=parsed["--name"], arguments=arguments)
 
 

@@ -251,6 +251,11 @@ class SecretList(list):
         self.public = set() if public is None else public
         self.extend(values)
 
+    def __repr__(self):
+        return f"<SecretList: {len(self)} registered values hidden>"
+
+    __str__ = __repr__
+
     def _admit(self, values):
         public = self.__dict__.get("public", ())  # Not yet restored while unpickling.
         with _SECRET_LOCK:

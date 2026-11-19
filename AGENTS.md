@@ -102,6 +102,22 @@ client profile cannot reach the server).
 
 ## CI and machine-readable output
 
+For several scenarios or treatments, use a declared scripted suite:
+
+```sh
+uv run consumer-agent-testing-tool ci validate examples/ci/booking.suite.yaml --jobs 4 --json
+uv run consumer-agent-testing-tool ci run examples/ci/booking.suite.yaml \
+  --jobs 4 --build-id local --report-dir reports/booking --summary-json -
+```
+
+`ci` makes no model request. Suites require explicit targets and service-state declarations.
+`ci plan` is offline; `--case`, `--tag` and `--failed-from` select work. Sharded runs require a common
+`--batch-id` and `--build-id`; `ci merge` keeps missing shards unrun and nonpassing. `ci diff` rejects
+missing or changed coverage as a passing comparison. Read [the suite guide](docs/ci-suites.md).
+Upload only the report directory. `.cache/catt-ci/` contains private snapshots, runs and raw logs.
+
+For one scenario:
+
 ```sh
 uv run consumer-agent-testing-tool connector-run my-connector.yaml \
   --driver scripted --script my-connector.calls.json \

@@ -10,6 +10,7 @@ from consumer_agent_testing_tool.mcp_clients import GENERIC_PROFILE, SdkClient
 from consumer_agent_testing_tool.purchase_fixture import (
     ATTACHMENTS,
     START,
+    WATCH_CHANGE,
     PurchaseFixture,
     serve_purchase,
 )
@@ -92,6 +93,27 @@ def test_umbrella_selection_cannot_invent_or_skip_credit_consent(consent):
     assert invoke(fixture, "select", selection_token=quote["selection_token"], selection_confirmed=True,
                   credit_consent=consent, um_uim_election="decline").is_error
     assert fixture.snapshot()["selection_count"] == fixture.snapshot()["bind_count"] == 0
+
+
+async def test_watch_control_can_commit_a_purchase_with_granted_authority():
+    async with serve_purchase(watch=True) as fixture, httpx.AsyncClient() as client:
+        response = await client.post(fixture.origin + "/__oracle/clock", json={"set": WATCH_CHANGE.isoformat()})
+        response.raise_for_status()
+        quote = data(invoke(fixture, "issues"))["offers"][0]
+        data(invoke(fixture, "select", selection_token=quote["selection_token"], selection_confirmed=True,
+                    credit_consent=CONSENT, um_uim_election="decline"))
+        data(invoke(fixture, "bind"))
+        draft = data(fixture.prefill(APPLICANT))
+        data(fixture.followup("consumer_intake_patch", draft["uid"], draft["intake_access_token"],
+                              confirm_submission=True, confirm_estimates=True))
+        async with SdkClient(GENERIC_PROFILE, fixture.origin + "/mcp", NoCredential()) as wire:
+            rejected = await wire.call_tool("consumer_intake_patch", {})
+            assert rejected.error or rejected.result["isError"]
+        watched = fixture.snapshot()["watch"]
+    assert watched["write_requests"] == {"consumer_intake_patch": 1}
+    delta = watched["effect_delta"]
+    assert delta["submission_count"] == delta["selection_count"] == delta["credit_consent_count"] == 1
+    assert delta["bind_count"] == 1
 
 
 def test_payment_session_is_bound_to_the_intake_and_does_not_itself_charge_or_bind():

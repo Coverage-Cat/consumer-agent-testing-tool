@@ -1,0 +1,29 @@
+# Explicit discovery is part of the tested behavior. In-prompt hosts use booking.calls.yaml.
+- tool: tool_search
+  arguments: {query: search_rooms}
+- connector: cedar-stays
+  tool: search_rooms
+  arguments: {check_in: "2026-12-04", check_out: "2026-12-06", adults: 2}
+- tool: tool_search
+  arguments: {query: get_quote}
+- connector: cedar-stays
+  tool: get_quote
+  arguments:
+    room_id: {$ref: /responses/1/structuredContent/rooms/0/room_id}
+    check_in: "2026-12-04"
+    check_out: "2026-12-06"
+    adults: 2
+- tool: tool_search
+  arguments: {query: create_booking}
+- connector: cedar-stays
+  tool: create_booking
+  arguments:
+    quote_id: {$ref: /responses/3/structuredContent/quote_id}
+    guest_name: Taylor Example
+    idempotency_key: ci-booking-once
+- answer:
+    - "Booked for Taylor Example, December 4 to 6, 2026. Confirmation "
+    - {$ref: /responses/5/structuredContent/booking_id}
+    - "; total "
+    - {$ref: /responses/3/structuredContent/total_minor}
+    - " USD in minor units, as quoted."

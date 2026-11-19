@@ -19,7 +19,7 @@
       },
       {
         "name": "consumer-agent-testing-tool:dependency_lock_sha256",
-        "value": "cd0addd479de1e935eeaab6fc175caceb7a463cdeed091d9c40a92d835953a87"
+        "value": "fea6fb79f2abe51030565a108e6f895af0550040ca76c097a299e9e86ca27401"
       }
     ]
   },
@@ -1506,13 +1506,13 @@
     {
       "type": "library",
       "name": "opentelemetry-api",
-      "version": "1.45.1",
-      "bom-ref": "core-python:pypi:opentelemetry-api@1.45.1",
-      "purl": "pkg:pypi/opentelemetry-api@1.45.1",
+      "version": "1.45.2",
+      "bom-ref": "core-python:pypi:opentelemetry-api@1.45.2",
+      "purl": "pkg:pypi/opentelemetry-api@1.45.2",
       "properties": [
         {
           "name": "consumer-agent-testing-tool:notice-files",
-          "value": "[{\"path\": \"third_party/notices/core-python/opentelemetry-api-1.45.1/c71d239df917-LICENSE\", \"sha256\": \"c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4\"}]"
+          "value": "[{\"path\": \"third_party/notices/core-python/opentelemetry-api-1.45.2/c71d239df917-LICENSE\", \"sha256\": \"c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4\"}]"
         },
         {
           "name": "consumer-agent-testing-tool:declared-license",
@@ -1520,7 +1520,7 @@
         },
         {
           "name": "consumer-agent-testing-tool:locked-wheel-hashes",
-          "value": "[\"sha256:b31553efa588ae44bc306f863c785c5333a9ecc091248c6ee68b4b6c87fdedfb\"]"
+          "value": "[\"sha256:2cbd737377e710ee740d261c94e93fa0f08e6d037c18f17513cc0a2d94479a34\"]"
         },
         {
           "name": "consumer-agent-testing-tool:scope",
@@ -2231,13 +2231,13 @@
     {
       "type": "library",
       "name": "soupsieve",
-      "version": "2.10",
-      "bom-ref": "core-python:pypi:soupsieve@2.10",
-      "purl": "pkg:pypi/soupsieve@2.10",
+      "version": "4.0",
+      "bom-ref": "core-python:pypi:soupsieve@4.0",
+      "purl": "pkg:pypi/soupsieve@4.0",
       "properties": [
         {
           "name": "consumer-agent-testing-tool:notice-files",
-          "value": "[{\"path\": \"third_party/notices/core-python/soupsieve-2.10/76a0acdb98c3-LICENSE.md\", \"sha256\": \"76a0acdb98c3a63681e20b6f096699ef8cad5fb35d56eef8387e0fa71d797a9a\"}]"
+          "value": "[{\"path\": \"third_party/notices/core-python/soupsieve-4.0/76a0acdb98c3-LICENSE.md\", \"sha256\": \"76a0acdb98c3a63681e20b6f096699ef8cad5fb35d56eef8387e0fa71d797a9a\"}]"
         },
         {
           "name": "consumer-agent-testing-tool:declared-license",
@@ -2245,7 +2245,7 @@
         },
         {
           "name": "consumer-agent-testing-tool:locked-wheel-hashes",
-          "value": "[\"sha256:8596eb8967d744174820280fa62b4542a2e955bfaccca73ed8a13c6eb8e9b502\"]"
+          "value": "[\"sha256:5e7494bfce90e06676cfb4c5c2cf22243e98e5cf24646bb1ecdda46d318550a0\"]"
         },
         {
           "name": "consumer-agent-testing-tool:scope",

@@ -1,0 +1,14 @@
+- {idle: true}
+- &read {connector: insurance, tool: consumer_intake_issues, arguments: {uid: intake-0001}}
+- {idle: true}
+- *read
+- {idle: true}
+- *read
+- connector: insurance
+  tool: deliver_status_update
+  arguments:
+    uid: {$ref: /responses/5/structuredContent/uid}
+    status: {$ref: /responses/5/structuredContent/status}
+- {idle: true}
+- *read
+- {answer: "I sent the status change for intake-0001 to your inbox."}

@@ -6,7 +6,10 @@ from consumer_agent_testing_tool.api_mapping import ApiMapping
 from consumer_agent_testing_tool.behavior_observations import NeutralPair
 from consumer_agent_testing_tool.behavior_sandbox import BatchSpec
 from consumer_agent_testing_tool.calibration import NeutralCohort
+from consumer_agent_testing_tool.ci_history import Comparison
 from consumer_agent_testing_tool.ci_outputs import SUMMARY_SCHEMA
+from consumer_agent_testing_tool.ci_results import SuiteReport
+from consumer_agent_testing_tool.ci_suite import SuitePlan, SuiteSpec
 from consumer_agent_testing_tool.connector_schema import connector_schema
 from consumer_agent_testing_tool.discovery_report import DiscoveryStudy
 from consumer_agent_testing_tool.event_contract import event_schema
@@ -139,7 +142,8 @@ for path in [Path("schemas/surrogate-readiness-v1.schema.json"),
 
 for name, model in (("discovery-study-v1", DiscoveryStudy),
                     ("behavior-observation-v3", NeutralPair), ("behavior-cohort-v3", NeutralCohort),
-                    ("behavior-batch-v1", BatchSpec)):
+                    ("behavior-batch-v1", BatchSpec), ("ci-suite-v1", SuiteSpec), ("ci-plan-v1", SuitePlan),
+                    ("ci-report-v1", SuiteReport), ("ci-diff-v1", Comparison)):
     document = model.model_json_schema()
     document.update({"$schema": "https://json-schema.org/draft/2020-12/schema",
                      "$id": f"urn:consumer-agent-testing-tool:{name}"})

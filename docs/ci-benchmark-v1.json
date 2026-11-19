@@ -1,0 +1,65 @@
+{
+  "schema_version": 1,
+  "kind": "catt-ci-benchmark",
+  "suite_id": "booking-compatibility",
+  "suite_sha256": "ac3cff3ea5006bf765d6c0e1daeedfb422449126b8b1bb722ef1f233d545744a",
+  "harness": {
+    "version": "0.4.0",
+    "implementation": "6558dffd5a3ae37820ef659c504312ac34df4b2d60757679407688d52b562fb6",
+    "dependency_locks": "452ca45eba4507d5243175c92deb5c856dce7b9e3656d347929cd80b1a2a4620",
+    "runtime": "e3baf24e4d1d3d6bc355ed4f51b7f6e1ba717e42ff8737fa30fb03b9c033444a"
+  },
+  "cases": 12,
+  "python": "3.14.4",
+  "os": "Darwin",
+  "architecture": "arm64",
+  "cpu_count": 18,
+  "repeats": 3,
+  "model_requests": 0,
+  "method": "Wall time includes complete input validation, startup, checks, reporting and cleanup. Worker counts alternate order. Jobs is a concurrency bound. All check outcomes match.",
+  "samples": [
+    {
+      "jobs": 1,
+      "repetition": 1,
+      "seconds": 20.163882,
+      "report_id": "c4ebbdaf567543d89492c6b896b9e702"
+    },
+    {
+      "jobs": 4,
+      "repetition": 1,
+      "seconds": 6.576499,
+      "report_id": "f90f1c3e39174bd8af15ab694d284afc"
+    },
+    {
+      "jobs": 4,
+      "repetition": 2,
+      "seconds": 6.081254,
+      "report_id": "c0e125cd765f4c18a952248f295ee762"
+    },
+    {
+      "jobs": 1,
+      "repetition": 2,
+      "seconds": 19.621659,
+      "report_id": "a6b3072a9c3c4e3da766886fb6d4e9db"
+    },
+    {
+      "jobs": 1,
+      "repetition": 3,
+      "seconds": 20.136002,
+      "report_id": "575ace0e3b104a6e8f3855c95d040ace"
+    },
+    {
+      "jobs": 4,
+      "repetition": 3,
+      "seconds": 6.094522,
+      "report_id": "2912877ec13847b5ba978f7691ff027c"
+    }
+  ],
+  "median_seconds": {
+    "1": 20.136002,
+    "4": 6.094522
+  },
+  "median_speedup": 3.304,
+  "source_commit": "f93ba57631c6d4a2a75fad0d7a6b42964ca884cc",
+  "measured_on": "2026-10-31"
+}

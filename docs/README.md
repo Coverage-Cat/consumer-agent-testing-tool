@@ -32,6 +32,8 @@ review that drove the connector lane.
   the MCP project's "Everything" reference server.
 - [Consumer purchase behaviors](behavior-tests/purchase-flows.md): synthetic umbrella
   and homeowners purchases, modern MCP availability and reuse of benchmark ideas.
+- [Scripted CI suites](ci-suites.md): offline plans, bounded workers, exact negative cases, safe JSON/JUnit,
+  failure selection, shards and build comparisons for both surrogate targets.
 - [CI templates](../examples/ci/README.md): a GitHub Actions workflow for a
   service's own repository, using `--start`, `--junit` and `--summary-json`
   ([CI outputs and services](connector-lane.md#ci-outputs-and-services)).

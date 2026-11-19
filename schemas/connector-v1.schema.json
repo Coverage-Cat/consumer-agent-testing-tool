@@ -1374,6 +1374,13 @@
           },
           "title": "Tools",
           "type": "array"
+        },
+        "forbidden_tools": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Forbidden Tools",
+          "type": "array"
         }
       },
       "title": "ExpectedSpec",

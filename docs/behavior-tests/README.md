@@ -4,6 +4,8 @@ These tests examine observable behavior against fictional services in a
 controlled environment. They are organized by behavior, independently of the
 assistant or model used. The [catalog](catalog.yaml) links each family to
 existing local checks and implemented opt-in capabilities.
+The [assertion backlog](assertion-backlog.md) tracks the remaining fixture
+work and observations that need a separate study.
 
 [Consumer purchase behaviors](purchase-flows.md) adds synthetic insurance purchase
 cases, modern MCP availability checks and a map from the benchmark survey to existing

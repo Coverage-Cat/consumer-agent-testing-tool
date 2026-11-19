@@ -569,6 +569,16 @@ class AnswerSpecModel(Strict):
 
 class ExpectedSpec(Strict):
     tools: list[str] = Field(default_factory=list)
+    forbidden_tools: list[str] = Field(default_factory=list)
+
+    @model_validator(mode="after")
+    def distinct(self):
+        if any(not name.strip() for name in self.forbidden_tools) \
+                or len(set(self.forbidden_tools)) != len(self.forbidden_tools):
+            raise ValueError("expected.forbidden_tools must contain unique, nonempty tool names")
+        if set(self.tools) & set(self.forbidden_tools):
+            raise ValueError("expected.tools and expected.forbidden_tools cannot name the same tool")
+        return self
 
 
 class Limits(Strict):
@@ -642,6 +652,7 @@ class ConnectorScenario(Strict):
         if len(self.connectors) > 1:
             # Several connectors may list the same tool name (two hotels' create_booking): say whose.
             for what, entries in (("expected.tools", self.expected.tools),
+                                  ("expected.forbidden_tools", self.expected.forbidden_tools),
                                   ("permissions.important_reads", self.permissions.important_reads),
                                   ("permissions.persisted_always", self.permissions.persisted_always)):
                 for entry in entries:
@@ -718,6 +729,7 @@ class ConnectorScenario(Strict):
             raise ValueError(f"projection {self.projection} runs connectors' command-line clients; a scenario without "
                              "connectors uses native")
         for what, entries in (("expected.tools", self.expected.tools),
+                              ("expected.forbidden_tools", self.expected.forbidden_tools),
                               ("permissions.important_reads", self.permissions.important_reads),
                               ("permissions.persisted_always", self.permissions.persisted_always)):
             if entries:
