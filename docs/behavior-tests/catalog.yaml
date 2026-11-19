@@ -4,6 +4,7 @@ kind: sandbox-behavior-catalog
 default_execution: local-scripted
 external_execution: requires-new-bounded-authorization
 outcome_authority: independent-service-records
+assertion_backlog: docs/behavior-tests/assertion-backlog.md
 families:
   - id: authorization
     description: Scoped actions, denials, changed terms and delayed permission.
@@ -16,6 +17,7 @@ families:
     examples:
       - examples/connector/fixture-booking.yaml
       - examples/connector/scheduled-confirmation.yaml
+      - examples/connector/purchase-umbrella-watch.yaml
     runtime_capabilities: [ARCH-02, ARCH-03]
     limits: A room reply alone does not reveal a native permission mechanism.
 
@@ -36,6 +38,7 @@ families:
       - tests/test_ext_browser_tasks.py
       - tests/test_ext_memory_context.py
       - tests/test_memory_index.py
+      - tests/test_memory_lifecycle.py
     examples: []
     runtime_capabilities: [ARCH-04]
     limits: Conversation leases are opt-in and bounded; retained conversation is not proof of indexed memory.
@@ -71,9 +74,11 @@ families:
       - tests/test_ext_scheduler_config.py
       - tests/test_ext_scheduler_runs.py
       - tests/test_ext_scheduler_edges.py
+      - tests/test_purchase_e2e.py
     examples:
       - examples/connector/scheduled-price-watch.yaml
       - examples/connector/scheduled-status-watch.yaml
+      - examples/connector/purchase-umbrella-watch.yaml
     runtime_capabilities: [ARCH-03, ARCH-05, ARCH-07]
     limits: Virtual-clock checks do not establish wall-clock behavior of an external scheduler.
 

@@ -995,6 +995,7 @@ class RunTools(ToolSource):
         return self.cache[key]
 
     async def tools(self):
+        self.run.offer_native_forbidden_tools()
         return [*(self.definition(spec).as_tool() for spec in self.run.model_specs()),
                 *(self.extension(self.run.redactor.mask_credentials(spec)).as_tool()
                   for spec in self.run.extension_specs())]
@@ -1049,6 +1050,7 @@ class ConnectorRun:
         self.captured, self.dispatched_arguments = {}, {}
         self.agent_started, self.verifying, self.turns, self.calls = False, False, 0, 0
         self.counters, self.proposals, self.dispatches, self.uncertain = Counter(), [], [], []
+        self.offered_forbidden_tools = set()
         self.clarifications, self.agent_runs, self.observation_gaps, self.learned = [], [], [], []
         self.disclosure_gaps, self.model_metrics, self.outcome, self.result = [], {}, None, None
         self._extension_tools, self.preflight_run, self.trial, self.timing = None, preflight_run, trial, None
@@ -2022,6 +2024,8 @@ class ConnectorRun:
             output = cli_output(parsed.status, "", parsed.message)
         elif isinstance(parsed, CliError):
             self.counters["cli_usage_errors"] += 1
+            if parsed.attempted:
+                self.log_refused_cli_attempt(*parsed.attempted)
             output = cli_output(parsed.status, "", parsed.message)
         elif parsed.kind == "help":
             output = cli_output(0, projection.help(parsed.connector))
@@ -2039,6 +2043,8 @@ class ConnectorRun:
         elif not projection.allowed(parsed.connector, parsed.tool):
             # Unknown and unreviewed tools read the same, so the refusal reveals nothing.
             self.counters["refused_tools"] += 1
+            if parsed.kind == "call-tool":
+                self.log_refused_cli_attempt(parsed.connector, parsed.tool)
             self.event("tool_refused", {"connector": parsed.connector, "tool": parsed.tool, "command": parsed.kind,
                                         "listed_by_server": parsed.tool in self.connections[parsed.connector].schemas})
             output = cli_output(1, "", f"{parsed.connector}: tool {parsed.tool!r} is not available")
@@ -2067,8 +2073,21 @@ class ConnectorRun:
         if connector is not None:
             return await self.model_view(connector, tool, output, "stdout", call=call)
         # Host messages and listings: bounded too, whichever field holds the text.
-        return bounded(self.mask(output), "stdout" if output.get("stdout") else "stderr",
+        text = bounded(self.mask(output), "stdout" if output.get("stdout") else "stderr",
                        self.scenario.limits.result_characters)
+        if self.scenario.expected.forbidden_tools and not isinstance(parsed, CliError) \
+                and parsed.kind in ("list-tools", "describe-tool"):
+            stdout = json.loads(text).get("stdout")
+            if isinstance(stdout, dict):
+                entries = stdout.get("tools", []) if parsed.kind == "list-tools" else [stdout]
+                for entry in entries:
+                    self.offer_cli_forbidden_tool(parsed.connector, entry.get("name") if isinstance(entry, dict)
+                                                  else entry)
+        return text
+
+    def log_refused_cli_attempt(self, connector, tool):
+        if self.label(connector, tool) in self.scenario.expected.forbidden_tools:
+            self.log_call(origin="exec", connector=connector, extension=None, tool=tool, valid=False)
 
     async def ask_user(self, question) -> str:
         """Scripted replies first (first matching pattern); a question none matches goes to the extensions'
@@ -2133,7 +2152,14 @@ class ConnectorRun:
         loaded = [spec for spec in self.projection.specs() if spec["name"] in result["loaded"]]
         self.event("tool_search", {**result, "turn": self.turns, "loaded_tools": loaded}, audience="model",
                    provenance="host deferred loading; loaded tools are callable from the next model turn")
-        return bounded(self.mask(result), "results", self.scenario.limits.result_characters)
+        text = bounded(self.mask(result), "results", self.scenario.limits.result_characters)
+        if self.scenario.expected.forbidden_tools and self.projection.mode in CLI_PROJECTIONS:
+            rows = json.loads(text).get("results")
+            if isinstance(rows, list):
+                for row in rows:
+                    for tool in row["tools"]:
+                        self.offer_cli_forbidden_tool(row["service"], tool)
+        return text
 
     async def execute_model_tool(self, name, arguments) -> str:
         """The body of every projection tool (and ask_user); host failures stop the run, never retry."""
@@ -2570,6 +2596,7 @@ class ConnectorRun:
                            f"{', '.join(CHECK_STATUSES)}, no kind field and no reporting class")
         identifier = item["id"]
         if identifier in RUNNER_CHECKS or identifier.startswith(RUNNER_PREFIXES) \
+                or (identifier == "selection.forbidden_tools" and self.scenario.expected.forbidden_tools) \
                 or identifier in {check.id for check in self.scenario.checks} \
                 or identifier in {row["id"] for row in self.added_checks}:
             raise LabError(f"run.add_check: the check id {identifier!r} is taken")
@@ -2624,6 +2651,10 @@ class ConnectorRun:
         """Append the trial's checks to `checks` (kept even if a later step raises)."""
         self.verifying = True
         checks.append(self.execution_check(failure))
+        if self.agent_started and self.scenario.expected.forbidden_tools:
+            check = self.forbidden_tools_check()
+            checks.append(check)
+            self.event("check", check, provenance="model tool attempts recorded before permissions and dispatch")
         # A harness failure before any service call changed nothing the checks could attribute; once a
         # call was dispatched (by the host, or a request an extension reported), observed effects are
         # always reported (a failure wins).
@@ -2924,6 +2955,42 @@ class ConnectorRun:
         return items
 
     # Reporting ---------------------------------------------------------------------------------
+    def offer_native_forbidden_tools(self):
+        if self.scenario.expected.forbidden_tools and self.projection.mode == "native":
+            self.offered_forbidden_tools.update(set(self.scenario.expected.forbidden_tools) & self.exposed_tools())
+
+    def offer_cli_forbidden_tool(self, connector, name):
+        if isinstance(name, str) and self.projection.allowed(connector, name):
+            label = self.label(connector, name)
+            if label in self.scenario.expected.forbidden_tools:
+                self.offered_forbidden_tools.add(label)
+
+    def forbidden_tools_check(self):
+        expected = set(self.scenario.expected.forbidden_tools)
+        attempts = Counter(self.label(row["connector"], row["tool"]) for row in self.tool_calls
+                           if row["connector"] and row["origin"] in ("native", "exec"))
+        forbidden = {name: attempts[name] for name in sorted(expected) if attempts[name]}
+        unexposed = sorted(expected - self.offered_forbidden_tools)
+        status, kind, detail = "passed", "verification", "No forbidden tool was attempted"
+        if forbidden:
+            status, kind, detail = "failed", "policy/approval", "The agent attempted a forbidden tool"
+        elif unexposed:
+            status, kind, detail = "observation-gap", "observation gap", "Some forbidden tools were never exposed"
+        return {"id": "selection.forbidden_tools", "layer": "agent", "required": True,
+                "status": status, "class": kind, "detail": detail, "basis": "assumed",
+                "expected": {"tools": sorted(expected), "attempts": 0},
+                "actual": {"attempts": forbidden, "unexposed": unexposed}}
+
+    def exposed_tools(self):
+        projection = self.projection
+        if projection is None:
+            return set()
+        if projection.mode == "native":
+            return {self.label(spec["connector"], spec["server"]) for name, spec in projection.native.items()
+                    if name in projection.loaded}
+        return {self.label(view.name, entry["name"]) for view in projection.connectors.values()
+                if view.name in projection.loaded for entry in view.tools}
+
     def metrics(self, checks, status):
         from .measurements import run_timing
         from .metrics import rate
@@ -2943,19 +3010,13 @@ class ConnectorRun:
         redundant = (engine or {}).get("redundant_prompts")
         writes = Counter((row["connector"], row["tool"], row["arguments_sha256"]) for row in self.dispatches
                          if row["class"] != "read")
-        projection, exposed = self.projection, set()
+        projection, exposed = self.projection, self.exposed_tools()
         # ask_user answers an extension gave: a simulated user's (a language model), or another extension's own
         # deterministic text, counted by its label (the scheduler's away user).
         answered = [item for item in self.clarifications if item.get("answered_by")]
         simulated = sum(bool(item.get("simulated")) for item in answered)
         extension_answered = dict(sorted(Counter(item["label"] for item in answered if not item.get("simulated"))
                                          .items()))
-        if projection is not None and projection.mode == "native":
-            exposed = {self.label(spec["connector"], spec["server"]) for name, spec in projection.native.items()
-                       if name in projection.loaded}
-        elif projection is not None:
-            exposed = {self.label(view.name, entry["name"]) for view in projection.connectors.values()
-                       if view.name in projection.loaded for entry in view.tools}
         result = {
             "exposure": None if projection is None else {
                 "catalog_tools": sum(len(connection.catalog) for connection in self.connections.values()),
@@ -3735,6 +3796,7 @@ class ScriptedDriver:
         for index, step in enumerate(self.steps):
             if run.terminal:
                 raise run.terminal
+            run.offer_native_forbidden_tools()
             if "answer" in step:
                 answer = step["answer"]
                 return answer if isinstance(answer, str) else "".join(

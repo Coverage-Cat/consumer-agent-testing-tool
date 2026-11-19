@@ -185,6 +185,15 @@ def test_public_identity_cannot_echo_a_registered_private_value(tmp_path, offlin
         prepare_suite(write_inputs(tmp_path, doc=doc, suite=suite), root=tmp_path)
 
 
+def test_forbidden_tool_assertion_is_a_required_ci_observation(tmp_path, offline):
+    doc = scenario()
+    doc["expected"] = {"forbidden_tools": ["create_booking"]}
+    suite = suite_document()
+    suite["cases"][0]["expect"] = {"exit_code": 1, "checks": {"selection.forbidden_tools": "failed"}}
+    prepared = prepare_suite(write_inputs(tmp_path, doc=doc, suite=suite), root=tmp_path)
+    assert all("selection.forbidden_tools" in row.required_checks for row in prepared.plan.cases)
+
+
 @pytest.mark.parametrize("reference", ["/private/email", "/results/2/x", "/responses/0/bad~x", 3])
 def test_bad_references_are_found_before_any_effect(tmp_path, offline, reference):
     steps = [{"tool": "search_rooms", "arguments": {"x": {"$ref": reference}}}]

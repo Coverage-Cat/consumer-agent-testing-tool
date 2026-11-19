@@ -113,6 +113,8 @@ def validate_expectation(case, scenario, location):
     if case.kind == "connector":
         allowed.update(row.id for row in scenario.checks
                        if row.required or case.expect.checks.get(row.id) == "failed")
+        if scenario.expected.forbidden_tools:
+            allowed.add("selection.forbidden_tools")
         for name in scenario.extensions:
             allowed.update(EXTENSION_CHECKS.get(name, ()))
         suffixes = [f".{row.name}" for row in scenario.connectors] if len(scenario.connectors) > 1 else [""]

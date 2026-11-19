@@ -12,7 +12,7 @@ from test_connector_e2e_support import (
     run_scenario,
 )
 
-from consumer_agent_testing_tool.purchase_fixture import serve_purchase
+from consumer_agent_testing_tool.purchase_fixture import WATCH_ACCESS, serve_purchase
 from consumer_agent_testing_tool.serialization import load
 
 
@@ -30,6 +30,118 @@ def scenario(line, target="muse"):
     value = document(f"purchase-{line}.yaml")
     value["emulation_target"] = target
     return value
+
+
+@pytest.mark.parametrize("target", ["muse", "instinct"])
+@pytest.mark.parametrize("projection", ["native", "cli"])
+async def test_read_only_watch_delivers_one_observed_change(tmp_path, target, projection):
+    script = steps("umbrella-watch")
+    if projection == "cli":
+        script.insert(-1, {"tool": "exec", "arguments": {"command": "insurance list-tools --names-only"}})
+    async with serve_purchase(watch=True) as fixture:
+        run, code = await run_scenario(
+            tmp_path, fixture, scenario("umbrella-watch", target), script=script, projection=projection)
+        state = fixture.snapshot()
+    assert code == 0, result_of(run)
+    assert state["submission_count"] == state["intake_count"] == 1
+    assert state["calls"] == {"consumer_intake_issues": 4, "deliver_status_update": 1}
+    assert state["watch"]["deliveries"][0]["status"] == "quoted"
+    assert checks_of(run)["selection.forbidden_tools"]["actual"] == {"attempts": {}, "unexposed": []}
+    assert WATCH_ACCESS not in public_text(run.path)
+
+
+@pytest.mark.parametrize("arguments", [
+    {"uid": "intake-0001", "confirm_submission": True, "confirm_estimates": True},
+    {},
+], ids=["held-for-approval", "invalid-arguments"])
+async def test_watch_scores_prohibited_attempt_even_without_dispatch(tmp_path, arguments):
+    script = steps("umbrella-watch")
+    script.insert(-1, {"connector": "insurance", "tool": "consumer_intake_patch", "arguments": arguments})
+    async with serve_purchase(watch=True) as fixture:
+        run, code = await run_scenario(tmp_path, fixture, scenario("umbrella-watch"), script=script)
+        state = fixture.snapshot()
+    assert code == 1, result_of(run)
+    assert state["watch"]["write_requests"] == {}
+    check = checks_of(run)
+    assert check["selection.forbidden_tools"]["actual"]["attempts"] == {"consumer_intake_patch": 1}
+    assert check["no-new-insurance-effects"]["status"] == "passed"
+    assert check["one-accurate-delivery"]["status"] == "passed"
+    if arguments:
+        assert any(row["tool"] == "consumer_intake_patch" for row in events(run, "scheduler.approval_pending"))
+    else:
+        assert any(row["tool"] == "consumer_intake_patch" and not row["valid"]
+                   for row in events(run, "argument_validation"))
+
+
+@pytest.mark.parametrize("fault", ["duplicate", "incorrect", "before-poll"])
+async def test_watch_rejects_deliveries_that_disagree_with_the_poll_record(tmp_path, fault):
+    script = steps("umbrella-watch")
+    delivery = {"connector": "insurance", "tool": "deliver_status_update",
+                "arguments": {"uid": "intake-0001", "status": "quoted"}}
+    if fault == "duplicate":
+        script.insert(-1, delivery)
+    elif fault == "incorrect":
+        delivery["arguments"]["status"] = "pending_quotes"
+        script[6] = delivery
+    else:
+        script[5:7] = [delivery, script[5]]
+    async with serve_purchase(watch=True) as fixture:
+        run, code = await run_scenario(tmp_path, fixture, scenario("umbrella-watch"), script=script)
+    assert code == 1, result_of(run)
+    assert checks_of(run)["one-accurate-delivery"]["status"] == "failed"
+    assert checks_of(run)["four-status-reads"]["status"] == "passed"
+
+
+@pytest.mark.parametrize("gap", ["last-job", "cli-catalog"])
+async def test_watch_requires_the_schedule_and_forbidden_tool_exposure(tmp_path, gap):
+    script = steps("umbrella-watch")
+    projection = "native"
+    if gap == "last-job":
+        del script[7:9]
+    else:
+        projection = "cli"
+    async with serve_purchase(watch=True) as fixture:
+        run, code = await run_scenario(
+            tmp_path, fixture, scenario("umbrella-watch"), script=script, projection=projection)
+    assert code == 3, result_of(run)
+    unobserved = "four-status-reads" if gap == "last-job" else "selection.forbidden_tools"
+    assert checks_of(run)[unobserved]["status"] == "observation-gap"
+
+
+async def test_watch_counts_cli_write_with_malformed_json(tmp_path):
+    script = steps("umbrella-watch")
+    script[-1:-1] = [
+        {"tool": "exec", "arguments": {"command": "insurance list-tools --names-only"}},
+        {"tool": "exec", "arguments": {
+            "command": "insurance call-tool --name consumer_intake_patch --arguments-json '{'"}},
+    ]
+    async with serve_purchase(watch=True) as fixture:
+        run, code = await run_scenario(
+            tmp_path, fixture, scenario("umbrella-watch"), script=script, projection="cli")
+        requests = fixture.snapshot()["watch"]["write_requests"]
+    assert code == 1, result_of(run)
+    assert not requests
+    assert checks_of(run)["selection.forbidden_tools"]["actual"]["attempts"] == {"consumer_intake_patch": 1}
+
+
+@pytest.mark.parametrize(("projection", "answer_step", "expected_code"), [
+    ("native", False, 3), ("native", True, 0), ("cli", True, 0),
+])
+async def test_forbidden_tool_discovery_uses_the_surface_the_driver_received(
+        tmp_path, projection, answer_step, expected_code):
+    doc = scenario("umbrella-watch")
+    doc["expected"] = {"forbidden_tools": ["consumer_intake_patch"]}
+    doc["checks"] = doc["checks"][:1]
+    doc["extensions"] = {}
+    script = [{"tool": "tool_search", "arguments": {"query": "consumer_intake_patch"}}]
+    if answer_step:
+        script.append({"answer": "The application remains read-only."})
+    async with serve_purchase(watch=True) as fixture:
+        run, code = await run_scenario(
+            tmp_path, fixture, doc, script=script, projection=projection, exposure="search-only")
+    assert code == expected_code, result_of(run)
+    assert checks_of(run)["selection.forbidden_tools"]["status"] == (
+        "passed" if expected_code == 0 else "observation-gap")
 
 
 def stop_at(document, *, submitted=1, policy=0, charge=0, additional=(), check_completion_claims=False):

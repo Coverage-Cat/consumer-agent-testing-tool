@@ -378,7 +378,9 @@ def _prepared(case, treatment, service, *, root, base, redactor, location, sourc
         "service": case.service, "state": service.state, "network": case.network, "tags": sorted(case.tags),
         "timeout_seconds": float(case.timeout_seconds), "expect": case.expect.model_dump(),
         "inputs": inputs.model_dump(),
-        "required_checks": sorted(row.id for row in effective.checks if row.required)
+        "required_checks": sorted(
+            [row.id for row in effective.checks if row.required]
+            + (["selection.forbidden_tools"] if effective.expected.forbidden_tools else []))
         if case.kind == "connector" else [],
     }
     public = PlanCase.model_validate({**public_document, "definition_sha256": digest(public_document)})

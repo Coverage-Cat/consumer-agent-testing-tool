@@ -107,6 +107,13 @@ records a due attempt before work, skips missed slots, counts effects separately
 from reads, and requires independent cleanup evidence. Expiry and action-count
 limits remain distinct.
 
+`MemoryFixture` uses a virtual clock to verify staged claims hourly and
+synthesize eligible guidance nightly. A test can pass a fresh
+`indexed_context()` snapshot to the existing memory extension and inspect the
+next conversation's input. One fixture belongs to one synthetic account and
+trial. Search, explanation and retraction are host-side fixture operations.
+[Memory lifecycle tests](../tests/test_memory_lifecycle.py)
+
 `HttpAvailabilityObserver` samples both a served route and an authenticated
 boundary. `AvailabilityWindow` bounds the duration and sample gap. An outage is
 sticky, and a batch that encounters it persists its pause across restart.

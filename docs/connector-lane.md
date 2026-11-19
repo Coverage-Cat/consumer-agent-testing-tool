@@ -173,9 +173,16 @@ A scenario that does not load exits 2.
 | `checks` | `[]` | Outcome checks ([below](#outcome-checks)) |
 | `answer` | none | Claims and relay facts the final answer is scored on ([below](#answer-checks)) |
 | `expected.tools` | `[]` | Tools the task should use; the selection metrics compare the calls with them |
+| `expected.forbidden_tools` | `[]` | Connector tools the agent must leave unused. `selection.forbidden_tools` scores attempts before approval and dispatch. |
 | `limits` | | Budgets ([below](#limits)) |
 | `reset` | none | A URL, or a list of distinct URLs (one per test service), POSTed in order before each trial |
 | `extensions` | `{}` | Extension configurations by name; `clock` is built in |
+
+An attempted forbidden call fails `selection.forbidden_tools` even if
+validation or permissions prevent dispatch. Verify the effects separately
+with an oracle. If there were no attempts, this required check needs every
+named tool to have been offered as a callable native function or named in a
+CLI discovery result. Missing exposure leaves an observation gap.
 
 ### Connectors
 
@@ -353,7 +360,7 @@ one:
 - Native functions are named `<connector>__<tool>` from the first turn, so a
   connector connected later never renames another's tools (`connector-prefix`,
   assumed). muse-cli addresses each connector by its command name.
-- `expected.tools`, `permissions.important_reads` and
+- `expected.tools`, `expected.forbidden_tools`, `permissions.important_reads` and
   `permissions.persisted_always` name tools as `<connector>/<tool>`, and a
   tool check sets `connector`. Two connectors can both list `create_booking`,
   so an unqualified name is refused.

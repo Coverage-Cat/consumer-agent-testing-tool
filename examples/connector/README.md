@@ -65,6 +65,17 @@ need no model, card, customer account or email delivery.
 [Purchase behaviors](../../docs/behavior-tests/purchase-flows.md) describes the
 failure controls, both-projection tests, contract limits and related suites.
 
+[`purchase-umbrella-watch.yaml`](purchase-umbrella-watch.yaml) seeds an existing
+application and checks four polls, one simulated inbox delivery, zero attempted
+insurance writes and zero new insurance effects.
+
+```sh
+uv run consumer-agent-testing-tool connector-run examples/connector/purchase-umbrella-watch.yaml \
+  --driver scripted --script examples/connector/purchase-umbrella-watch.calls.yaml \
+  --start "python -m consumer_agent_testing_tool.purchase_fixture --watch --port {port}" \
+  --ready-url "http://127.0.0.1:{port}/health"
+```
+
 [`modern-readiness.yaml`](modern-readiness.yaml) requires observed MCP
 `2026-07-28` discovery and catalog access, with no purchase call:
 `check URL --suite surrogate --emulation-target instinct --manifest examples/connector/modern-readiness.yaml`.
