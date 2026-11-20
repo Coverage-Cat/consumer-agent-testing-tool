@@ -381,7 +381,7 @@
         "reason": "Original notices for embedded components and fonts need separate review"
       }
     },
-    "core-python:pypi:inspect-ai@0.3.285": {
+    "core-python:pypi:inspect-ai@0.3.290": {
       "scope": "core-python",
       "artifacts": {
         "lib/python3.14/site-packages/inspect_ai/_view/dist/assets/BricolageGrotesque-Bold-BIJrwikb.ttf": {
@@ -417,7 +417,7 @@
       },
       "package": {
         "name": "inspect_ai",
-        "version": "0.3.285"
+        "version": "0.3.290"
       },
       "upstream_documents": [],
       "dependency_coverage": {
@@ -686,24 +686,24 @@
         "reason": "Original notices for embedded components and fonts need separate review"
       }
     },
-    "core-python:pypi:pydantic-core@2.50.1": {
+    "core-python:pypi:pydantic-core@2.50.4": {
       "scope": "core-python",
       "artifacts": {
         "lib/python3.14/site-packages/pydantic_core/_pydantic_core.cpython-314-darwin.so": {
-          "sha256": "3d0fffd6abc935e05258b57598c7847cc1938358d8c93a3e450ad282dfaf24e7",
-          "bytes": 4336192,
+          "sha256": "f3bbb7b224fd171fd4e0bf5b92ad7c0dad08436262aa99e5c80a711668cb9541",
+          "bytes": 4501520,
           "format": "mach-o",
           "kind": "binary"
         }
       },
       "package": {
         "name": "pydantic_core",
-        "version": "2.50.1"
+        "version": "2.50.4"
       },
       "upstream_documents": [
         {
-          "path": "third_party/notices/core-python/pydantic-core-2.50.1/68d32fc845a7-pydantic-core.cyclonedx.json",
-          "sha256": "68d32fc845a79241348ef3ee8b21fb334a7332f4726af48c63f14d365b74520b"
+          "path": "third_party/notices/core-python/pydantic-core-2.50.4/eeebf2e35667-pydantic-core.cyclonedx.json",
+          "sha256": "eeebf2e35667aabeaa8aa71cc5cd127410df16a279a7f0e026ddb1bf5e8831e2"
         }
       ],
       "dependency_coverage": {
@@ -1002,6 +1002,114 @@
         "reason": "Original notices for embedded components and fonts need separate review"
       }
     },
+    "node-protocol:node_modules/@modelcontextprotocol/inspector": {
+      "scope": "node-protocol",
+      "artifacts": {
+        "clients/web/dist/assets/fredoka-normal-hebrew-CjvktpUN.woff2": {
+          "sha256": "4eb357133c42c52eca85b20cf43c0bb0e7d4d2febb53a6ed6b28bf5d7673cce7",
+          "bytes": 8776,
+          "format": "woff2",
+          "kind": "font"
+        },
+        "clients/web/dist/assets/fredoka-normal-latin-DOQG_Jwn.woff2": {
+          "sha256": "27d49d7c8362279bf81267c615481f4be9548d7568d58889aeb1a6395dd6c070",
+          "bytes": 29704,
+          "format": "woff2",
+          "kind": "font"
+        },
+        "clients/web/dist/assets/fredoka-normal-latin-ext-tYNUQHO6.woff2": {
+          "sha256": "337681f6b85d3ea22d9dd48c593d32a3a2588755a76ad9e3a4c64d014db51db1",
+          "bytes": 4564,
+          "format": "woff2",
+          "kind": "font"
+        },
+        "clients/web/dist/assets/roboto-mono-italic-cyrillic-C1E63de8.woff2": {
+          "sha256": "d0f15f18962953a87cfc8e52beffde472e65aa0827722c7b19f6da7d437d8ecb",
+          "bytes": 20544,
+          "format": "woff2",
+          "kind": "font"
+        },
+        "clients/web/dist/assets/roboto-mono-italic-cyrillic-ext-DR9ovEqT.woff2": {
+          "sha256": "9d5fe2eab066bd46f33d796601e66fe447518ded4ac5ee195f3991a38c08741d",
+          "bytes": 38556,
+          "format": "woff2",
+          "kind": "font"
+        },
+        "clients/web/dist/assets/roboto-mono-italic-greek-Cs2u2nVh.woff2": {
+          "sha256": "97795e79d529f0e36f25945bffe10b8d43315fed636b02c3a1377a1d9022c9f2",
+          "bytes": 14872,
+          "format": "woff2",
+          "kind": "font"
+        },
+        "clients/web/dist/assets/roboto-mono-italic-latin-D_P-kX1t.woff2": {
+          "sha256": "52cf6d1b27b1fd0ee92ac6fb753f046fcb0a7e9bf60b1c477744db09e2c48fc9",
+          "bytes": 35240,
+          "format": "woff2",
+          "kind": "font"
+        },
+        "clients/web/dist/assets/roboto-mono-italic-latin-ext-CErTcBzw.woff2": {
+          "sha256": "b983965f0899ebc79a826adc2a527fc8ffe81aa204dcdca1a355fffdb0b3a6c9",
+          "bytes": 24356,
+          "format": "woff2",
+          "kind": "font"
+        },
+        "clients/web/dist/assets/roboto-mono-italic-vietnamese-D4UvzJMM.woff2": {
+          "sha256": "9699b526e1d7a2e669d41c8fa59077b6081af1a81efbad7da93809849b58ccfe",
+          "bytes": 10864,
+          "format": "woff2",
+          "kind": "font"
+        },
+        "clients/web/dist/assets/roboto-mono-normal-cyrillic-DfzWIUPd.woff2": {
+          "sha256": "6f1e779fee122555935f377afc3688430e8840a220f39616891006905e49f9cd",
+          "bytes": 18584,
+          "format": "woff2",
+          "kind": "font"
+        },
+        "clients/web/dist/assets/roboto-mono-normal-cyrillic-ext-D8QBEkUe.woff2": {
+          "sha256": "30ad1ddfda39454ba31e2e5eeffba0669714c736b271db69f419168a544bccdd",
+          "bytes": 35892,
+          "format": "woff2",
+          "kind": "font"
+        },
+        "clients/web/dist/assets/roboto-mono-normal-greek-DlC4X1lQ.woff2": {
+          "sha256": "23a1a29784942542956830f32090ed8fee9c86f27ff9244e06445b2269dff4df",
+          "bytes": 14048,
+          "format": "woff2",
+          "kind": "font"
+        },
+        "clients/web/dist/assets/roboto-mono-normal-latin-BAKpfWyj.woff2": {
+          "sha256": "2ed6ac9efae6d21f51b2946176a0eef79a4043d643f9ac976e66d7fc4d57803a",
+          "bytes": 32752,
+          "format": "woff2",
+          "kind": "font"
+        },
+        "clients/web/dist/assets/roboto-mono-normal-latin-ext-CSSVNFqV.woff2": {
+          "sha256": "2cb74c78294bf69bb4c40e56d703014eecb0776df9a23418be836392fc7fdf89",
+          "bytes": 22868,
+          "format": "woff2",
+          "kind": "font"
+        },
+        "clients/web/dist/assets/roboto-mono-normal-vietnamese-DFkHeOHB.woff2": {
+          "sha256": "6f1e6273e1ac677732b6d7dcd785081b9d56b51411c44ab67364d0757b84ae6b",
+          "bytes": 10276,
+          "format": "woff2",
+          "kind": "font"
+        }
+      },
+      "package": {
+        "name": "@modelcontextprotocol/inspector",
+        "version": "2.15.0"
+      },
+      "upstream_documents": [],
+      "dependency_coverage": {
+        "status": "unverified",
+        "reason": "Payload hashes and package documents do not establish embedded dependency completeness"
+      },
+      "notice_coverage": {
+        "status": "unverified",
+        "reason": "Original notices for embedded components and fonts need separate review"
+      }
+    },
     "node-protocol:node_modules/@napi-rs/keyring-darwin-arm64": {
       "scope": "node-protocol",
       "artifacts": {
@@ -1100,10 +1208,10 @@
     }
   },
   "summary": {
-    "components": 30,
-    "artifact_paths": 88,
-    "unique_payload_sha256": 79,
-    "font_paths": 11
+    "components": 31,
+    "artifact_paths": 103,
+    "unique_payload_sha256": 94,
+    "font_paths": 26
   },
   "gaps": [
     {
@@ -1179,11 +1287,11 @@
       "reason": "Original notices for embedded components and fonts need separate review"
     },
     {
-      "scope": "core-python:pypi:inspect-ai@0.3.285",
+      "scope": "core-python:pypi:inspect-ai@0.3.290",
       "reason": "Payload hashes and package documents do not establish embedded dependency completeness"
     },
     {
-      "scope": "core-python:pypi:inspect-ai@0.3.285",
+      "scope": "core-python:pypi:inspect-ai@0.3.290",
       "reason": "Original notices for embedded components and fonts need separate review"
     },
     {
@@ -1235,11 +1343,11 @@
       "reason": "Original notices for embedded components and fonts need separate review"
     },
     {
-      "scope": "core-python:pypi:pydantic-core@2.50.1",
+      "scope": "core-python:pypi:pydantic-core@2.50.4",
       "reason": "Payload hashes and package documents do not establish embedded dependency completeness"
     },
     {
-      "scope": "core-python:pypi:pydantic-core@2.50.1",
+      "scope": "core-python:pypi:pydantic-core@2.50.4",
       "reason": "Original notices for embedded components and fonts need separate review"
     },
     {
@@ -1320,6 +1428,14 @@
     },
     {
       "scope": "node-browser:node_modules/playwright-core",
+      "reason": "Original notices for embedded components and fonts need separate review"
+    },
+    {
+      "scope": "node-protocol:node_modules/@modelcontextprotocol/inspector",
+      "reason": "Payload hashes and package documents do not establish embedded dependency completeness"
+    },
+    {
+      "scope": "node-protocol:node_modules/@modelcontextprotocol/inspector",
       "reason": "Original notices for embedded components and fonts need separate review"
     },
     {
