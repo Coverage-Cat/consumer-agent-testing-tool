@@ -2,10 +2,34 @@
 import os
 
 from inspect_ai.log import EvalLog, write_eval_log
+from inspect_ai.model import ChatMessageAssistant, ChatMessageTool
+from inspect_ai.tool import ToolCallError
 from inspect_ai.util import display_type
 
 from .evidence import record_identity
 from .serialization import file_digest
+
+
+def report_tool_parse_errors(state, report):
+    """Record proposals Inspect rejected before approval and explain them to the agent."""
+    assistant = state.output.message
+    if not assistant.tool_calls:
+        return
+    calls = {(call.id, call.function): call for call in assistant.tool_calls}
+    for assistant_index in range(len(state.messages) - 1, -1, -1):
+        if isinstance(state.messages[assistant_index], ChatMessageAssistant):
+            break  # Tool call IDs may be reused on later turns.
+    else:
+        return
+    for index in range(assistant_index + 1, len(state.messages)):
+        message = state.messages[index]
+        if isinstance(message, ChatMessageTool) and message.error and message.error.type == "parsing":
+            call = calls.get((message.tool_call_id, message.function))
+            if call and (explanation := report(assistant, call)):
+                # Keep Inspect's original ToolEvent and parse classification. Give the next model
+                # turn a host explanation that does not echo values from the rejected arguments.
+                state.messages[index] = message.model_copy(update={
+                    "id": None, "error": ToolCallError("parsing", explanation)})
 
 
 def export_logs(logs, evidence, redactor=None):

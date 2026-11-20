@@ -11,7 +11,7 @@ from inspect_ai.tool import ToolDef, ToolParams
 
 from .errors import LabError, Unsupported, normalize_error
 from .evidence import Evidence, Redactor, write_report
-from .inspect_logs import export_logs, quiet_display
+from .inspect_logs import export_logs, quiet_display, report_tool_parse_errors
 from .providers import CapturingAPI, resolve_model
 from .serialization import digest
 from .surface import STEP_MENU, STEP_MENU_GAP, Paused
@@ -112,15 +112,13 @@ class InspectSurfaceDriver:
         # call read when the loop ends are queued again, for the next observation a model reads.
         unread, built = list(observation.get("app_messages", [])), False
 
-        async def approve_proposal(message, call, view, history):
+        def proposal_decision(assistant, call, *, rejected_by_parser=False):
             nonlocal terminal_error
-            assistant = next((item for item in reversed(history)
-                              if isinstance(item, ChatMessageAssistant)), None)
             calls = assistant.tool_calls if assistant else []
             if len(calls or []) != 1 or call.function != "perform_action":
                 terminal_error = LabError("Agent must request exactly one declared action",
                                           code=1, category="interaction")
-            elif set(call.arguments) != {"id"} or not isinstance(call.arguments["id"], str) \
+            elif rejected_by_parser or set(call.arguments) != {"id"} or not isinstance(call.arguments["id"], str) \
                     or call.arguments["id"] not in {step.id for step in run.ready_steps()}:
                 terminal_error = LabError("Agent proposed an unavailable action or private arguments",
                                           code=1, category="interaction")
@@ -130,6 +128,13 @@ class InspectSurfaceDriver:
                 "scope": "scenario dispatch only; host consent remains separate"})
             return Approval(decision=decision, explanation=str(terminal_error) if terminal_error
                             else "Ready scenario action; host arguments and authorization remain private")
+
+        async def approve_proposal(message, call, view, history):
+            assistant = next((item for item in reversed(history) if isinstance(item, ChatMessageAssistant)), None)
+            return proposal_decision(assistant, call)
+
+        def rejected_by_inspect(assistant, call):
+            return proposal_decision(assistant, call, rejected_by_parser=True).explanation
 
         async def perform_action(id: str):
             nonlocal terminal_error, observation, unread, built
@@ -157,6 +162,8 @@ class InspectSurfaceDriver:
         async def continue_agent(state):
             nonlocal model_turns, terminal_error, unread, built
             model_turns += 1
+            if not terminal_error:
+                report_tool_parse_errors(state, rejected_by_inspect)
             if not built:
                 unread = []  # This turn's call read the latest observation; no action returned a newer one.
             built = False

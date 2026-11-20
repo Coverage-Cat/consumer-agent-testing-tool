@@ -334,7 +334,7 @@ async def test_browser_p0_agent_recovers_from_a_rejected_proposal(tmp_path):
     assert result["agent_final"].startswith("Done is visible")
     assert broker.host.calls == [{"kind": "snapshot"}]  # The rejected proposal never dispatched.
     error = next(message for message in api.inputs[1]["messages"] if message["role"] == "tool")
-    assert error["error"]["type"] == "approval" and "facade schema" in error["error"]["message"]
+    assert error["error"]["type"] == "parsing" and "facade schema" in error["error"]["message"]
     assert [row["reason"] for row in events(evidence, "proposal_rejected")] == ["invalid_arguments"]
     record = manifest(broker)
     assert record["execution_status"] == "completed"
@@ -373,7 +373,7 @@ async def test_browser_p0_scenario_rejected_proposal_is_journaled_and_recoverabl
     assert statuses(checks) == (0, "completed"), checks
     assert [row["reason"] for row in evidence.manifest["proposal_rejections"]] == ["invalid_arguments"]
     error = next(message for message in api.inputs[1] if message["role"] == "tool")
-    assert error["error"]["type"] == "approval" and "facade schema" in error["error"]["message"]
+    assert error["error"]["type"] == "parsing" and "facade schema" in error["error"]["message"]
     assert not any(check["id"] == "agent.tool_proposals" for check in checks)
 
 
