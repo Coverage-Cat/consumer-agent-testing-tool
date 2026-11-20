@@ -74,15 +74,15 @@ every page.
 
 ## Setup
 
-You need Python 3.12 or newer (CI tests 3.12 on Linux and 3.14 on macOS),
-[uv](https://docs.astral.sh/uv/), and Node.js 20 or newer with npm (the
-installed packages declare `>=20`; tested with 25.9). The recorded release
-evidence covers macOS. From a clone of this repository, install the Python and
-Node dependencies and the Chromium build the browser lanes use:
+You need Python 3.12 or newer (CI tests 3.12 on Linux and 3.14 on macOS) and
+[uv](https://docs.astral.sh/uv/). For the full Node toolkit, use Node.js 24 LTS
+with npm, starting at 24.22.1 for the bundled MCP Inspector. CI installs the
+latest 24.x release. The recorded release evidence covers macOS. From a clone,
+install the Python and Node dependencies and Chromium:
 
 ```sh
 uv sync --extra openrouter --extra dev
-npm --prefix tooling ci --ignore-scripts
+npm --prefix tooling ci --ignore-scripts --engine-strict
 npm --prefix tooling/payment-ui ci --ignore-scripts
 PLAYWRIGHT_BROWSERS_PATH="$PWD/.cache/ms-playwright" node tooling/payment-ui/node_modules/playwright/cli.js install chromium
 ```
@@ -90,16 +90,15 @@ PLAYWRIGHT_BROWSERS_PATH="$PWD/.cache/ms-playwright" node tooling/payment-ui/nod
 The connector lane, the readiness checks and the scripted runs need only
 `uv sync`. Node and Chromium are for the MCP Apps and browser lanes.
 
-On Linux (Debian or Ubuntu), install Chromium with its system libraries
-instead. Linux is not covered by the recorded release evidence: the commands
-below match the [CI workflow](.github/workflows/ci.yml) but have not been
-qualified here.
+On Linux (Debian or Ubuntu), install Node.js 24 LTS with npm before running
+these commands. Install Chromium with its system libraries. Recorded release
+evidence covers macOS, and the [CI workflow](.github/workflows/ci.yml) tests
+the Linux setup.
 
 ```sh
-sudo apt-get update && sudo apt-get install -y nodejs npm   # or Node 20+ from nodesource or nvm
 curl -LsSf https://astral.sh/uv/install.sh | sh
 uv sync --extra openrouter --extra dev
-npm --prefix tooling ci --ignore-scripts
+npm --prefix tooling ci --ignore-scripts --engine-strict
 npm --prefix tooling/payment-ui ci --ignore-scripts
 PLAYWRIGHT_BROWSERS_PATH="$PWD/.cache/ms-playwright" \
   node tooling/payment-ui/node_modules/playwright/cli.js install --with-deps chromium

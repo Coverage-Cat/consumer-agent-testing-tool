@@ -93,9 +93,10 @@ jobs:
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: 24
+          check-latest: true
           package-manager-cache: false
       - run: uv sync --locked --extra openrouter --extra dev
-      - run: npm --prefix tooling ci --ignore-scripts
+      - run: npm --prefix tooling ci --ignore-scripts --engine-strict
       - run: npm --prefix tooling/payment-ui ci --ignore-scripts
       - name: Install Chromium (macOS)
         if: runner.os == 'macOS'
@@ -133,6 +134,7 @@ jobs:
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: 24
+          check-latest: true
           package-manager-cache: false
       - run: uv sync --locked --extra dev
       - run: npm --prefix tooling/ci ci --ignore-scripts

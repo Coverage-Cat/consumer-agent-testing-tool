@@ -12,9 +12,11 @@ proves nothing about admission: every report says "surrogate".
 
 ## Setup
 
+Use Node.js 24 LTS, starting at 24.22.1, for the full Node tooling.
+
 ```sh
 uv sync --extra openrouter --extra dev
-npm --prefix tooling ci --ignore-scripts
+npm --prefix tooling ci --ignore-scripts --engine-strict
 npm --prefix tooling/payment-ui ci --ignore-scripts
 PLAYWRIGHT_BROWSERS_PATH="$PWD/.cache/ms-playwright" node tooling/payment-ui/node_modules/playwright/cli.js install chromium
 uv run consumer-agent-testing-tool doctor
