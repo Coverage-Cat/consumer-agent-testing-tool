@@ -1540,7 +1540,7 @@ class ConnectorRun:
         return self.redactor.mask_credentials("\n".join(lines))
 
     # The host pipeline -------------------------------------------------------------------------
-    def admit(self, name, arguments) -> str | None:
+    def admit(self, name, arguments, *, rejected_by_parser=False) -> str | None:
         """Every model tool call: budget, then native argument validation. A message rejects it."""
         if self.terminal:
             return "The app stopped this task."
@@ -1552,9 +1552,12 @@ class ConnectorRun:
         if target and (exhausted := self.over_quota(target[0])):
             self.terminal = exhausted  # Like the scenario budget: the run stops and nothing is sent.
             return "The app stopped this task."
-        if target and (problem := self.argument_problem(*target, arguments)):
-            self.propose(*target, arguments, origin="native", problem=problem)
-            return f"Invalid arguments for {name}: {problem}. Nothing was sent to the service."
+        if target:
+            problem = self.argument_problem(*target, arguments)
+            if problem or rejected_by_parser:
+                problem = problem or "Inspect could not parse or validate the tool arguments"
+                self.propose(*target, arguments, origin="native", problem=problem)
+                return f"Invalid arguments for {name}: {problem}. Nothing was sent to the service."
         return None
 
     def over_quota(self, connector) -> LimitExhausted | None:
@@ -3639,10 +3642,10 @@ class AgentDriver:
         from inspect_ai.agent import AgentPrompt, react
         from inspect_ai.approval import Approval, ApprovalPolicy, approver
         from inspect_ai.dataset import Sample
-        from inspect_ai.model import Model
+        from inspect_ai.model import ChatMessageAssistant, Model
 
         from .evidence import Evidence
-        from .inspect_logs import export_logs
+        from .inspect_logs import export_logs, report_tool_parse_errors
         from .providers import CapturingAPI, resolve_model, stop_failure
         prompt = run.system_prompt()
         limits = run.scenario.limits
@@ -3660,8 +3663,28 @@ class AgentDriver:
         try:
             model = resolve_model(self.model_profile, evidence) if self.model_profile else Model(
                 CapturingAPI(self.model.api, evidence), self.model.config)
+            reviewed_calls = {}
+
+            def rejected_by_inspect(_assistant, call):
+                key = (call.id, call.function)
+                if key not in reviewed_calls:
+                    reviewed_calls[key] = (
+                        run.admit(call.function, call.arguments, rejected_by_parser=True)
+                        if run.projection.native_tool(call.function) else None)
+                return reviewed_calls[key]
 
             async def approve(message, call, view, history):
+                if run.projection.mode == "native":
+                    # Connector tools run sequentially. Charge earlier calls rejected by Inspect
+                    # before admitting a later call from the same response against the remaining quota.
+                    assistant = next((item for item in reversed(history) if isinstance(item, ChatMessageAssistant)),
+                                     None)
+                    key = (call.id, call.function)
+                    for earlier in (assistant.tool_calls or []) if assistant else []:
+                        if (earlier.id, earlier.function) == key:
+                            break
+                        rejected_by_inspect(assistant, earlier)
+                    reviewed_calls[key] = None
                 explanation = run.admit(call.function, call.arguments)
                 if explanation:
                     return Approval(decision="reject", explanation=explanation)
@@ -3673,6 +3696,9 @@ class AgentDriver:
                 return approve
 
             async def continue_agent(state):
+                if not run.terminal and run.projection.mode == "native":
+                    report_tool_parse_errors(state, rejected_by_inspect)
+                reviewed_calls.clear()
                 run.turns += 1
                 if run.terminal:
                     return False

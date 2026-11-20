@@ -24,7 +24,7 @@ from .errors import LabError, LimitExhausted, Unsupported
 from .fixture import FixtureError, fingerprint, oracle_metrics
 from .fixture_auth import metrics as authentication_metrics
 from .fixture_mcp import public_operations
-from .inspect_logs import export_logs, quiet_display
+from .inspect_logs import export_logs, quiet_display, report_tool_parse_errors
 from .invariants import unobserved_traffic
 from .providers import CapturingAPI, resolve_model, stop_failure
 from .reservation_fixture import TRANSACTIONS, ReservationFixture
@@ -418,6 +418,19 @@ async def inspect_trial(scenario, evidence, runtime, fixture, api, model, clarif
         session.reject(reason, detail or explanation)
         return Approval(decision="reject", explanation=explanation)
 
+    def reject_batch(count):
+        return rejected("multiple_calls", f"Rejected before dispatch: propose exactly one tool call per "
+                        f"turn ({count} were proposed). Nothing was executed. Propose the next call alone.")
+
+    def rejected_by_inspect(assistant, call):
+        count = len(assistant.tool_calls)
+        if count != 1:
+            return reject_batch(count).explanation
+        if call.function in catalog:
+            return rejected("invalid_arguments", f"Rejected before dispatch: {call.function} arguments are invalid. "
+                            "Nothing was executed. Correct the arguments and propose the call again.").explanation
+        return None  # The session already journals Inspect's unknown-tool reply.
+
     def proposal_arguments(name, raw):
         """Validate the model's arguments before admission; FixtureError/LabError are its errors."""
         if adapter:
@@ -434,8 +447,7 @@ async def inspect_trial(scenario, evidence, runtime, fixture, api, model, clarif
         try:
             count = len(assistant.tool_calls or []) if assistant else 0
             if count != 1:
-                return rejected("multiple_calls", f"Rejected before dispatch: propose exactly one tool call per "
-                                f"turn ({count} were proposed). Nothing was executed; propose the next call alone.")
+                return reject_batch(count)
             if call.function not in catalog:  # Inspect normally reports unknown tools itself.
                 return rejected("unknown_tool", f"Rejected before dispatch: {call.function} is not an "
                                 "available tool. Nothing was executed.")
@@ -526,6 +538,7 @@ async def inspect_trial(scenario, evidence, runtime, fixture, api, model, clarif
         nonlocal turns, terminal_error
         turns = session.state["turns"]
         if not terminal_error:
+            report_tool_parse_errors(state, rejected_by_inspect)
             session.observe_history(state.messages)
         # A final answer is itself a turn, so a used-up turn budget stops here.
         # The tool budget is spent only by admitting a call: using exactly

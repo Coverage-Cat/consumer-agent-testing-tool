@@ -17,7 +17,7 @@ from jsonschema import Draft202012Validator
 from .browser_network import EGRESS
 from .errors import LabError, LimitExhausted
 from .evidence import Evidence, Redactor, admissible_secret
-from .inspect_logs import export_logs, quiet_display
+from .inspect_logs import export_logs, quiet_display, report_tool_parse_errors
 from .scenario import ASK_USER
 from .serialization import digest, recordable
 from .surface import Paused
@@ -356,18 +356,34 @@ async def run_browser_agent(model, broker, goal, snapshot, *, evidence=None, ask
                                          "scope": "facade dispatch only; network consent is separate"})
         return Approval(decision="reject", explanation=explanation)
 
+    def reject_batch(call, assistant, count):
+        return rejected(call, assistant, "multiple_calls", "Rejected before dispatch: propose exactly "
+                        f"one browser action per turn ({count} were proposed). Nothing was executed.")
+
+    def record_proposal(call):
+        # Keep NaN and infinity as evidence strings. Neither value is eligible for execution.
+        evidence.event("action_proposed", {"name": call.function, "arguments": recordable(call.arguments)},
+                       audience="model", provenance="native Inspect browser tool proposal")
+
+    def rejected_by_inspect(assistant, call):
+        count = len(assistant.tool_calls)
+        if count != 1:
+            return reject_batch(call, assistant, count).explanation
+        record_proposal(call)
+        if call.function not in validators:
+            return rejected(call, assistant, "unknown_tool", f"Rejected before dispatch: {call.function} "
+                            "is not an available tool. Nothing was executed.").explanation
+        return rejected(call, assistant, "invalid_arguments", "Rejected before dispatch: the proposal could not "
+                        "be parsed or violates the facade schema. Nothing was executed. Correct the arguments.").explanation
+
     async def approve_proposal(message, call, view, history):
         nonlocal terminal_error, terminal_exception, unrecovered
         assistant = next((item for item in reversed(history) if isinstance(item, ChatMessageAssistant)), None)
         calls = assistant.tool_calls if assistant else []
         if not terminal_error and latest.get("status") != "human-takeover":
             if len(calls or []) != 1:
-                return rejected(call, assistant, "multiple_calls", "Rejected before dispatch: propose exactly "
-                                f"one browser action per turn ({len(calls or [])} were proposed). Nothing was executed.")
-            # Non-finite numbers are recorded as strings; the schema below still rejects them.
-            evidence.event("action_proposed", {"name": call.function,
-                                               "arguments": recordable(call.arguments)},
-                           audience="model", provenance="native Inspect browser tool proposal")
+                return reject_batch(call, assistant, len(calls or []))
+            record_proposal(call)
             if call.function not in validators:
                 return rejected(call, assistant, "unknown_tool", f"Rejected before dispatch: {call.function} "
                                 "is not an available tool. Nothing was executed.")
@@ -450,6 +466,8 @@ async def run_browser_agent(model, broker, goal, snapshot, *, evidence=None, ask
     async def continue_agent(state):
         nonlocal model_turns, terminal_error, terminal_exception
         model_turns = session.state["turns"] if session else model_turns + 1
+        if not terminal_error and latest.get("status") != "human-takeover":
+            report_tool_parse_errors(state, rejected_by_inspect)
         compact(state.messages)
         if session and not terminal_error:
             session.observe_history(state.messages)

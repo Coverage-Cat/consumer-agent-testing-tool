@@ -148,7 +148,7 @@ async def test_invalid_arguments_are_model_errors_that_never_reach_the_service(t
     run, code, hotel = await run_connector(tmp_path, driver=driver)
     assert code == 0, run.summary()
     errors = [message for message in tool_messages(api) if message.get("error")]
-    assert [error["error"]["type"] for error in errors] == ["approval", "approval"]
+    assert [error["error"]["type"] for error in errors] == ["parsing", "parsing"]
     assert errors[0]["error"]["message"].startswith("Invalid arguments for get_quote: type at /adults")
     assert "guest_email is not a parameter of this tool" in errors[1]["error"]["message"]
     assert [name for name, _ in hotel.calls] == ["search_rooms", "get_quote", "create_booking"]
@@ -156,6 +156,25 @@ async def test_invalid_arguments_are_model_errors_that_never_reach_the_service(t
     assert metrics["argument_observations"]["invalid"] == 2 and metrics["argument_validity"]["numerator"] == 3
     validations = events(run, "argument_validation")
     assert [row["valid"] for row in validations] == [True, False, False, True, True]
+
+
+@pytest.mark.parametrize("scope", ["scenario", "connector"])
+async def test_parser_rejection_is_counted_before_the_next_call_in_the_response(tmp_path, scope):
+    response = calls(
+        ("create_booking", {"quote_id": 17, "guest_name": "Taylor"}),
+        ("search_rooms", {"check_in": "2026-12-04", "check_out": "2026-12-06", "adults": 2}),
+    )
+    document = scenario(checks=[], answer=None, expected={"forbidden_tools": ["create_booking"]})
+    if scope == "scenario":
+        document["limits"]["tool_calls"] = 1
+    else:
+        document["connectors"][0]["limits"] = {"tool_calls": 1}
+    driver, _ = agent([response])
+    run, code, hotel = await run_connector(tmp_path, document, driver=driver)
+    assert code == 1 and not hotel.calls, run.summary()
+    checks = {row["id"]: row for row in result_of(run)["checks"]}
+    assert ("tool-call budget" if scope == "scenario" else "tool-call quota") in checks["execution"]["detail"]
+    assert checks["selection.forbidden_tools"]["actual"]["attempts"] == {"create_booking": 1}
 
 
 async def test_unexposed_tools_are_unknown_to_the_model(tmp_path):
