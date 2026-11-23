@@ -9,8 +9,8 @@
   "dependencies": {
     "@stoplight/http-spec": "7.1.0",
     "@stoplight/prism-http": "5.16.0",
-    "@stoplight/spectral-core": "1.24.0",
-    "@stoplight/spectral-rulesets": "1.23.0",
+    "@stoplight/spectral-core": "1.24.1",
+    "@stoplight/spectral-rulesets": "1.23.1",
     "minimatch": "file:stubs/minimatch",
     "postman-collection": "file:stubs/postman-collection"
   },
