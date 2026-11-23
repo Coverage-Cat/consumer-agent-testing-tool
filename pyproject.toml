@@ -18,9 +18,9 @@ classifiers = [
 ]
 requires-python = ">=3.12"
 dependencies = [
-  "inspect-ai==0.3.290",
+  "inspect-ai==0.3.291",
   "mcp==2.3.0",
-  "pydantic==2.14.3",
+  "pydantic==2.14.4",
   "PyYAML==6.0.3",
   "jsonschema==4.26.0",
   "httpx==0.28.1",
@@ -30,12 +30,12 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-openrouter = ["openai==3.52.0"]
-dev = ["pytest==9.2.0", "pytest-asyncio==1.5.0", "ruff==0.17.5"]
+openrouter = ["openai==3.57.0"]
+dev = ["pytest==9.2.0", "pytest-asyncio==1.5.0", "ruff==0.17.6"]
 
 [dependency-groups]
 development-extensions = [
-  "gguf==0.19.0", "schemathesis==4.33.4", "fastmcp==4.2.0",
+  "gguf==0.19.0", "schemathesis==4.33.4", "fastmcp==4.2.3",
   # aiobotocore constrains botocore; boto3 resolves within that constraint.
   # uv.lock pins all three; independent exact pins made Dependabot updates unsatisfiable.
   "boto3>=1.43,<2", "aiobotocore==3.10.0",
